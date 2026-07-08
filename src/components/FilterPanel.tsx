@@ -85,9 +85,11 @@ const filterConfig: FilterConfig[] = [
 export function FilterPanel({
   filters,
   onFiltersChange,
+  layout = "wide",
 }: {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  layout?: "wide" | "compact";
 }) {
   const updateFilter = (key: keyof FilterState, value: string) => {
     onFiltersChange({ ...filters, [key]: value } as FilterState);
@@ -133,7 +135,13 @@ export function FilterPanel({
       </CardHeader>
       <CardContent className="space-y-5">
         <Separator />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div
+          className={
+            layout === "compact"
+              ? "grid gap-4"
+              : "grid gap-4 md:grid-cols-2 xl:grid-cols-5"
+          }
+        >
           {filterConfig.map((filter) => (
             <label key={filter.key} className="space-y-2">
               <span className="text-sm font-medium text-slate-700">

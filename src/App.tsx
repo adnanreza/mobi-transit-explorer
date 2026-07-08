@@ -1,14 +1,10 @@
-import { useState } from "react";
 import { ArrowRight, Bike, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { Explorer } from "@/components/Explorer";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
-import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
-import { MobilityMap } from "@/components/MobilityMap";
 import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeader } from "@/components/SectionHeader";
-import { StationDetailPanel } from "@/components/StationDetailPanel";
-import { stations } from "@/data/stations";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,11 +42,6 @@ const sections = [
 ];
 
 function App() {
-  const [filters, setFilters] = useState(defaultFilters);
-  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
-  const selectedStation =
-    stations.find((station) => station.id === selectedStationId) ?? null;
-
   return (
     <AppShell navItems={navItems}>
       <PageSection
@@ -121,28 +112,13 @@ function App() {
         <OverviewCards />
       </PageSection>
 
-      <PageSection className="space-y-6">
-        <SectionHeader
-          title="Filter controls"
-          description="Adjust the sample view by month, day type, time of day, bike type, and walking distance to transit."
-          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
-        />
-        <FilterPanel filters={filters} onFiltersChange={setFilters} />
-      </PageSection>
-
       <PageSection id="map" className="space-y-6">
         <SectionHeader
           title="Map"
-          description="A custom map-style view places Mobi stations near transit nodes using sample positions, trip volume, and connector score."
+          description="Filter sample trips, inspect station geography, and select a station to review its transit connector profile."
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
-          <MobilityMap
-            selectedStationId={selectedStationId}
-            onStationSelect={(station) => setSelectedStationId(station.id)}
-          />
-          <StationDetailPanel station={selectedStation} />
-        </div>
+        <Explorer />
       </PageSection>
 
       <PageSection className="space-y-6">
