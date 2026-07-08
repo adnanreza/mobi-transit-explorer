@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mobi Transit Explorer">
+  <rect width="64" height="64" rx="14" fill="#008fd3" />
+  <circle cx="21" cy="42" r="9" fill="none" stroke="#ffffff" stroke-width="5" />
+  <circle cx="45" cy="42" r="9" fill="none" stroke="#ffffff" stroke-width="5" />
+  <path d="M22 42 31 25h8l-8 17m0-17 14 17M31 25h-8" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M37 18h8" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+</svg>

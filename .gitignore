@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Vite and TypeScript caches
+.vite/
+*.tsbuildinfo
+
+# Test and browser review artifacts
+test-results/
+playwright-report/
+blob-report/
+screenshots/
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/
