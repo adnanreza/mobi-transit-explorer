@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Bike } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,21 @@ type AppShellProps = {
 };
 
 export function AppShell({ children, navItems, className }: AppShellProps) {
+  const [activeHref, setActiveHref] = useState(navItems[0]?.href ?? "");
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash) {
+        setActiveHref(window.location.hash);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   return (
     <main
       className={cn(
@@ -46,8 +61,19 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
 
           <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
             {navItems.map((item) => (
-              <Button key={item.href} asChild variant="ghost" size="sm">
-                <a href={item.href}>{item.label}</a>
+              <Button
+                key={item.href}
+                asChild
+                variant={activeHref === item.href ? "outline" : "ghost"}
+                size="sm"
+              >
+                <a
+                  href={item.href}
+                  aria-current={activeHref === item.href ? "page" : undefined}
+                  onClick={() => setActiveHref(item.href)}
+                >
+                  {item.label}
+                </a>
               </Button>
             ))}
           </nav>

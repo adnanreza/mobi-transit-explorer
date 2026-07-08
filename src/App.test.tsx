@@ -28,4 +28,21 @@ describe("App", () => {
       expect(screen.getByRole("link", { name: item })).toBeInTheDocument();
     }
   });
+
+  it("targets the correct sections from nav links", () => {
+    render(<App />);
+
+    for (const [label, href] of [
+      ["Overview", "#overview"],
+      ["Map", "#map"],
+      ["Opportunities", "#opportunities"],
+      ["Methodology", "#methodology"],
+    ]) {
+      expect(screen.getByRole("link", { name: label })).toHaveAttribute(
+        "href",
+        href,
+      );
+      expect(document.querySelector(href)).toBeInTheDocument();
+    }
+  });
 });

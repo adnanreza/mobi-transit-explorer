@@ -15,4 +15,17 @@ describe("AppShell", () => {
       "#overview",
     );
   });
+
+  it("marks clicked nav items active", async () => {
+    render(
+      <AppShell navItems={[{ label: "Map", href: "#map" }]}>
+        <section id="map">Map section</section>
+      </AppShell>,
+    );
+
+    const link = screen.getByRole("link", { name: "Map" });
+    link.click();
+
+    expect(link).toHaveAttribute("aria-current", "page");
+  });
 });
