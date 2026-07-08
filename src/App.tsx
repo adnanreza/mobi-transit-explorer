@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ArrowRight, Bike, MapPinned, Sparkles } from "lucide-react";
+import { ArrowRight, Bike, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
 import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
+import { MobilityMap } from "@/components/MobilityMap";
 import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -25,14 +26,6 @@ const navItems = [
 
 const sections = [
   {
-    id: "map",
-    title: "Map",
-    description:
-      "A future interactive layer will place Mobi stations alongside transit context and neighborhood access.",
-    icon: MapPinned,
-    status: "planned" as const,
-  },
-  {
     id: "opportunities",
     title: "Opportunities",
     description:
@@ -52,6 +45,7 @@ const sections = [
 
 function App() {
   const [filters, setFilters] = useState(defaultFilters);
+  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
 
   return (
     <AppShell navItems={navItems}>
@@ -130,6 +124,18 @@ function App() {
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
         <FilterPanel filters={filters} onFiltersChange={setFilters} />
+      </PageSection>
+
+      <PageSection id="map" className="space-y-6">
+        <SectionHeader
+          title="Map"
+          description="A custom map-style view places Mobi stations near transit nodes using sample positions, trip volume, and connector score."
+          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+        />
+        <MobilityMap
+          selectedStationId={selectedStationId}
+          onStationSelect={(station) => setSelectedStationId(station.id)}
+        />
       </PageSection>
 
       <PageSection className="space-y-6">
