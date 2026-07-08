@@ -1,6 +1,7 @@
-import { ArrowRight, Bike, MapPinned, Route, Sparkles } from "lucide-react";
+import { ArrowRight, Bike, MapPinned, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
+import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,6 @@ const navItems = [
 ];
 
 const sections = [
-  {
-    id: "overview",
-    title: "Overview",
-    description:
-      "A concise view of how bike share can support first-mile and last-mile transit trips across Vancouver.",
-    icon: Route,
-    status: "live" as const,
-  },
   {
     id: "map",
     title: "Map",
@@ -117,10 +110,19 @@ function App() {
         </Card>
       </PageSection>
 
+      <PageSection id="overview" className="space-y-6">
+        <SectionHeader
+          title="Overview"
+          description="A fast read on the sample Mobi network, transit adjacency, and opportunity signals that will guide the explorer."
+          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+        />
+        <OverviewCards />
+      </PageSection>
+
       <PageSection className="space-y-6">
         <SectionHeader
           title="Explorer foundation"
-          description="A consistent layout system gives each future feature a clear place in the product."
+          description="Map, opportunity, and methodology sections are staged for the next product features."
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
