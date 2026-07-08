@@ -1,8 +1,9 @@
-import { ArrowRight, Bike, Sparkles } from "lucide-react";
+import { ArrowRight, Bike } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Explorer } from "@/components/Explorer";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
 import { OverviewCards } from "@/components/OverviewCards";
+import { OpportunityTable } from "@/components/OpportunityTable";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
@@ -23,14 +24,6 @@ const navItems = [
 ];
 
 const sections = [
-  {
-    id: "opportunities",
-    title: "Opportunities",
-    description:
-      "Upcoming scoring will highlight station gaps, multimodal connections, and areas worth a closer look.",
-    icon: Sparkles,
-    status: "planned" as const,
-  },
   {
     id: "methodology",
     title: "Methodology",
@@ -119,6 +112,15 @@ function App() {
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
         <Explorer />
+      </PageSection>
+
+      <PageSection id="opportunities" className="space-y-6">
+        <SectionHeader
+          title="Opportunities"
+          description="A ranked view of where bike share and transit connections can be improved next."
+          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+        />
+        <OpportunityTable />
       </PageSection>
 
       <PageSection className="space-y-6">
