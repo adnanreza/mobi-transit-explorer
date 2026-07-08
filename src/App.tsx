@@ -1,7 +1,8 @@
-import { ArrowRight, Bike } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Explorer } from "@/components/Explorer";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
+import { Methodology } from "@/components/Methodology";
 import { OverviewCards } from "@/components/OverviewCards";
 import { OpportunityTable } from "@/components/OpportunityTable";
 import { PageSection } from "@/components/PageSection";
@@ -21,17 +22,6 @@ const navItems = [
   { label: "Map", href: "#map" },
   { label: "Opportunities", href: "#opportunities" },
   { label: "Methodology", href: "#methodology" },
-];
-
-const sections = [
-  {
-    id: "methodology",
-    title: "Methodology",
-    description:
-      "The MVP starts with sample data while the product structure prepares for future Mobi CSV integration.",
-    icon: Bike,
-    status: "future" as const,
-  },
 ];
 
 function App() {
@@ -123,34 +113,13 @@ function App() {
         <OpportunityTable />
       </PageSection>
 
-      <PageSection className="space-y-6">
+      <PageSection id="methodology" className="space-y-6">
         <SectionHeader
-          title="Explorer foundation"
-          description="Map, opportunity, and methodology sections are staged for the next product features."
+          title="Methodology"
+          description="How the mock MVP works today, what the connector score represents, and how public Mobi CSVs can replace sample data later."
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {sections.map((section) => {
-            const Icon = section.icon;
-
-            return (
-              <Card
-                key={section.id}
-                id={section.id}
-                className="bg-white/90 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <CardHeader>
-                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <FeatureStatusBadge status={section.status} />
-                  <CardTitle>{section.title}</CardTitle>
-                  <CardDescription>{section.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            );
-          })}
-        </div>
+        <Methodology />
       </PageSection>
     </AppShell>
   );
