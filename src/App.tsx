@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { ArrowRight, Bike, MapPinned, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
+import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
 import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -49,6 +51,8 @@ const sections = [
 ];
 
 function App() {
+  const [filters, setFilters] = useState(defaultFilters);
+
   return (
     <AppShell navItems={navItems}>
       <PageSection
@@ -117,6 +121,15 @@ function App() {
           className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
         />
         <OverviewCards />
+      </PageSection>
+
+      <PageSection className="space-y-6">
+        <SectionHeader
+          title="Filter controls"
+          description="Adjust the sample view by month, day type, time of day, bike type, and walking distance to transit."
+          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+        />
+        <FilterPanel filters={filters} onFiltersChange={setFilters} />
       </PageSection>
 
       <PageSection className="space-y-6">
