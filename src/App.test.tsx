@@ -45,4 +45,24 @@ describe("App", () => {
       expect(document.querySelector(href)).toBeInTheDocument();
     }
   });
+
+  it("renders key accessible controls and buttons", () => {
+    render(<App />);
+
+    expect(screen.getByRole("link", { name: "Skip to content" })).toHaveAttribute(
+      "href",
+      "#main-content",
+    );
+    expect(screen.getByRole("button", { name: "Reset filters" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Month" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Transit distance" })).toBeInTheDocument();
+  });
+
+  it("renders important section headings", () => {
+    render(<App />);
+
+    for (const heading of ["Overview", "Map", "Opportunities", "Methodology"]) {
+      expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
+    }
+  });
 });

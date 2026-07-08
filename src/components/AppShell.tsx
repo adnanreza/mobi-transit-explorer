@@ -38,6 +38,12 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
         className,
       )}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-sm"
+      >
+        Skip to content
+      </a>
       <header className="sticky top-0 z-10 border-b border-white/75 bg-white/86 backdrop-blur-xl">
         <div className="container flex flex-col gap-5 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
@@ -80,7 +86,9 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
         </div>
       </header>
 
-      <div className="container py-12 sm:py-16 lg:py-20">{children}</div>
+      <div id="main-content" className="container py-12 sm:py-16 lg:py-20">
+        {children}
+      </div>
     </main>
   );
 }
