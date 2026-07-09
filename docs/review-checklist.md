@@ -6,7 +6,7 @@ Use this checklist before completing any feature branch.
 
 - The feature supports the product purpose in `docs/product-spec.md`.
 - The experience feels like a polished portfolio product.
-- MVP limitations and sample-data assumptions are clear.
+- MVP limitations and real-data assumptions are clear.
 - Non-goals remain out of scope.
 - The feature strengthens the Mobi/transit connection rather than adding generic dashboard chrome.
 - Copy remains concise, credible, and recruiter-readable.

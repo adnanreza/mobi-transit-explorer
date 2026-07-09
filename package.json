@@ -9,18 +9,20 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "data:process": "node scripts/process-mobi-data.mjs"
   },
   "dependencies": {
     "@radix-ui/react-progress": "^1.1.12",
     "@radix-ui/react-select": "^2.3.3",
     "@radix-ui/react-slot": "^1.2.3",
+    "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.0.0",
-    "react-tiny-sparkline": "^1.1.1",
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {

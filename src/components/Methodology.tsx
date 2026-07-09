@@ -14,9 +14,9 @@ const methodologyGroups = [
     title: "Data sources",
     icon: Database,
     items: [
-      "This MVP uses realistic sample data to shape the product experience first.",
-      "A future version will use public Mobi monthly trip CSVs as the primary bike-share source.",
-      "Near transit means a station or trip context falls within the selected walking distance.",
+      "The app uses April and May 2026 public Mobi by Rogers system-data CSVs.",
+      "Raw CSV files are processed locally into static TypeScript datasets before deployment.",
+      "Near-transit context is estimated from station names because the trip CSVs do not include station coordinates.",
     ],
   },
   {
@@ -35,18 +35,18 @@ const methodologyGroups = [
     icon: ShieldAlert,
     items: [
       "Public trip data is anonymized and cannot identify individual riders.",
-      "Times may be rounded or bucketed depending on the source export.",
-      "The MVP does not know exact route paths between stations.",
-      "Rebalancing or maintenance trips should be excluded where the source allows it.",
+      "Departure and return times are rounded to the nearest hour by the publisher.",
+      "The source does not include exact route paths between stations.",
+      "The publisher removes operations trips for rebalancing and maintenance.",
     ],
   },
   {
     title: "Future version",
     icon: FileText,
     items: [
-      "Document CSV schemas, cleaning rules, and station matching assumptions.",
-      "Generate browser-ready JSON for station metrics, station pairs, and opportunity scores.",
-      "Keep the no-backend model unless a later feature explicitly changes the architecture.",
+      "Add station coordinates from an official station feed or maintained station reference.",
+      "Upgrade the map to use geographic coordinates instead of generated map positions.",
+      "Expand processing to a rolling 12-month history while keeping raw CSVs out of git.",
     ],
   },
 ];
@@ -66,8 +66,8 @@ export function Methodology() {
               <CardTitle>{group.title}</CardTitle>
               <CardDescription>
                 {group.title === "Connector score"
-                  ? "A weighted sample score for station usefulness near transit."
-                  : "Methodology notes for the portfolio MVP."}
+                  ? "A weighted score for station usefulness near transit."
+                  : "Methodology notes for the real-data portfolio MVP."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

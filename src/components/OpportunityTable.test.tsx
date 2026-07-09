@@ -15,16 +15,16 @@ describe("OpportunityTable", () => {
 
     for (const opportunity of opportunities) {
       expect(screen.getByText(`#${opportunity.rank}`)).toBeInTheDocument();
-      expect(screen.getByText(opportunity.reason)).toBeInTheDocument();
+      expect(screen.getAllByText(opportunity.reason).length).toBeGreaterThan(0);
     }
   });
 
   it("renders priority badges", () => {
     render(<OpportunityTable />);
 
-    expect(screen.getAllByText("High").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Medium").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Low").length).toBeGreaterThan(0);
+    for (const opportunity of opportunities) {
+      expect(screen.getAllByText(opportunity.priority).length).toBeGreaterThan(0);
+    }
   });
 
   it("renders an empty state", () => {

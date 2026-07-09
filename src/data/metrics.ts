@@ -1,4 +1,5 @@
 import type { OverviewMetric } from "@/types";
+import { realMobiDataSummary } from "@/data/realMobi";
 import { stations } from "@/data/stations";
 
 const totalTrips = stations.reduce((sum, station) => sum + station.monthlyTrips, 0);
@@ -8,7 +9,7 @@ const weightedTransitTrips = stations.reduce(
   0,
 );
 const strongConnectorCount = stations.filter(
-  (station) => station.connectorScore >= 85,
+  (station) => station.connectorScore >= 70,
 ).length;
 const expansionOpportunityCount = stations.filter(
   (station) =>
@@ -16,34 +17,36 @@ const expansionOpportunityCount = stations.filter(
     station.label === "E-bike opportunity" ||
     station.label === "Underused near transit",
 ).length;
+const latestMonth = realMobiDataSummary.months[realMobiDataSummary.months.length - 1];
+const analyzedTrips = latestMonth?.trips ?? totalTrips;
 
 export const overviewMetrics: OverviewMetric[] = [
   {
     id: "trips-analyzed",
     label: "Trips analyzed",
-    value: totalTrips.toLocaleString("en-CA"),
-    caption: "Sample monthly trips across the MVP station set.",
-    context: "Mock MVP",
+    value: analyzedTrips.toLocaleString("en-CA"),
+    caption: "Real trips processed from the latest Mobi public CSV.",
+    context: latestMonth?.label ?? "Real CSV",
   },
   {
     id: "trips-near-transit",
     label: "Trips near transit",
     value: `${Math.round((weightedTransitTrips / totalTrips) * 100)}%`,
-    caption: "Weighted share of sample trips connected to nearby transit.",
-    context: "300m sample",
+    caption: "Weighted share of generated station trips estimated near transit.",
+    context: "Name-estimated",
   },
   {
     id: "strong-connectors",
     label: "Strong connector stations",
     value: String(strongConnectorCount),
-    caption: "Stations with connector scores of 85 or higher.",
-    context: "High score",
+    caption: "Real Mobi stations with connector scores of 70 or higher.",
+    context: "Generated",
   },
   {
     id: "expansion-opportunities",
     label: "Expansion opportunities",
     value: String(expansionOpportunityCount),
-    caption: "Stations flagged for capacity, e-bike, or activation work.",
-    context: "Ranked next",
+    caption: "Stations flagged from real volume, e-bike share, and commute mix.",
+    context: "Real CSV",
   },
 ];

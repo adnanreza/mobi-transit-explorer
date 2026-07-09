@@ -14,7 +14,7 @@ describe("StationDetailPanel", () => {
   it("renders selected station details", () => {
     render(<StationDetailPanel station={station} />);
 
-    expect(screen.getByText(station.name)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: station.name })).toBeInTheDocument();
     expect(screen.getByText(station.area)).toBeInTheDocument();
     expect(screen.getByText(station.monthlyTrips.toLocaleString("en-CA"))).toBeInTheDocument();
   });
@@ -23,7 +23,7 @@ describe("StationDetailPanel", () => {
     render(<StationDetailPanel station={station} />);
 
     for (const destination of station.topDestinations) {
-      expect(screen.getByText(destination)).toBeInTheDocument();
+      expect(screen.getAllByText(destination).length).toBeGreaterThan(0);
     }
   });
 

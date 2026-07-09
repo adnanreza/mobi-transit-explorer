@@ -2,6 +2,8 @@
 
 Branch: `feature/visual-identity-and-polish`
 
+Note: Feature 017 supersedes the sparkline implementation from this spec. The current app uses Chart.js canvas charts and no longer depends on `react-tiny-sparkline`.
+
 ## Goal
 
 Upgrade the app's visual identity, layout rhythm, data density, motion, and map polish to create a distinctive, portfolio-quality product feel.

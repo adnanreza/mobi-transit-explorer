@@ -6,14 +6,14 @@ Future live URL: `https://mobi-transit-explorer.adnanreza.com`
 
 ## Product Framing
 
-The project is built to demonstrate front-end product thinking, data-product UI craft, and an interest in urban mobility. The MVP uses mock data intentionally: it lets the interface, state flow, visual hierarchy, and methodology become clear before real public Mobi CSV processing is introduced.
+The project is built to demonstrate front-end product thinking, data-product UI craft, and an interest in urban mobility. The current MVP processes public Mobi by Rogers system-data CSVs into static front-end datasets so the app remains browser-only while using real trip records.
 
 In under 30 seconds, the app should communicate:
 
 - Where bike share connects strongly with transit.
 - Which stations look like useful transit connectors.
 - Which areas may need more capacity, e-bikes, promotion, or monitoring.
-- How the current mock-data MVP can become a real-data product.
+- How the current front-end product can mature into a fuller mobility case study.
 
 ## Stack
 
@@ -26,33 +26,41 @@ In under 30 seconds, the app should communicate:
 - Vitest
 - Testing Library
 - Playwright MCP for browser review when available
+- Chart.js and react-chartjs-2 for canvas-backed charts
 
 ## Current MVP Features
 
 - Polished app shell and portfolio framing.
 - Design-system layout foundation with reusable sections and status badges.
-- Typed mock data for Mobi stations, transit nodes, metrics, and opportunities.
+- Generated real-data station metrics, overview charts, and opportunities from public Mobi CSVs.
 - Overview metric cards.
 - Interactive filter panel.
 - Custom map-style mobility explorer without Leaflet or MapLibre.
 - Station detail panel.
 - Main explorer composition with filter, map, and station profile state.
 - Opportunity ranking table.
-- Methodology section.
+- Methodology section with source-data limitations.
 - Section navigation and accessibility polish.
+- Reproducible local data-processing script.
 
 ## Screens and Sections
 
-- `Overview`: high-level sample metrics for trips, transit adjacency, connectors, and opportunities.
-- `Map`: filter controls, custom station/transit map, and selected station details.
+- `Overview`: high-level real Mobi metrics and canvas-backed charts.
+- `Map`: filter controls, generated station/transit map, and selected station details.
 - `Opportunities`: ranked operational opportunities with priority badges.
-- `Methodology`: mock-data disclosure, connector score explanation, limitations, and future data path.
+- `Methodology`: source-data disclosure, connector score explanation, limitations, and future data path.
 
 ## Data Methodology
 
-The MVP uses realistic mock data. It does not claim to represent live Mobi performance.
+The MVP uses April and May 2026 public Mobi by Rogers CSVs from `https://www.mobibikes.ca/en/system-data`.
 
-Future real-data work can replace mock data with public Mobi monthly trip CSVs. That phase should document source files, schema, cleaning rules, station matching, transit proximity, connector-score calculation, and known limitations.
+Raw CSVs are not committed. Place source files in `data-raw/` or pass explicit paths to the processor:
+
+```bash
+npm run data:process -- --april /path/to/public-trips-3.0-2026-04.csv --may /path/to/public-trips-3.0-2026-05.csv
+```
+
+The generated app data lives in `src/data/stations.ts`, `src/data/opportunities.ts`, and `src/data/realMobi.ts`.
 
 ## Feature Lifecycle
 
@@ -79,6 +87,7 @@ npm run dev
 npm run test
 npm run typecheck
 npm run build
+npm run data:process
 ```
 
 ## Deployment
@@ -104,8 +113,8 @@ npm run preview
 
 ## Future Improvements
 
-- Replace mock station and opportunity data with processed public Mobi CSV outputs.
-- Add a documented data-processing script.
-- Expand the custom map or graduate to a real map engine after the MVP is proven.
+- Add official station coordinates from a station feed or maintained reference.
+- Expand processing to a rolling 12-month source window.
+- Graduate the generated coordinate map to a real map engine after the data model is proven.
 - Add production preview checks before each deployment.
 - Publish the portfolio case study at the future subdomain.

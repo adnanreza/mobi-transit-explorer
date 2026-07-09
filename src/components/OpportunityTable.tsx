@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { Sparkline } from "react-tiny-sparkline";
+import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
 import { opportunities as defaultOpportunities } from "@/data/opportunities";
 import { stations } from "@/data/stations";
 import type { Opportunity, PriorityLevel } from "@/types";
@@ -35,7 +35,7 @@ export function OpportunityTable({
         <CardHeader>
           <CardTitle>No opportunities ranked yet</CardTitle>
           <CardDescription>
-            Opportunity scores will appear here when sample station data is available.
+            Opportunity scores will appear here when processed Mobi station data is available.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -100,14 +100,12 @@ export function OpportunityTable({
                       {station ? (
                         <div
                           className="mt-0.5 hidden shrink-0 sm:block"
-                          aria-label="Connector score component sparkline"
                         >
-                          <Sparkline
+                          <MiniTrendChart
+                            ariaLabel="Connector score component chart"
                             data={Object.values(station.connectorScoreComponents)}
-                            variant="bar"
+                            type="bar"
                             color="#008fd3"
-                            width={64}
-                            height={24}
                           />
                         </div>
                       ) : null}
