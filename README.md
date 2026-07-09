@@ -2,7 +2,7 @@
 
 Mobi Transit Explorer is a portfolio front-end data product by Adnan Reza. It explores how Vancouver's Mobi bike share system can extend and complement transit access.
 
-Live site placeholder: `https://mobi-transit-explorer.adnanreza.com`
+Live site: `https://mobi-transit-explorer.adnanreza.com`
 
 ## Stack
 
@@ -41,6 +41,26 @@ npm run dev
 npm run test
 npm run typecheck
 npm run build
+```
+
+## Deployment
+
+The app is deployed to `https://mobi-transit-explorer.adnanreza.com`.
+
+**Platform:** Deploy from the `main` branch via any static host (Netlify, Vercel, Cloudflare Pages).
+
+**Build settings:**
+- Build command: `npm run build`
+- Output directory: `dist`
+- Node version: 18+
+
+**No server-side configuration needed.** The app is fully client-side with no API routes, redirects, or environment variables required.
+
+### Previewing the production build locally
+
+```bash
+npm run build
+npm run preview
 ```
 
 ## Future Data Plan
