@@ -35,6 +35,11 @@ REFERENCE_SOURCES = {
         "dir": "geo",
         "filename": "shoreline-2002.geojson",
     },
+    "cov_local_areas": {
+        "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/local-area-boundary/exports/geojson",
+        "dir": "geo",
+        "filename": "local-area-boundary.geojson",
+    },
 }
 
 MONTH_NAMES = {

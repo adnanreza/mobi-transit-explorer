@@ -720,23 +720,30 @@
     "gbfs_station_information": {
       "url": "https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/station_information.json",
       "file": "gbfs/station_information.json",
-      "sha256": "d0b8e6f4f3c1e09c3f318220139af868a8903686e0130fd73b7661fd83b49738",
-      "bytes": 90190,
-      "fetched_at": "2026-07-09T23:05:39+00:00"
+      "sha256": "9d0fac9249b95defa7fa75d54f8079e0e395f372888e44f3d6f4c48f880d3382",
+      "bytes": 90184,
+      "fetched_at": "2026-07-09T23:49:13+00:00"
     },
     "cov_rapid_transit_stations": {
       "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/rapid-transit-stations/exports/geojson",
       "file": "geo/rapid-transit-stations.geojson",
       "sha256": "faf8d1a5dc7a5b899f94c75789cf2bd80dcfe65364ddd1a45eb91d7c65d83e5e",
       "bytes": 5385,
-      "fetched_at": "2026-07-09T23:05:39+00:00"
+      "fetched_at": "2026-07-09T23:49:14+00:00"
     },
     "cov_shoreline": {
       "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/shoreline-2002/exports/geojson",
       "file": "geo/shoreline-2002.geojson",
       "sha256": "9f6888ec0395654bdf6b41a367af0de859e50b28b51b8aa520709ca3f1abc1e5",
       "bytes": 1179841,
-      "fetched_at": "2026-07-09T23:05:40+00:00"
+      "fetched_at": "2026-07-09T23:49:15+00:00"
+    },
+    "cov_local_areas": {
+      "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/local-area-boundary/exports/geojson",
+      "file": "geo/local-area-boundary.geojson",
+      "sha256": "c04f12db7b0b53ddad444753e78884b4757564a1bc6672f24745ec3642789fba",
+      "bytes": 52441,
+      "fetched_at": "2026-07-09T23:49:16+00:00"
     }
   }
 }

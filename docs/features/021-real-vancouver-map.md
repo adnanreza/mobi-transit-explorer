@@ -15,11 +15,14 @@ Replace the mock geography with the real city. The map is the emotional center o
 
 ## Files
 
-- `pipeline/geo_publish.py` (simplify + project + export)
-- `src/data/generated/geo/shoreline.json`, `src/data/generated/geo/transit.json` (committed)
+- `pipeline/geo_publish.py` (simplify + export)
+- `src/data/generated/geo/land.json` (committed; the two open CoV shoreline
+  LineStrings concatenated and closed along Boundary Road into one land
+  polygon — chosen over `local-area-boundary` because that dataset omits
+  Stanley Park. Transit points already ship in `stations.json`.)
 - `src/components/MobilityMap.tsx` (rebuilt)
-- `src/lib/projection.ts` (lat/lon → viewBox)
-- `src/components/__tests__/MobilityMap.test.tsx`
+- `src/lib/projection.ts` (lat/lon → viewBox; single shared projection)
+- `src/lib/projection.test.ts`, `src/components/MobilityMap.test.tsx`
 
 ## Geometry Rules
 

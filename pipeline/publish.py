@@ -26,10 +26,11 @@ BUDGET_GZIP = 120_000
 
 # The CoV rapid-transit dataset has no line attribute; Canada Line stations
 # within the city are enumerated here, everything else is Expo/Millennium.
+# Names match the dataset's own spellings ("Center", "- 41st Avenue").
 CANADA_LINE = {
-    "Waterfront", "Vancouver City Centre", "Yaletown - Roundhouse",
-    "Olympic Village", "Broadway - City Hall", "King Edward", "Oakridge - 41st",
-    "Langara - 49th", "Marine Drive",
+    "Waterfront", "Vancouver City Center", "Yaletown - Roundhouse",
+    "Olympic Village", "Broadway - City Hall", "King Edward",
+    "Oakridge - 41st Avenue", "Langara - 49th Avenue", "Marine Drive",
 }
 
 

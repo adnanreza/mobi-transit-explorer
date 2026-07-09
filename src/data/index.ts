@@ -46,23 +46,9 @@ export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),
 );
 
-// --- shared percent projection (interim, replaced by real cartography in 021)
-
-const points = [
-  ...stationsArtifact.stations.map((s) => ({ lat: s.lat, lon: s.lon })),
-  ...stationsArtifact.transit.map((t) => ({ lat: t.lat, lon: t.lon })),
-];
-const latMin = Math.min(...points.map((p) => p.lat));
-const latMax = Math.max(...points.map((p) => p.lat));
-const lonMin = Math.min(...points.map((p) => p.lon));
-const lonMax = Math.max(...points.map((p) => p.lon));
-const PAD = 7; // percent padding inside the mock map frame
-
-function toPercent(lat: number, lon: number): { x: number; y: number } {
-  const x = PAD + ((lon - lonMin) / (lonMax - lonMin)) * (100 - 2 * PAD);
-  const y = PAD + ((latMax - lat) / (latMax - latMin)) * (100 - 2 * PAD);
-  return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
-}
+// Station x/y use the shared real-geometry projection (viewBox units) so
+// every map layer stays geographically consistent.
+import { project } from "@/lib/projection";
 
 function slug(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -75,7 +61,7 @@ export const transitNodes: TransitNode[] = stationsArtifact.transit.map((t) => (
   name: t.name,
   mode: t.line === "Canada Line" ? "Canada Line" : "SkyTrain",
   area: t.area ?? "",
-  ...toPercent(t.lat, t.lon),
+  ...project(t.lat, t.lon),
   dailyBoardings: 0, // no public per-station boarding feed; not displayed
 }));
 
@@ -111,7 +97,7 @@ function toMobiStation(s: GeneratedStation): MobiStation {
     name: s.name,
     sourceStationName: s.fullName,
     area: `${s.nearestTransit.distanceM.toLocaleString("en-CA")} m to ${s.nearestTransit.name}`,
-    ...toPercent(s.lat, s.lon),
+    ...project(s.lat, s.lon),
     nearbyTransitNode: slug(s.nearestTransit.name),
     connectorScore: s.connector.score,
     monthlyTrips: Math.round(s.trailing12.trips / 12),

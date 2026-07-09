@@ -34,6 +34,10 @@ python3 -m venv .venv
 # 5. Regenerate the committed data-quality report from the warehouse.
 .venv/bin/python pipeline/quality_report.py
 
+# 6. Publish app artifacts: JSON aggregates + simplified land geometry.
+.venv/bin/python pipeline/publish.py
+.venv/bin/python pipeline/geo_publish.py
+
 # Tests (no network)
 .venv/bin/python -m pytest pipeline/tests
 ```
