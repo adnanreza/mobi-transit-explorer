@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
-import { stations } from "@/data/stations";
+import { stations } from "@/data";
 
 const station = stations[0];
 

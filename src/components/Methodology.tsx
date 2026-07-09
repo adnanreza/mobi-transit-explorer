@@ -14,9 +14,9 @@ const methodologyGroups = [
     title: "Data sources",
     icon: Database,
     items: [
-      "The app uses April and May 2026 public Mobi by Rogers system-data CSVs.",
-      "Raw CSV files are processed locally into static TypeScript datasets before deployment.",
-      "Near-transit context is estimated from station names because the trip CSVs do not include station coordinates.",
+      "Every published Mobi by Rogers trip file from 2017 through today, plus the Mobi GBFS station feed and City of Vancouver open data.",
+      "Raw files run through a staged local pipeline (Python + DuckDB) into compact JSON aggregates before deployment.",
+      "Transit proximity is computed from real coordinates: GBFS station positions against City of Vancouver rapid-transit station locations.",
     ],
   },
   {
@@ -44,9 +44,9 @@ const methodologyGroups = [
     title: "Future version",
     icon: FileText,
     items: [
-      "Add station coordinates from an official station feed or maintained station reference.",
-      "Upgrade the map to use geographic coordinates instead of generated map positions.",
-      "Expand processing to a rolling 12-month history while keeping raw CSVs out of git.",
+      "Upgrade the map to real Vancouver geometry: actual shoreline and true station positions.",
+      "Tell the year-over-year story: growth, seasonality, the pandemic, e-bike adoption, and weather.",
+      "Publish the full data-quality report alongside the methodology.",
     ],
   },
 ];

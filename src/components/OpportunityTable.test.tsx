@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { OpportunityTable } from "@/components/OpportunityTable";
-import { opportunities } from "@/data/opportunities";
+import { opportunities } from "@/data";
 
 describe("OpportunityTable", () => {
   it("renders the table", () => {

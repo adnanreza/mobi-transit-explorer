@@ -1,7 +1,14 @@
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 import { Bike, Clock3, Database, MapPin } from "lucide-react";
 import type { ChartOptions, TooltipItem } from "chart.js";
-import { realMobiDataSummary } from "@/data/realMobi";
+import {
+  hourly,
+  lastCompleteYear,
+  meta,
+  monthly,
+  stationsArtifact,
+  yearly,
+} from "@/data";
 import "@/components/charts/chartSetup";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,66 +24,78 @@ const slate = "#334155";
 const green = "#16a34a";
 const purple = "#9333ea";
 
+const latestHourly = hourly.find((row) => row.year === lastCompleteYear);
+const latestYearly = yearly.find((row) => row.year === lastCompleteYear);
+const topStations = stationsArtifact.stations.slice(0, 8);
+const hourLabels = Array.from({ length: 24 }, (_, hour) => `${hour}:00`);
+
 export function RealMobiCharts() {
-  const { charts, months } = realMobiDataSummary;
   const testMode = import.meta.env.MODE === "test";
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <ChartCard
         icon={Database}
-        title="Monthly trips"
-        description={`${months[0].trips.toLocaleString("en-CA")} April trips and ${months[1].trips.toLocaleString("en-CA")} May trips from Mobi public CSVs.`}
+        title="Trips per month since 2017"
+        description={`${meta.totals.trips.toLocaleString("en-CA")} rider trips across ${monthly.length} months of published Mobi data.`}
       >
         {testMode ? (
           <ChartPlaceholder label="Monthly trips chart" />
         ) : (
-          <Bar
+          <Line
             data={{
-              labels: charts.monthlyTrips.labels,
+              labels: monthly.map((row) => row.month),
               datasets: [
                 {
-                  label: "Classic",
-                  data: charts.monthlyTrips.classicTrips,
-                  backgroundColor: slate,
-                  borderRadius: 8,
-                  stack: "trips",
-                },
-                {
-                  label: "E-bike",
-                  data: charts.monthlyTrips.ebikeTrips,
-                  backgroundColor: blue,
-                  borderRadius: 8,
-                  stack: "trips",
+                  label: "Trips",
+                  data: monthly.map((row) => row.trips),
+                  borderColor: blue,
+                  backgroundColor: "rgba(0, 143, 211, 0.12)",
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.3,
+                  fill: true,
                 },
               ],
             }}
-            options={barOptions("Trips")}
+            options={lineOptions("Trips")}
           />
         )}
       </ChartCard>
 
       <ChartCard
         icon={Clock3}
-        title="Hourly departures"
-        description="Departure hour from the rounded public timestamps."
+        title={`Hourly departures, ${lastCompleteYear}`}
+        description="Weekday commute peaks vs the weekend afternoon curve (timestamps are hour-rounded at source)."
       >
         {testMode ? (
           <ChartPlaceholder label="Hourly departures chart" />
         ) : (
           <Line
             data={{
-              labels: charts.hourlyDepartures.labels,
-              datasets: charts.hourlyDepartures.series.map((series, index) => ({
-                label: series.label,
-                data: series.data,
-                borderColor: index === 0 ? slate : blue,
-                backgroundColor: index === 0 ? "rgba(51, 65, 85, 0.08)" : "rgba(0, 143, 211, 0.12)",
-                borderWidth: 2,
-                pointRadius: 0,
-                tension: 0.35,
-                fill: true,
-              })),
+              labels: hourLabels,
+              datasets: [
+                {
+                  label: "Weekday",
+                  data: latestHourly?.weekday ?? [],
+                  borderColor: slate,
+                  backgroundColor: "rgba(51, 65, 85, 0.08)",
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.35,
+                  fill: true,
+                },
+                {
+                  label: "Weekend",
+                  data: latestHourly?.weekend ?? [],
+                  borderColor: blue,
+                  backgroundColor: "rgba(0, 143, 211, 0.12)",
+                  borderWidth: 2,
+                  pointRadius: 0,
+                  tension: 0.35,
+                  fill: true,
+                },
+              ],
             }}
             options={lineOptions("Departures")}
           />
@@ -85,8 +104,8 @@ export function RealMobiCharts() {
 
       <ChartCard
         icon={Bike}
-        title="Bike type split"
-        description="Combined April and May split from the `Electric bike` column."
+        title={`Bike type split, ${lastCompleteYear}`}
+        description={`E-bikes carried ${latestYearly?.ebikeSharePct ?? 0}% of ${lastCompleteYear} trips, from the source's Electric bike flag.`}
       >
         <div className="mx-auto h-72 max-w-sm">
           {testMode ? (
@@ -94,10 +113,13 @@ export function RealMobiCharts() {
           ) : (
             <Doughnut
               data={{
-                labels: charts.bikeTypeSplit.labels,
+                labels: ["Classic", "E-bike"],
                 datasets: [
                   {
-                    data: charts.bikeTypeSplit.data,
+                    data: [
+                      100 - (latestYearly?.ebikeSharePct ?? 0),
+                      latestYearly?.ebikeSharePct ?? 0,
+                    ],
                     backgroundColor: [slate, purple],
                     borderColor: "#ffffff",
                     borderWidth: 3,
@@ -121,19 +143,19 @@ export function RealMobiCharts() {
 
       <ChartCard
         icon={MapPin}
-        title="Top May stations"
-        description="Highest-volume stations in the May 2026 generated station set."
+        title="Busiest stations, trailing 12 months"
+        description="Departures from the highest-volume stations in the current network."
       >
         {testMode ? (
-          <ChartPlaceholder label="Top May stations chart" />
+          <ChartPlaceholder label="Top stations chart" />
         ) : (
           <Bar
             data={{
-              labels: charts.topStations.labels,
+              labels: topStations.map((station) => station.name),
               datasets: [
                 {
                   label: "Departures",
-                  data: charts.topStations.data,
+                  data: topStations.map((station) => station.trailing12.trips),
                   backgroundColor: green,
                   borderRadius: 8,
                 },
@@ -174,7 +196,7 @@ function ChartCard({
     <Card className="bg-white shadow-sm">
       <CardHeader>
         <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-          Real Mobi CSV
+          Real Mobi data
         </Badge>
         <CardTitle className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
@@ -236,7 +258,7 @@ function lineOptions(label: string): ChartOptions<"line"> {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
       },
       y: {
         beginAtZero: true,

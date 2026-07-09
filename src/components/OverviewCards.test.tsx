@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { OverviewCards } from "@/components/OverviewCards";
-import { overviewMetrics } from "@/data/metrics";
+import { overviewMetrics } from "@/data";
 
 describe("OverviewCards", () => {
   it("renders all metric cards", () => {

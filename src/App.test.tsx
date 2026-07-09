@@ -54,7 +54,7 @@ describe("App", () => {
       "#main-content",
     );
     expect(screen.getByRole("button", { name: "Reset filters" })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Month" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Day type" })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Transit distance" })).toBeInTheDocument();
   });
 

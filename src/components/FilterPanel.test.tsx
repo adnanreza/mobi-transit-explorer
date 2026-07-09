@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { defaultFilters, FilterPanel, type FilterState } from "@/components/FilterPanel";
 
@@ -32,13 +32,7 @@ describe("FilterPanel", () => {
   it("renders filter labels", () => {
     render(<FilterPanelHarness />);
 
-    for (const label of [
-      "Month",
-      "Day type",
-      "Time of day",
-      "Bike type",
-      "Transit distance",
-    ]) {
+    for (const label of ["Day type", "Time of day", "Bike type", "Transit distance"]) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
   });
@@ -46,10 +40,10 @@ describe("FilterPanel", () => {
   it("lets users change filter values", async () => {
     render(<FilterPanelHarness />);
 
-    await chooseOption("Month", "May 2026");
+    await chooseOption("Day type", "Weekend");
 
-    expect(screen.getByRole("combobox", { name: "Month" })).toHaveTextContent(
-      "May 2026",
+    expect(screen.getByRole("combobox", { name: "Day type" })).toHaveTextContent(
+      "Weekend",
     );
   });
 
@@ -57,11 +51,11 @@ describe("FilterPanel", () => {
     const user = userEvent.setup();
     render(<FilterPanelHarness />);
 
-    await chooseOption("Month", "May 2026");
+    await chooseOption("Day type", "Weekend");
     await user.click(screen.getByRole("button", { name: "Reset filters" }));
 
-    expect(screen.getByRole("combobox", { name: "Month" })).toHaveTextContent(
-      "April 2026",
+    expect(screen.getByRole("combobox", { name: "Day type" })).toHaveTextContent(
+      "All",
     );
   });
 
@@ -75,13 +69,5 @@ describe("FilterPanel", () => {
       ...defaultFilters,
       bikeType: "e-bike",
     });
-  });
-
-  it("shows selected filter summary", () => {
-    render(<FilterPanelHarness />);
-
-    const panel = screen.getByText("Filter real trip metrics").closest("div");
-    expect(panel).not.toBeNull();
-    expect(within(document.body).getAllByText("April 2026").length).toBeGreaterThan(0);
   });
 });

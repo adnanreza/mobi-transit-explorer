@@ -5,7 +5,7 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
-import { overviewMetrics } from "@/data/metrics";
+import { overviewMetrics } from "@/data";
 import type { OverviewMetric } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import {

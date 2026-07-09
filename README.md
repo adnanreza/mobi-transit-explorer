@@ -52,15 +52,18 @@ In under 30 seconds, the app should communicate:
 
 ## Data Methodology
 
-The MVP uses April and May 2026 public Mobi by Rogers CSVs from `https://www.mobibikes.ca/en/system-data`.
+The app uses every published Mobi by Rogers trip file (2017 through today, 8M+ rider trips) from `https://www.mobibikes.ca/en/system-data`, plus the Mobi GBFS station feed and City of Vancouver open data.
 
-Raw CSVs are not committed. Place source files in `data-raw/` or pass explicit paths to the processor:
+Raw files are not committed. They are acquired and processed by the offline Python + DuckDB pipeline documented in `pipeline/README.md`:
 
 ```bash
-npm run data:process -- --april /path/to/public-trips-3.0-2026-04.csv --may /path/to/public-trips-3.0-2026-05.csv
+python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
+.venv/bin/python pipeline/download.py        # fetch the full archive (manifest-verified)
+.venv/bin/python pipeline/etl.py --stage all # build the DuckDB star schema
+.venv/bin/python pipeline/publish.py         # emit src/data/generated/*.json
 ```
 
-The generated app data lives in `src/data/stations.ts`, `src/data/opportunities.ts`, and `src/data/realMobi.ts`.
+The committed app data lives in `src/data/generated/` (about 40 KB gzipped); the data-quality accounting lives in `docs/data-quality-report.md`.
 
 ## Feature Lifecycle
 
@@ -87,7 +90,7 @@ npm run dev
 npm run test
 npm run typecheck
 npm run build
-npm run data:process
+.venv/bin/python -m pytest pipeline/tests
 ```
 
 ## Deployment
