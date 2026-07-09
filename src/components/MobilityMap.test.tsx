@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MobilityMap } from "@/components/MobilityMap";
-import { stations } from "@/data/stations";
-import { transitNodes } from "@/data/transitNodes";
+import { stations, transitNodes } from "@/data";
 
 describe("MobilityMap", () => {
   it("renders stations", () => {

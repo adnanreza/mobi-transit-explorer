@@ -3,23 +3,22 @@ import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
 import { MobilityMap } from "@/components/MobilityMap";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { Badge } from "@/components/ui/badge";
-import { stationsByMonth } from "@/data/stations";
+import { meta, stations } from "@/data";
 
 export function Explorer() {
   const [filters, setFilters] = useState(defaultFilters);
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
-  const stations = stationsByMonth[filters.month];
 
   const selectedStation = useMemo(
     () => stations.find((station) => station.id === selectedStationId) ?? null,
-    [selectedStationId, stations],
+    [selectedStationId],
   );
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline" className="bg-white text-muted-foreground">
-          Showing {filters.month === "may-2026" ? "May 2026" : "April 2026"}
+          Trailing 12 months to {meta.sourceWindow.lastMonth}
         </Badge>
         <Badge variant="outline" className="bg-white text-muted-foreground">
           {formatFilter(filters.dayType)} days

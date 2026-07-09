@@ -12,7 +12,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 export type FilterState = {
-  month: "april-2026" | "may-2026";
   dayType: "all" | "weekday" | "weekend";
   timeOfDay: "all" | "morning-commute" | "midday" | "evening-commute" | "late-night";
   bikeType: "all" | "classic" | "e-bike";
@@ -26,7 +25,6 @@ type FilterConfig = {
 };
 
 export const defaultFilters: FilterState = {
-  month: "april-2026",
   dayType: "all",
   timeOfDay: "all",
   bikeType: "all",
@@ -34,14 +32,6 @@ export const defaultFilters: FilterState = {
 };
 
 const filterConfig: FilterConfig[] = [
-  {
-    key: "month",
-    label: "Month",
-    options: [
-      { value: "april-2026", label: "April 2026" },
-      { value: "may-2026", label: "May 2026" },
-    ],
-  },
   {
     key: "dayType",
     label: "Day type",
@@ -96,7 +86,6 @@ export function FilterPanel({
   };
 
   const selectedSummary = [
-    getOptionLabel("month", filters.month),
     getOptionLabel("dayType", filters.dayType),
     getOptionLabel("timeOfDay", filters.timeOfDay),
     getOptionLabel("bikeType", filters.bikeType),

@@ -1,7 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
-import { opportunities as defaultOpportunities } from "@/data/opportunities";
-import { stations } from "@/data/stations";
+import { opportunities as defaultOpportunities, stationsAll as stations } from "@/data";
 import type { Opportunity, PriorityLevel } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import {

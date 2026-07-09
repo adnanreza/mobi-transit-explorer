@@ -1,6 +1,5 @@
 import { TrainFront, Waves } from "lucide-react";
-import { stations as defaultStations } from "@/data/stations";
-import { transitNodes as defaultTransitNodes } from "@/data/transitNodes";
+import { stations as defaultStations, transitNodes as defaultTransitNodes } from "@/data";
 import type { MobiStation, TransitNode } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import {

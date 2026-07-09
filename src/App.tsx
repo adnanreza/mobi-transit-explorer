@@ -42,10 +42,11 @@ function App() {
           />
           <div className="space-y-4">
             <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-              This version processes April and May 2026 public Mobi trip files
-              into static front-end datasets. Raw CSVs stay outside the app;
-              the browser receives generated station metrics, opportunity
-              rankings, and canvas-backed charts.
+              This version processes every published Mobi trip file — 2017
+              through today, more than eight million rider trips — through a
+              staged local pipeline. Raw files stay outside the app; the
+              browser receives compact station metrics, opportunity rankings,
+              and canvas-backed charts.
             </p>
           </div>
 
@@ -73,10 +74,10 @@ function App() {
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="grid grid-cols-2 gap-3">
-              <Metric label="Scope" value="MVP shell" />
-              <Metric label="Data" value="Real CSV" />
-              <Metric label="Mode" value="Front-end" />
-              <Metric label="Next" value="Geo upgrade" />
+              <Metric label="Trips" value="8M+" />
+              <Metric label="Window" value="2017–2026" />
+              <Metric label="Pipeline" value="DuckDB" />
+              <Metric label="Next" value="Real map" />
             </div>
             <Separator />
             <div className="rounded-lg border bg-gradient-to-br from-accent/60 to-accent/40 p-4">
@@ -105,7 +106,7 @@ function App() {
         <PageSection id="map" className="space-y-6">
           <SectionHeader
             title="Map"
-            description="Filter generated April/May station metrics, inspect station geography, and select a station to review its transit connector profile."
+            description="Explore trailing-12-month station metrics, inspect station geography, and select a station to review its transit connector profile."
             className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
           />
           <Explorer />

@@ -1,6 +1,6 @@
 import { Bike, MapPin, Route, Zap } from "lucide-react";
 import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
-import { transitNodes } from "@/data/transitNodes";
+import { transitNodes } from "@/data";
 import type { MobiStation } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import {

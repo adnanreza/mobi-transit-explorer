@@ -17,8 +17,6 @@ export type PriorityLevel = "High" | "Medium" | "Low";
 
 export type TrendData = number[];
 
-export type MobiMonthId = "april-2026" | "may-2026";
-
 export type BikeTypeSplit = {
   classic: number;
   ebike: number;
@@ -80,46 +78,3 @@ export type Opportunity = {
   priority: PriorityLevel;
 };
 
-export type RealMobiDataSummary = {
-  sourceName: string;
-  sourceUrl: string;
-  licenseUrl: string;
-  months: Array<{
-    id: MobiMonthId;
-    label: string;
-    fileName: string;
-    sourceUrl: string;
-    trips: number;
-    stations: number;
-    ebikeTrips: number;
-    classicTrips: number;
-  }>;
-  charts: {
-    monthlyTrips: {
-      labels: string[];
-      trips: number[];
-      ebikeTrips: number[];
-      classicTrips: number[];
-    };
-    hourlyDepartures: {
-      labels: string[];
-      series: Array<{
-        label: string;
-        data: number[];
-      }>;
-    };
-    bikeTypeSplit: {
-      labels: string[];
-      data: number[];
-    };
-    topStations: {
-      labels: string[];
-      data: number[];
-    };
-    timeOfDay: {
-      labels: string[];
-      data: number[];
-    };
-  };
-  notes: string[];
-};
