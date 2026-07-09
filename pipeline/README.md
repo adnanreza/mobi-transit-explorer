@@ -27,9 +27,26 @@ python3 -m venv .venv
 #    Exits non-zero on gaps, small files, or checksum mismatches.
 .venv/bin/python pipeline/inventory.py
 
+# 4. Build the warehouse: extract -> clean -> conform -> model.
+#    Stages are individually re-runnable via --stage.
+.venv/bin/python pipeline/etl.py --stage all
+
+# 5. Regenerate the committed data-quality report from the warehouse.
+.venv/bin/python pipeline/quality_report.py
+
 # Tests (no network)
 .venv/bin/python -m pytest pipeline/tests
 ```
+
+## Warehouse
+
+`data-warehouse/mobi.duckdb` (not committed) holds a Kimball-style star schema:
+`fact_trips` (8.7M trips), `dim_station`, `dim_date`, `dim_membership`, plus
+`etl_metrics` (per-stage row accounting) and the staging tables. Transform
+logic lives in `pipeline/sql/` as plain SQL; `etl.py` only orchestrates.
+Cleaning philosophy: flag suspect rows, drop only the unusable (blank
+stations, unparseable timestamps, exact duplicates). The full accounting is
+regenerated into `docs/data-quality-report.md`.
 
 ## What is committed vs. not
 

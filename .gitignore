@@ -13,6 +13,7 @@ data-raw/
 .venv/
 __pycache__/
 .pytest_cache/
+data-warehouse/
 
 # Vite and TypeScript caches
 .vite/
