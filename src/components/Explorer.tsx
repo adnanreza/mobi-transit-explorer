@@ -3,7 +3,7 @@ import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
 import { MobilityMap } from "@/components/MobilityMap";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { Badge } from "@/components/ui/badge";
-import { meta, stations } from "@/data";
+import { meta, stationsAll as stations } from "@/data";
 
 export function Explorer() {
   const [filters, setFilters] = useState(defaultFilters);

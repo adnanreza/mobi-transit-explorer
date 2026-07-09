@@ -17,6 +17,7 @@ import {
   weather,
   yearly,
 } from "@/data";
+import { VIEW_H, VIEW_W } from "@/lib/projection";
 
 describe("generated data contracts", () => {
   it("meta totals are sane", () => {
@@ -100,11 +101,11 @@ describe("generated data contracts", () => {
   it("adapters produce the shapes the components render", () => {
     expect(stations).toHaveLength(40);
     expect(stationsAll.length).toBe(stationsArtifact.stations.length);
-    for (const s of stations) {
+    for (const s of stationsAll) {
       expect(s.x).toBeGreaterThanOrEqual(0);
-      expect(s.x).toBeLessThanOrEqual(100);
+      expect(s.x).toBeLessThanOrEqual(VIEW_W);
       expect(s.y).toBeGreaterThanOrEqual(0);
-      expect(s.y).toBeLessThanOrEqual(100);
+      expect(s.y).toBeLessThanOrEqual(VIEW_H);
       expect(s.trend.length).toBeGreaterThan(0);
     }
     // 22 CoV platform rows collapse to 20 unique stations (Waterfront and

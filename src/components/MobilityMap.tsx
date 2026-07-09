@@ -1,6 +1,8 @@
-import { TrainFront, Waves } from "lucide-react";
-import { stations as defaultStations, transitNodes as defaultTransitNodes } from "@/data";
-import type { MobiStation, TransitNode } from "@/types";
+import { useMemo } from "react";
+import { stations as defaultStations, stationsArtifact } from "@/data";
+import landJson from "@/data/generated/geo/land.json";
+import { isInsideView, project, VIEW_H, VIEW_W } from "@/lib/projection";
+import type { MobiStation } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -14,112 +16,233 @@ import { cn } from "@/lib/utils";
 
 type MobilityMapProps = {
   stations?: MobiStation[];
-  transitNodes?: TransitNode[];
   selectedStationId?: string | null;
   onStationSelect?: (station: MobiStation) => void;
 };
 
-const volumeSize = {
-  Low: "h-3.5 w-3.5",
-  Medium: "h-[1.125rem] w-[1.125rem]",
-  High: "h-6 w-6",
-};
+const land = landJson as unknown as { landRing: Array<[number, number]> };
+
+// Corridor orderings use the CoV dataset's own station spellings.
+const CORRIDORS: string[][] = [
+  // Expo Line
+  ["Waterfront", "Burrard", "Granville", "Stadium - Chinatown",
+   "Main Street - Science World", "Commercial - Broadway", "Nanaimo",
+   "29th Avenue", "Joyce - Collingwood"],
+  // Millennium Line
+  ["VCC - Clark", "Commercial - Broadway", "Renfrew", "Rupert"],
+  // Canada Line
+  ["Waterfront", "Vancouver City Center", "Yaletown - Roundhouse",
+   "Olympic Village", "Broadway - City Hall", "King Edward",
+   "Oakridge - 41st Avenue", "Langara - 49th Avenue", "Marine Drive"],
+];
+
+const LABELED_TRANSIT = new Set(["Waterfront", "Commercial - Broadway", "VCC - Clark"]);
+
+const WATER_LABELS = [
+  { name: "Burrard Inlet", lat: 49.305, lon: -123.11 },
+  { name: "English Bay", lat: 49.288, lon: -123.165 },
+  { name: "False Creek", lat: 49.2695, lon: -123.128 },
+];
 
 export function MobilityMap({
   stations = defaultStations,
-  transitNodes = defaultTransitNodes,
   selectedStationId,
   onStationSelect,
 }: MobilityMapProps) {
+  const landPath = useMemo(() => {
+    return (
+      land.landRing
+        .map(([lon, lat], index) => {
+          const { x, y } = project(lat, lon);
+          return `${index === 0 ? "M" : "L"}${x},${y}`;
+        })
+        .join("") + "Z"
+    );
+  }, []);
+
+  const transitByName = useMemo(
+    () => new Map(stationsArtifact.transit.map((t) => [t.name, t])),
+    [],
+  );
+
+  const maxTrips = useMemo(
+    () => Math.max(...stations.map((s) => s.monthlyTrips)),
+    [stations],
+  );
+
+  const selectedStation = stations.find((s) => s.id === selectedStationId);
+  const selectedGenerated = selectedStation
+    ? stationsArtifact.stations.find((s) => s.id === selectedStation.id)
+    : undefined;
+  const stationById = useMemo(
+    () => new Map(stations.map((s) => [s.id, s])),
+    [stations],
+  );
+
   return (
     <Card className="overflow-hidden bg-white/90 shadow-sm">
       <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1.5">
           <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-            Mock Vancouver geography
+            Real Vancouver geometry
           </Badge>
           <CardTitle>Mobility map</CardTitle>
           <CardDescription>
-            Station size reflects trip volume. Blue intensity reflects transit
-            connector score.
+            Every active Mobi station at its true location. Dot size reflects
+            trip volume; blue intensity reflects transit connector score.
           </CardDescription>
         </div>
         <Legend />
       </CardHeader>
       <CardContent>
-<div
-            className="relative min-h-[560px] overflow-hidden rounded-lg border bg-[linear-gradient(135deg,#f0f8ff_0%,#e8f4fa_48%,#fafcff_100%)]"
-            aria-label="Mobi stations and transit nodes map"
-          >
-            <div className="absolute left-0 top-0 h-36 w-full bg-gradient-to-b from-sky-200/50 to-transparent" />
-            <div className="absolute left-[-8%] top-[5%] h-80 w-[54%] rounded-full bg-sky-200/40 blur-xl" />
-            <div className="absolute left-[50%] top-[10%] h-32 w-[28%] rounded-full bg-sky-200/30 blur-md" />
-            <div className="absolute bottom-0 right-0 h-48 w-[46%] rounded-tl-[60%] bg-emerald-50" />
-            <div className="absolute left-[30%] top-[74%] h-16 w-[20%] rounded-full bg-emerald-200/30 blur-md" />
-            <div className="absolute left-[14%] top-[60%] h-1.5 w-[72%] -rotate-6 rounded-full bg-slate-300/55" />
-            <div className="absolute left-[28%] top-[36%] h-1.5 w-[58%] rotate-[28deg] rounded-full bg-slate-300/45" />
-            <div className="absolute left-[32%] top-[18%] flex items-center gap-2 text-xs font-medium text-sky-700">
-              <Waves className="h-4 w-4" aria-hidden="true" />
-              Burrard Inlet
-            </div>
-            <div className="absolute left-[56%] top-[26%] flex items-center gap-2 text-xs font-medium text-sky-700">
-              <Waves className="h-3 w-3" aria-hidden="true" />
-              False Creek
-            </div>
-            <div className="absolute bottom-5 left-6 text-xs font-medium text-muted-foreground">
-              Generated Vancouver station grid
-            </div>
+        <svg
+          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          role="group"
+          aria-label="Map of Mobi stations and rapid transit in Vancouver"
+          className="w-full rounded-lg border bg-[#e3f0f9]"
+        >
+          {/* land */}
+          <path d={landPath} fill="#fbfdfe" stroke="#d3e2ec" strokeWidth={0.12} />
 
-          {transitNodes.map((node) => (
-            <div
-              key={node.id}
-              className="group absolute z-20 -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${node.x}%`, top: `${node.y}%` }}
-            >
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-slate-950 text-white shadow-sm motion-safe:animate-pulse"
-                title={`${node.name} transit node`}
-                aria-label={`${node.name} transit node`}
-              >
-                <TrainFront className="h-4 w-4" aria-hidden="true" />
-              </div>
-              <div className="pointer-events-none absolute left-1/2 top-9 min-w-max -translate-x-1/2 rounded-md border bg-white px-2 py-1 text-xs font-medium text-slate-700 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-                {node.name}
-              </div>
-            </div>
-          ))}
-
-          {stations.map((station) => {
-            const selected = station.id === selectedStationId;
-
+          {/* water labels */}
+          {WATER_LABELS.map((label) => {
+            const { x, y } = project(label.lat, label.lon);
             return (
-              <button
-                key={station.id}
-                type="button"
-                aria-label={`${station.name}, connector score ${station.connectorScore}`}
-                aria-pressed={selected}
-                title={`${station.name}: ${station.connectorScore} connector score`}
-                className={cn(
-                  "group absolute z-30 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-sm outline-none transition-all duration-300 hover:scale-125 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  volumeSize[station.tripVolume],
-                  getScoreColor(station.connectorScore),
-                  selected && "scale-125 ring-4 ring-primary/25 shadow-lg",
-                )}
-                style={{ left: `${station.x}%`, top: `${station.y}%` }}
-                onClick={() => onStationSelect?.(station)}
-                data-selected={selected ? "true" : "false"}
+              <text
+                key={label.name}
+                x={x}
+                y={y}
+                fontSize={1.6}
+                fontStyle="italic"
+                fill="#7ba7c4"
+                textAnchor="middle"
               >
-                <span className="sr-only">{station.name}</span>
-                <span className="pointer-events-none absolute left-1/2 top-7 min-w-48 -translate-x-1/2 rounded-md border bg-white px-3 py-2 text-left text-xs text-slate-700 opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="block font-semibold text-slate-950">
-                    {station.name}
-                  </span>
-                  <span>{station.connectorScore} connector score</span>
-                </span>
-              </button>
+                {label.name}
+              </text>
             );
           })}
-        </div>
+
+          {/* transit corridors */}
+          {CORRIDORS.map((names, index) => {
+            const pts = names
+              .map((name) => transitByName.get(name))
+              .filter((t) => t && isInsideView(t.lat, t.lon))
+              .map((t) => project(t!.lat, t!.lon));
+            if (pts.length < 2) return null;
+            return (
+              <polyline
+                key={`corridor-${index}`}
+                points={pts.map((p) => `${p.x},${p.y}`).join(" ")}
+                fill="none"
+                stroke="#94a3b8"
+                strokeWidth={0.28}
+                strokeDasharray="0.9 0.5"
+              />
+            );
+          })}
+
+          {/* transit stations */}
+          {stationsArtifact.transit
+            .filter((t) => isInsideView(t.lat, t.lon))
+            .map((t) => {
+              const { x, y } = project(t.lat, t.lon);
+              return (
+                <g key={t.name} aria-label={`${t.name} rapid transit station`} role="img">
+                  <rect
+                    x={x - 0.6}
+                    y={y - 0.6}
+                    width={1.2}
+                    height={1.2}
+                    rx={0.3}
+                    fill="#0f172a"
+                    stroke="#ffffff"
+                    strokeWidth={0.18}
+                  >
+                    <title>{`${t.name} (${t.line})`}</title>
+                  </rect>
+                  {LABELED_TRANSIT.has(t.name) ? (
+                    <text x={x + 1.1} y={y + 0.4} fontSize={1.4} fill="#475569">
+                      {t.name}
+                    </text>
+                  ) : null}
+                </g>
+              );
+            })}
+
+          {/* destination links for the selected station */}
+          {selectedStation && selectedGenerated
+            ? selectedGenerated.trailing12.topDestinations.map((dest) => {
+                const target = stationById.get(dest.id);
+                if (!target) return null;
+                return (
+                  <line
+                    key={dest.id}
+                    x1={selectedStation.x}
+                    y1={selectedStation.y}
+                    x2={target.x}
+                    y2={target.y}
+                    stroke="#008fd3"
+                    strokeWidth={0.18}
+                    strokeOpacity={0.55}
+                  />
+                );
+              })
+            : null}
+
+          {/* Mobi stations */}
+          {stations.map((station) => {
+            const selected = station.id === selectedStationId;
+            const r =
+              0.55 + 1.5 * Math.sqrt(station.monthlyTrips / Math.max(maxTrips, 1));
+            return (
+              <g key={station.id}>
+                {selected ? (
+                  <circle
+                    cx={station.x}
+                    cy={station.y}
+                    r={r + 0.7}
+                    fill="none"
+                    stroke="#008fd3"
+                    strokeWidth={0.25}
+                  />
+                ) : null}
+                <circle
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${station.name}, connector score ${station.connectorScore}`}
+                  aria-pressed={selected}
+                  data-selected={selected ? "true" : "false"}
+                  cx={station.x}
+                  cy={station.y}
+                  r={r}
+                  fill="#008fd3"
+                  fillOpacity={0.3 + 0.7 * (station.connectorScore / 100)}
+                  stroke="#ffffff"
+                  strokeWidth={0.14}
+                  className={cn(
+                    "cursor-pointer outline-none transition-[r] focus-visible:stroke-slate-900",
+                    selected && "stroke-slate-900",
+                  )}
+                  onClick={() => onStationSelect?.(station)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onStationSelect?.(station);
+                    }
+                  }}
+                >
+                  <title>{`${station.name}: ${station.monthlyTrips.toLocaleString(
+                    "en-CA",
+                  )} trips/month, connector score ${station.connectorScore}`}</title>
+                </circle>
+              </g>
+            );
+          })}
+        </svg>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Land geometry: City of Vancouver shoreline (Open Government Licence).
+          Station positions: Mobi GBFS feed.
+        </p>
       </CardContent>
     </Card>
   );
@@ -132,8 +255,8 @@ function Legend() {
       <Separator className="my-2" />
       <div className="space-y-2">
         <LegendItem className="bg-primary" label="85-100 strong" />
-        <LegendItem className="bg-sky-400" label="70-84 emerging" />
-        <LegendItem className="bg-slate-400" label="Below 70 watch" />
+        <LegendItem className="bg-primary/60" label="70-84 emerging" />
+        <LegendItem className="bg-primary/30" label="Below 70 watch" />
       </div>
     </div>
   );
@@ -146,16 +269,4 @@ function LegendItem({ className, label }: { className: string; label: string }) 
       <span>{label}</span>
     </div>
   );
-}
-
-function getScoreColor(score: number) {
-  if (score >= 85) {
-    return "bg-primary";
-  }
-
-  if (score >= 70) {
-    return "bg-sky-400";
-  }
-
-  return "bg-slate-400";
 }
