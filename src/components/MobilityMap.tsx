@@ -78,7 +78,7 @@ export function MobilityMap({
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
             >
               <div
-                className="flex h-8 w-8 animate-pulse items-center justify-center rounded-lg border border-slate-300 bg-slate-950 text-white shadow-sm"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-slate-950 text-white shadow-sm motion-safe:animate-pulse"
                 title={`${node.name} transit node`}
                 aria-label={`${node.name} transit node`}
               >

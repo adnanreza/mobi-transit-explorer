@@ -18,6 +18,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 66, ebike: 34 },
     trend: [17200, 17650, 18100, 18420, 17900, 18200, 18600],
+    connectorScoreComponents: {
+      transitProximity: 98,
+      tripVolume: 96,
+      commutePattern: 94,
+      ebikeShare: 72,
+      stationConnectivity: 99,
+    },
   },
   {
     id: "mobi-0002",
@@ -36,6 +43,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 69, ebike: 31 },
     trend: [13200, 13800, 14200, 14380, 14600, 14450, 14700],
+    connectorScoreComponents: {
+      transitProximity: 92,
+      tripVolume: 86,
+      commutePattern: 91,
+      ebikeShare: 68,
+      stationConnectivity: 93,
+    },
   },
   {
     id: "mobi-0003",
@@ -54,6 +68,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "Medium",
     bikeTypeSplit: { classic: 62, ebike: 38 },
     trend: [11800, 12200, 12400, 12640, 12800, 12500, 13000],
+    connectorScoreComponents: {
+      transitProximity: 88,
+      tripVolume: 80,
+      commutePattern: 70,
+      ebikeShare: 78,
+      stationConnectivity: 84,
+    },
   },
   {
     id: "mobi-0004",
@@ -72,6 +93,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 64, ebike: 36 },
     trend: [14200, 14600, 14900, 15110, 15200, 15050, 15400],
+    connectorScoreComponents: {
+      transitProximity: 94,
+      tripVolume: 90,
+      commutePattern: 94,
+      ebikeShare: 75,
+      stationConnectivity: 94,
+    },
   },
   {
     id: "mobi-0005",
@@ -90,6 +118,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 71, ebike: 29 },
     trend: [12400, 12800, 13100, 13280, 13400, 13150, 13600],
+    connectorScoreComponents: {
+      transitProximity: 90,
+      tripVolume: 83,
+      commutePattern: 90,
+      ebikeShare: 64,
+      stationConnectivity: 91,
+    },
   },
   {
     id: "mobi-0006",
@@ -108,6 +143,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "Medium",
     bikeTypeSplit: { classic: 59, ebike: 41 },
     trend: [7200, 7600, 7900, 8120, 8300, 8050, 8400],
+    connectorScoreComponents: {
+      transitProximity: 82,
+      tripVolume: 58,
+      commutePattern: 68,
+      ebikeShare: 82,
+      stationConnectivity: 76,
+    },
   },
   {
     id: "mobi-0007",
@@ -126,6 +168,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 67, ebike: 33 },
     trend: [15100, 15600, 16000, 16340, 16500, 16200, 16800],
+    connectorScoreComponents: {
+      transitProximity: 97,
+      tripVolume: 93,
+      commutePattern: 95,
+      ebikeShare: 70,
+      stationConnectivity: 97,
+    },
   },
   {
     id: "mobi-0008",
@@ -144,6 +193,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "Low",
     bikeTypeSplit: { classic: 54, ebike: 46 },
     trend: [7000, 7200, 7400, 7640, 7800, 7550, 7900],
+    connectorScoreComponents: {
+      transitProximity: 48,
+      tripVolume: 55,
+      commutePattern: 42,
+      ebikeShare: 88,
+      stationConnectivity: 58,
+    },
   },
   {
     id: "mobi-0009",
@@ -162,6 +218,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "High",
     bikeTypeSplit: { classic: 65, ebike: 35 },
     trend: [9100, 9400, 9600, 9820, 10000, 9750, 10200],
+    connectorScoreComponents: {
+      transitProximity: 86,
+      tripVolume: 68,
+      commutePattern: 88,
+      ebikeShare: 73,
+      stationConnectivity: 81,
+    },
   },
   {
     id: "mobi-0010",
@@ -180,6 +243,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "Low",
     bikeTypeSplit: { classic: 56, ebike: 44 },
     trend: [6300, 6500, 6700, 6910, 7100, 6850, 7200],
+    connectorScoreComponents: {
+      transitProximity: 66,
+      tripVolume: 50,
+      commutePattern: 45,
+      ebikeShare: 86,
+      stationConnectivity: 65,
+    },
   },
   {
     id: "mobi-0011",
@@ -198,6 +268,13 @@ export const stations: MobiStation[] = [
     commuteStrength: "Medium",
     bikeTypeSplit: { classic: 72, ebike: 28 },
     trend: [4800, 5100, 5300, 5480, 5600, 5400, 5700],
+    connectorScoreComponents: {
+      transitProximity: 74,
+      tripVolume: 42,
+      commutePattern: 64,
+      ebikeShare: 62,
+      stationConnectivity: 61,
+    },
   },
   {
     id: "mobi-0012",
@@ -216,5 +293,12 @@ export const stations: MobiStation[] = [
     commuteStrength: "Medium",
     bikeTypeSplit: { classic: 51, ebike: 49 },
     trend: [8000, 8300, 8500, 8750, 8900, 8650, 9000],
+    connectorScoreComponents: {
+      transitProximity: 78,
+      tripVolume: 62,
+      commutePattern: 66,
+      ebikeShare: 92,
+      stationConnectivity: 72,
+    },
   },
 ];

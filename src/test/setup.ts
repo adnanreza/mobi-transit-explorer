@@ -1,9 +1,5 @@
 import "@testing-library/jest-dom/vitest";
 
-if (!Element.prototype.scrollIntoView) {
-  Element.prototype.scrollIntoView = () => undefined;
-}
-
 if (!globalThis.IntersectionObserver) {
   class MockIntersectionObserver {
     readonly root: Element | null = null;

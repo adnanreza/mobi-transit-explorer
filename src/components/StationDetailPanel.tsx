@@ -36,6 +36,11 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
   }
 
   const transitNode = transitNodes.find((node) => node.id === station.nearbyTransitNode);
+  const tripsNearTransitTrend = getStablePercentageTrend(
+    station.tripsNearTransitPercentage,
+    station.trend,
+  );
+  const ebikeShareTrend = getStablePercentageTrend(station.ebikeShare, station.trend, 38);
 
   return (
     <Card className="h-full bg-white/90 shadow-sm">
@@ -87,7 +92,7 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
             value={`${station.tripsNearTransitPercentage}%`}
           >
             <Sparkline
-              data={station.trend.map((t) => Math.round(t * (station.tripsNearTransitPercentage / 100)))}
+              data={tripsNearTransitTrend}
               variant="bar"
               color="#22c55e"
               width={80}
@@ -96,7 +101,7 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
           </MetricBlock>
           <MetricBlock icon={Zap} label="E-bike share" value={`${station.ebikeShare}%`}>
             <Sparkline
-              data={station.trend.map(() => Math.round(station.ebikeShare + (Math.random() - 0.5) * 8))}
+              data={ebikeShareTrend}
               variant="area"
               color="#a855f7"
               width={80}
@@ -120,6 +125,26 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
       </CardContent>
     </Card>
   );
+}
+
+function getStablePercentageTrend(
+  basePercentage: number,
+  tripTrend: number[],
+  sensitivity = 28,
+) {
+  const baseline = tripTrend[0] ?? 1;
+  const midpoint = (tripTrend.length - 1) / 2;
+
+  return tripTrend.map((value, index) => {
+    const tripDelta = ((value - baseline) / baseline) * sensitivity;
+    const cadence = (index - midpoint) * 0.35;
+
+    return clamp(Math.round(basePercentage + tripDelta + cadence), 0, 100);
+  });
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function MetricBlock({
