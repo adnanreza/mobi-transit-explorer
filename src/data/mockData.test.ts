@@ -59,6 +59,18 @@ describe("mock data layer", () => {
       expect(station.ebikeShare).toBeGreaterThanOrEqual(0);
       expect(station.ebikeShare).toBeLessThanOrEqual(100);
       expect(station.bikeTypeSplit.classic + station.bikeTypeSplit.ebike).toBe(100);
+      expect(Object.keys(station.connectorScoreComponents)).toEqual([
+        "transitProximity",
+        "tripVolume",
+        "commutePattern",
+        "ebikeShare",
+        "stationConnectivity",
+      ]);
+
+      for (const value of Object.values(station.connectorScoreComponents)) {
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(100);
+      }
     }
   });
 

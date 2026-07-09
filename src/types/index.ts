@@ -22,6 +22,14 @@ export type BikeTypeSplit = {
   ebike: number;
 };
 
+export type ConnectorScoreComponents = {
+  transitProximity: number;
+  tripVolume: number;
+  commutePattern: number;
+  ebikeShare: number;
+  stationConnectivity: number;
+};
+
 export type TransitNode = {
   id: string;
   name: string;
@@ -49,6 +57,7 @@ export type MobiStation = {
   commuteStrength: "Low" | "Medium" | "High";
   bikeTypeSplit: BikeTypeSplit;
   trend: TrendData;
+  connectorScoreComponents: ConnectorScoreComponents;
 };
 
 export type OverviewMetric = {

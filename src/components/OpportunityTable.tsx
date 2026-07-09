@@ -68,7 +68,6 @@ export function OpportunityTable({
               <TableHead>Rank</TableHead>
               <TableHead>Area/station</TableHead>
               <TableHead>Opportunity type</TableHead>
-              <TableHead className="hidden sm:table-cell">Trend</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Priority</TableHead>
             </TableRow>
@@ -96,24 +95,24 @@ export function OpportunityTable({
                       {opportunity.type}
                     </div>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {station ? (
-                      <Sparkline
-                        data={[
-                          station.connectorScore,
-                          station.tripsNearTransitPercentage,
-                          station.ebikeShare,
-                          station.monthlyTrips / 200,
-                        ].map((v) => Math.round(v))}
-                        variant="bar"
-                        color="#008fd3"
-                        width={64}
-                        height={24}
-                      />
-                    ) : null}
-                  </TableCell>
                   <TableCell className="max-w-md text-muted-foreground">
-                    {opportunity.reason}
+                    <div className="flex items-start gap-3">
+                      {station ? (
+                        <div
+                          className="mt-0.5 hidden shrink-0 sm:block"
+                          aria-label="Connector score component sparkline"
+                        >
+                          <Sparkline
+                            data={Object.values(station.connectorScoreComponents)}
+                            variant="bar"
+                            color="#008fd3"
+                            width={64}
+                            height={24}
+                          />
+                        </div>
+                      ) : null}
+                      <span>{opportunity.reason}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <PriorityBadge priority={opportunity.priority} />
