@@ -18,26 +18,28 @@ This project is designed as a public portfolio case study at `https://mobi-trans
 
 - Project scaffold using React, Vite, TypeScript, Tailwind CSS, shadcn/ui patterns, lucide-react, and Vitest.
 - Responsive app shell with header, navigation, hero copy, and polished content sections.
-- Typed mock data for stations, transit nodes, metrics, and opportunity rankings.
+- Generated real-data metrics for stations, overview charts, and opportunity rankings.
 - Overview metric cards that explain the product quickly.
-- Interactive filter panel for sample month, day type, time of day, bike type, and transit distance.
+- Interactive filter panel for April/May 2026 source months, day type, time of day, bike type, and transit distance.
 - Custom map-style explorer showing station dots, transit nodes, connector scores, and selected station state.
 - Station detail panel that explains why a selected station matters.
 - Opportunity ranking table for improvement priorities.
-- Methodology section that clearly distinguishes mock MVP data from future public Mobi CSV integration.
+- Methodology section that explains public Mobi CSV processing and source-data limitations.
 - Documentation describing the product, methodology, lifecycle, review standards, and numbered feature specs.
 
 ## Non-Goals
 
 - No backend service or server-side persistence.
 - No authentication, user accounts, or admin tools.
-- No live production Mobi data ingestion in the MVP.
+- No backend or live production data ingestion in the MVP.
 - No UI libraries outside Tailwind CSS, shadcn/ui patterns, and lucide-react icons.
 - No Bootstrap, Material UI, Chakra, DaisyUI, or plain CSS modules.
 
-## Future Real-Data Version
+## Real-Data Version
 
-A later feature can replace sample data with real Mobi CSV inputs. That version should document source files, update cadence, cleaning assumptions, field mappings, station matching logic, and limitations. The app should continue to run fully in the browser unless a future spec explicitly changes the no-backend constraint.
+The current app uses public Mobi CSV inputs from the Mobi by Rogers system-data page. Raw files are processed locally by `scripts/process-mobi-data.mjs`, then emitted as static front-end TypeScript datasets. The app should continue to run fully in the browser unless a future spec explicitly changes the no-backend constraint.
+
+The next data upgrade should add official station coordinates and expand processing beyond April/May 2026.
 
 ## Portfolio Signal
 

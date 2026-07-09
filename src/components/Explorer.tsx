@@ -3,15 +3,16 @@ import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
 import { MobilityMap } from "@/components/MobilityMap";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { Badge } from "@/components/ui/badge";
-import { stations } from "@/data/stations";
+import { stationsByMonth } from "@/data/stations";
 
 export function Explorer() {
   const [filters, setFilters] = useState(defaultFilters);
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const stations = stationsByMonth[filters.month];
 
   const selectedStation = useMemo(
     () => stations.find((station) => station.id === selectedStationId) ?? null,
-    [selectedStationId],
+    [selectedStationId, stations],
   );
 
   return (
@@ -35,6 +36,7 @@ export function Explorer() {
           layout="compact"
         />
         <MobilityMap
+          stations={stations}
           selectedStationId={selectedStationId}
           onStationSelect={(station) => setSelectedStationId(station.id)}
         />

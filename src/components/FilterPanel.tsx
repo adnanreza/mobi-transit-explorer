@@ -113,7 +113,7 @@ export function FilterPanel({
             </Badge>
             <CardTitle className="flex items-center gap-2 text-xl">
               <SlidersHorizontal className="h-5 w-5 text-primary" aria-hidden="true" />
-              Filter sample trips
+              Filter real trip metrics
             </CardTitle>
           </div>
           <Button type="button" variant="outline" onClick={() => onFiltersChange(defaultFilters)}>

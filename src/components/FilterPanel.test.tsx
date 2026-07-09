@@ -80,7 +80,7 @@ describe("FilterPanel", () => {
   it("shows selected filter summary", () => {
     render(<FilterPanelHarness />);
 
-    const panel = screen.getByText("Filter sample trips").closest("div");
+    const panel = screen.getByText("Filter real trip metrics").closest("div");
     expect(panel).not.toBeNull();
     expect(within(document.body).getAllByText("April 2026").length).toBeGreaterThan(0);
   });

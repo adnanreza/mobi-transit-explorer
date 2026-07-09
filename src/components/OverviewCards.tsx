@@ -34,7 +34,7 @@ export function OverviewCards({ metrics = overviewMetrics }: OverviewCardsProps)
         <CardHeader>
           <CardTitle>Overview metrics unavailable</CardTitle>
           <CardDescription>
-            Metrics will appear here when sample station data is available.
+            Metrics will appear here when processed Mobi station data is available.
           </CardDescription>
         </CardHeader>
       </Card>

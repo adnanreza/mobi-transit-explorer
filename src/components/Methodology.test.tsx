@@ -28,7 +28,7 @@ describe("Methodology", () => {
       screen.getByText("Public trip data is anonymized and cannot identify individual riders."),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("The MVP does not know exact route paths between stations."),
+      screen.getByText("The source does not include exact route paths between stations."),
     ).toBeInTheDocument();
   });
 });

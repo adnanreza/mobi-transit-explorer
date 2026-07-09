@@ -68,7 +68,7 @@ export function MobilityMap({
               False Creek
             </div>
             <div className="absolute bottom-5 left-6 text-xs font-medium text-muted-foreground">
-              Downtown / False Creek / East Vancouver sample grid
+              Generated Vancouver station grid
             </div>
 
           {transitNodes.map((node) => (

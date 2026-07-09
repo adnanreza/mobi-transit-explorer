@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
-import { stations } from "@/data/stations";
+import { stationsByMonth } from "@/data/stations";
+
+const aprilStations = stationsByMonth["april-2026"];
 
 async function chooseOption(label: string, option: string) {
   const user = userEvent.setup();
@@ -14,7 +16,7 @@ describe("Explorer", () => {
   it("renders filters, map, and detail panel", () => {
     render(<Explorer />);
 
-    expect(screen.getByText("Filter sample trips")).toBeInTheDocument();
+    expect(screen.getByText("Filter real trip metrics")).toBeInTheDocument();
     expect(screen.getByText("Mobility map")).toBeInTheDocument();
     expect(screen.getByText("Select a station")).toBeInTheDocument();
   });
@@ -25,12 +27,12 @@ describe("Explorer", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: `${stations[0].name}, connector score ${stations[0].connectorScore}`,
+        name: `${aprilStations[0].name}, connector score ${aprilStations[0].connectorScore}`,
       }),
     );
 
     expect(
-      screen.getByRole("heading", { name: stations[0].name }),
+      screen.getByRole("heading", { name: aprilStations[0].name }),
     ).toBeInTheDocument();
   });
 

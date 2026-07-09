@@ -6,6 +6,9 @@ dist/
 build/
 coverage/
 
+# Raw public data downloads
+data-raw/
+
 # Vite and TypeScript caches
 .vite/
 *.tsbuildinfo

@@ -2,6 +2,8 @@
 
 Branch: `feature/real-data-integration-plan`
 
+Note: Feature 017 implements the first real-data version using April and May 2026 Mobi by Rogers system-data CSVs.
+
 ## Goal
 
 Document the next phase: replacing mock data with real processed Mobi public data.

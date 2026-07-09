@@ -1,5 +1,5 @@
 import { Bike, MapPin, Route, Zap } from "lucide-react";
-import { Sparkline } from "react-tiny-sparkline";
+import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
 import { transitNodes } from "@/data/transitNodes";
 import type { MobiStation } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -84,28 +84,29 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
           <MetricBlock icon={Bike} label="Monthly trips" value={station.monthlyTrips.toLocaleString("en-CA")}>
-            <Sparkline data={station.trend} variant="area" color="#008fd3" width={80} height={24} />
+            <MiniTrendChart
+              ariaLabel="Monthly trip trend chart"
+              data={station.trend}
+              color="#008fd3"
+            />
           </MetricBlock>
           <MetricBlock
             icon={Route}
             label="Trips near transit"
             value={`${station.tripsNearTransitPercentage}%`}
           >
-            <Sparkline
+            <MiniTrendChart
+              ariaLabel="Trips near transit trend chart"
               data={tripsNearTransitTrend}
-              variant="bar"
+              type="bar"
               color="#22c55e"
-              width={80}
-              height={24}
             />
           </MetricBlock>
           <MetricBlock icon={Zap} label="E-bike share" value={`${station.ebikeShare}%`}>
-            <Sparkline
+            <MiniTrendChart
+              ariaLabel="E-bike share trend chart"
               data={ebikeShareTrend}
-              variant="area"
               color="#a855f7"
-              width={80}
-              height={24}
             />
           </MetricBlock>
         </div>
