@@ -15,6 +15,8 @@ export type OpportunityType =
 
 export type PriorityLevel = "High" | "Medium" | "Low";
 
+export type TrendData = number[];
+
 export type BikeTypeSplit = {
   classic: number;
   ebike: number;
@@ -46,6 +48,7 @@ export type MobiStation = {
   tripVolume: "Low" | "Medium" | "High";
   commuteStrength: "Low" | "Medium" | "High";
   bikeTypeSplit: BikeTypeSplit;
+  trend: TrendData;
 };
 
 export type OverviewMetric = {

@@ -34,7 +34,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
   return (
     <main
       className={cn(
-        "min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(0,143,211,0.12),transparent_34rem),linear-gradient(180deg,#ffffff_0%,#f8fafc_54%,#eef7fb_100%)]",
+        "min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(0,143,211,0.12),transparent_34rem),linear-gradient(180deg,#ffffff_0%,#fafcff_54%,#f0f8fd_100%)]",
         className,
       )}
     >

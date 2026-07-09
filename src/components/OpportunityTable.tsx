@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { Sparkline } from "react-tiny-sparkline";
 import { opportunities as defaultOpportunities } from "@/data/opportunities";
 import { stations } from "@/data/stations";
 import type { Opportunity, PriorityLevel } from "@/types";
@@ -67,6 +68,7 @@ export function OpportunityTable({
               <TableHead>Rank</TableHead>
               <TableHead>Area/station</TableHead>
               <TableHead>Opportunity type</TableHead>
+              <TableHead className="hidden sm:table-cell">Trend</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Priority</TableHead>
             </TableRow>
@@ -93,6 +95,22 @@ export function OpportunityTable({
                       <ArrowUpRight className="h-4 w-4 text-primary" aria-hidden="true" />
                       {opportunity.type}
                     </div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {station ? (
+                      <Sparkline
+                        data={[
+                          station.connectorScore,
+                          station.tripsNearTransitPercentage,
+                          station.ebikeShare,
+                          station.monthlyTrips / 200,
+                        ].map((v) => Math.round(v))}
+                        variant="bar"
+                        color="#008fd3"
+                        width={64}
+                        height={24}
+                      />
+                    ) : null}
                   </TableCell>
                   <TableCell className="max-w-md text-muted-foreground">
                     {opportunity.reason}

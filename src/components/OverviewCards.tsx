@@ -43,12 +43,12 @@ export function OverviewCards({ metrics = overviewMetrics }: OverviewCardsProps)
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {metrics.map((metric) => {
+      {metrics.map((metric, i) => {
         const Icon = metricIcons[metric.id] ?? CircleDotDashed;
 
         return (
-          <Card key={metric.id} className="bg-white/90 shadow-sm">
-            <CardHeader className="space-y-4">
+          <Card key={metric.id} className="overflow-hidden border-t-2 border-primary/20 bg-white shadow-sm">
+            <CardHeader className="space-y-4 bg-gradient-to-br from-primary/[0.04] via-transparent to-transparent">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" aria-hidden="true" />
@@ -61,7 +61,7 @@ export function OverviewCards({ metrics = overviewMetrics }: OverviewCardsProps)
               </div>
               <div>
                 <CardDescription>{metric.label}</CardDescription>
-                <CardTitle className="mt-2 text-3xl">{metric.value}</CardTitle>
+                <CardTitle className="mt-2 text-3xl tabular-nums">{metric.value}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>

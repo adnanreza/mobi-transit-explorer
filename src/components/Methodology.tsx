@@ -58,7 +58,7 @@ export function Methodology() {
         const Icon = group.icon;
 
         return (
-          <Card key={group.title} className="bg-white/90 shadow-sm">
+          <Card key={group.title} className="border-dashed bg-white/80 shadow-sm">
             <CardHeader>
               <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" aria-hidden="true" />

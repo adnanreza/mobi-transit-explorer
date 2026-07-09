@@ -3,9 +3,10 @@ import { AppShell } from "@/components/AppShell";
 import { Explorer } from "@/components/Explorer";
 import { FeatureStatusBadge } from "@/components/FeatureStatusBadge";
 import { Methodology } from "@/components/Methodology";
-import { OverviewCards } from "@/components/OverviewCards";
 import { OpportunityTable } from "@/components/OpportunityTable";
+import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
+import { Reveal } from "@/components/Reveal";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,7 +60,7 @@ function App() {
           </div>
         </div>
 
-        <Card className="overflow-hidden border-white/80 bg-white/90 shadow-soft backdrop-blur">
+        <Card className="overflow-hidden border border-primary/15 bg-gradient-to-br from-white via-white/95 to-primary/[0.03] shadow-soft backdrop-blur">
           <CardHeader className="pb-4">
             <FeatureStatusBadge status="live" />
             <CardTitle>Product foundation</CardTitle>
@@ -76,7 +77,7 @@ function App() {
               <Metric label="Next" value="CSV-ready" />
             </div>
             <Separator />
-            <div className="rounded-lg border bg-accent/55 p-4">
+            <div className="rounded-lg border bg-gradient-to-br from-accent/60 to-accent/40 p-4">
               <p className="text-sm font-medium text-accent-foreground">
                 Built to grow from polished placeholder sections into a real
                 browser-based exploration of Mobi and transit connections.
@@ -86,41 +87,49 @@ function App() {
         </Card>
       </PageSection>
 
-      <PageSection id="overview" className="space-y-6">
-        <SectionHeader
-          title="Overview"
-          description="A fast read on the sample Mobi network, transit adjacency, and opportunity signals that will guide the explorer."
-          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
-        />
-        <OverviewCards />
-      </PageSection>
+      <Reveal>
+        <PageSection id="overview" className="space-y-6">
+          <SectionHeader
+            title="Overview"
+            description="A fast read on the sample Mobi network, transit adjacency, and opportunity signals that will guide the explorer."
+            className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+          />
+          <OverviewCards />
+        </PageSection>
+      </Reveal>
 
-      <PageSection id="map" className="space-y-6">
-        <SectionHeader
-          title="Map"
-          description="Filter sample trips, inspect station geography, and select a station to review its transit connector profile."
-          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
-        />
-        <Explorer />
-      </PageSection>
+      <Reveal delay={100}>
+        <PageSection id="map" className="space-y-6">
+          <SectionHeader
+            title="Map"
+            description="Filter sample trips, inspect station geography, and select a station to review its transit connector profile."
+            className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+          />
+          <Explorer />
+        </PageSection>
+      </Reveal>
 
-      <PageSection id="opportunities" className="space-y-6">
-        <SectionHeader
-          title="Opportunities"
-          description="A ranked view of where bike share and transit connections can be improved next."
-          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
-        />
-        <OpportunityTable />
-      </PageSection>
+      <Reveal delay={200}>
+        <PageSection id="opportunities" className="space-y-6">
+          <SectionHeader
+            title="Opportunities"
+            description="A ranked view of where bike share and transit connections can be improved next."
+            className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+          />
+          <OpportunityTable />
+        </PageSection>
+      </Reveal>
 
-      <PageSection id="methodology" className="space-y-6">
-        <SectionHeader
-          title="Methodology"
-          description="How the mock MVP works today, what the connector score represents, and how public Mobi CSVs can replace sample data later."
-          className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
-        />
-        <Methodology />
-      </PageSection>
+      <Reveal delay={300}>
+        <PageSection id="methodology" className="space-y-6">
+          <SectionHeader
+            title="Methodology"
+            description="How the mock MVP works today, what the connector score represents, and how public Mobi CSVs can replace sample data later."
+            className="[&_h2]:text-2xl [&_h2]:sm:text-3xl"
+          />
+          <Methodology />
+        </PageSection>
+      </Reveal>
     </AppShell>
   );
 }
@@ -131,7 +140,7 @@ function Metric({ label, value }: { label: string; value: string }) {
       <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
         {label}
       </p>
-      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
+      <p className="mt-2 text-lg font-semibold text-slate-950 tabular-nums">{value}</p>
     </div>
   );
 }

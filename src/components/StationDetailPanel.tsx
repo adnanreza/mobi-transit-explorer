@@ -1,4 +1,5 @@
 import { Bike, MapPin, Route, Zap } from "lucide-react";
+import { Sparkline } from "react-tiny-sparkline";
 import { transitNodes } from "@/data/transitNodes";
 import type { MobiStation } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -71,19 +72,37 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
               {station.connectorScore}/100
             </span>
           </div>
-          <Progress value={station.connectorScore} aria-label="Transit connector score" />
+          <Progress value={station.connectorScore} className="tabular-nums" aria-label="Transit connector score" />
         </div>
 
         <Separator />
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-          <MetricBlock icon={Bike} label="Monthly trips" value={station.monthlyTrips.toLocaleString("en-CA")} />
+          <MetricBlock icon={Bike} label="Monthly trips" value={station.monthlyTrips.toLocaleString("en-CA")}>
+            <Sparkline data={station.trend} variant="area" color="#008fd3" width={80} height={24} />
+          </MetricBlock>
           <MetricBlock
             icon={Route}
             label="Trips near transit"
             value={`${station.tripsNearTransitPercentage}%`}
-          />
-          <MetricBlock icon={Zap} label="E-bike share" value={`${station.ebikeShare}%`} />
+          >
+            <Sparkline
+              data={station.trend.map((t) => Math.round(t * (station.tripsNearTransitPercentage / 100)))}
+              variant="bar"
+              color="#22c55e"
+              width={80}
+              height={24}
+            />
+          </MetricBlock>
+          <MetricBlock icon={Zap} label="E-bike share" value={`${station.ebikeShare}%`}>
+            <Sparkline
+              data={station.trend.map(() => Math.round(station.ebikeShare + (Math.random() - 0.5) * 8))}
+              variant="area"
+              color="#a855f7"
+              width={80}
+              height={24}
+            />
+          </MetricBlock>
         </div>
 
         <Separator />
@@ -107,10 +126,12 @@ function MetricBlock({
   icon: Icon,
   label,
   value,
+  children,
 }: {
   icon: typeof Bike;
   label: string;
   value: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="rounded-lg border bg-white p-3">
@@ -118,7 +139,8 @@ function MetricBlock({
         <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
         {label}
       </div>
-      <div className="text-base font-semibold text-slate-950">{value}</div>
+      <div className="text-base font-semibold text-slate-950 tabular-nums">{value}</div>
+      {children ? <div className="mt-1">{children}</div> : null}
     </div>
   );
 }

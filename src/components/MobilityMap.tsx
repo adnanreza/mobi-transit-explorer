@@ -48,22 +48,28 @@ export function MobilityMap({
         <Legend />
       </CardHeader>
       <CardContent>
-        <div
-          className="relative min-h-[560px] overflow-hidden rounded-lg border bg-[linear-gradient(135deg,#f8fbfd_0%,#eef8fc_48%,#ffffff_100%)]"
-          aria-label="Mobi stations and transit nodes map"
-        >
-          <div className="absolute left-0 top-0 h-40 w-full bg-sky-100/70" />
-          <div className="absolute left-[-8%] top-[8%] h-72 w-[54%] rounded-full bg-sky-200/60 blur-sm" />
-          <div className="absolute bottom-0 right-0 h-48 w-[46%] rounded-tl-[60%] bg-emerald-50" />
-          <div className="absolute left-[14%] top-[60%] h-1.5 w-[72%] -rotate-6 rounded-full bg-slate-300/55" />
-          <div className="absolute left-[28%] top-[36%] h-1.5 w-[58%] rotate-[28deg] rounded-full bg-slate-300/45" />
-          <div className="absolute left-[32%] top-[18%] flex items-center gap-2 text-xs font-medium text-sky-700">
-            <Waves className="h-4 w-4" aria-hidden="true" />
-            Burrard Inlet
-          </div>
-          <div className="absolute bottom-5 left-6 text-xs font-medium text-muted-foreground">
-            Downtown / False Creek / East Vancouver sample grid
-          </div>
+<div
+            className="relative min-h-[560px] overflow-hidden rounded-lg border bg-[linear-gradient(135deg,#f0f8ff_0%,#e8f4fa_48%,#fafcff_100%)]"
+            aria-label="Mobi stations and transit nodes map"
+          >
+            <div className="absolute left-0 top-0 h-36 w-full bg-gradient-to-b from-sky-200/50 to-transparent" />
+            <div className="absolute left-[-8%] top-[5%] h-80 w-[54%] rounded-full bg-sky-200/40 blur-xl" />
+            <div className="absolute left-[50%] top-[10%] h-32 w-[28%] rounded-full bg-sky-200/30 blur-md" />
+            <div className="absolute bottom-0 right-0 h-48 w-[46%] rounded-tl-[60%] bg-emerald-50" />
+            <div className="absolute left-[30%] top-[74%] h-16 w-[20%] rounded-full bg-emerald-200/30 blur-md" />
+            <div className="absolute left-[14%] top-[60%] h-1.5 w-[72%] -rotate-6 rounded-full bg-slate-300/55" />
+            <div className="absolute left-[28%] top-[36%] h-1.5 w-[58%] rotate-[28deg] rounded-full bg-slate-300/45" />
+            <div className="absolute left-[32%] top-[18%] flex items-center gap-2 text-xs font-medium text-sky-700">
+              <Waves className="h-4 w-4" aria-hidden="true" />
+              Burrard Inlet
+            </div>
+            <div className="absolute left-[56%] top-[26%] flex items-center gap-2 text-xs font-medium text-sky-700">
+              <Waves className="h-3 w-3" aria-hidden="true" />
+              False Creek
+            </div>
+            <div className="absolute bottom-5 left-6 text-xs font-medium text-muted-foreground">
+              Downtown / False Creek / East Vancouver sample grid
+            </div>
 
           {transitNodes.map((node) => (
             <div
@@ -72,7 +78,7 @@ export function MobilityMap({
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
             >
               <div
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-slate-950 text-white shadow-sm"
+                className="flex h-8 w-8 animate-pulse items-center justify-center rounded-lg border border-slate-300 bg-slate-950 text-white shadow-sm"
                 title={`${node.name} transit node`}
                 aria-label={`${node.name} transit node`}
               >
@@ -95,10 +101,10 @@ export function MobilityMap({
                 aria-pressed={selected}
                 title={`${station.name}: ${station.connectorScore} connector score`}
                 className={cn(
-                  "group absolute z-30 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-sm outline-none transition-transform hover:scale-125 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "group absolute z-30 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-sm outline-none transition-all duration-300 hover:scale-125 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   volumeSize[station.tripVolume],
                   getScoreColor(station.connectorScore),
-                  selected && "scale-125 ring-4 ring-primary/25",
+                  selected && "scale-125 ring-4 ring-primary/25 shadow-lg",
                 )}
                 style={{ left: `${station.x}%`, top: `${station.y}%` }}
                 onClick={() => onStationSelect?.(station)}

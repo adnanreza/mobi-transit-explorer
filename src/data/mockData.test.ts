@@ -45,6 +45,8 @@ describe("mock data layer", () => {
       expect(station.topDestinations.length).toBeGreaterThan(0);
       expect(station.tripVolume).toBeTruthy();
       expect(station.commuteStrength).toBeTruthy();
+      expect(Array.isArray(station.trend)).toBe(true);
+      expect(station.trend).toHaveLength(7);
     }
   });
 

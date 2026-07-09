@@ -45,3 +45,7 @@ Proposed structure:
 - Real-data path is clear.
 - No raw data implementation is required yet.
 - The project has a credible next phase.
+
+## Status
+
+<span style="color:green">**COMPLETE**</span>
