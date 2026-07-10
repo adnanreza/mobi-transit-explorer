@@ -112,6 +112,25 @@ export type FlowsArtifact = {
   stations: StationFlows[];
 };
 
+export type ForecastArtifact = {
+  modelCard: {
+    station: string;
+    features: string[];
+    constraint: string;
+    trainRange: string;
+    testRange: string;
+    nTrain: number;
+    nTest: number;
+    testMae: number;
+    baselineMae: number;
+    testR2: number;
+  };
+  tempBandsC: number[];
+  rainLevelsMm: number[];
+  // [month-1][0=weekday,1=weekend][tempIdx][rainIdx] -> predicted daily trips
+  grid: number[][][][];
+};
+
 export type OpportunityRule =
   | "dock-capacity-pressure"
   | "ebike-gap"

@@ -5,6 +5,7 @@
 
 import type {
   FlowsArtifact,
+  ForecastArtifact,
   GeneratedOpportunity,
   GeneratedStation,
   HourlyRow,
@@ -33,6 +34,7 @@ import weatherJson from "@/data/generated/weather.json";
 import stationsJson from "@/data/generated/stations.json";
 import opportunitiesJson from "@/data/generated/opportunities.json";
 import flowsJson from "@/data/generated/flows.json";
+import forecastJson from "@/data/generated/forecast.json";
 
 export const meta = metaJson as Meta;
 export const yearly = yearlyJson as YearlyRow[];
@@ -44,6 +46,7 @@ export const stationsArtifact = stationsJson as StationsArtifact;
 export const generatedOpportunities =
   opportunitiesJson as unknown as GeneratedOpportunity[];
 export const flows = flowsJson as FlowsArtifact;
+export const forecast = forecastJson as ForecastArtifact;
 
 export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),

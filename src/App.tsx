@@ -9,6 +9,7 @@ import { PageSection } from "@/components/PageSection";
 import { RealMobiCharts } from "@/components/RealMobiCharts";
 import { Reveal } from "@/components/Reveal";
 import { StorySection } from "@/components/story/StorySection";
+import { WeatherModelBlock } from "@/components/story/WeatherModelBlock";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { meta } from "@/data";
@@ -79,6 +80,7 @@ function App() {
             description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike."
           />
           <StorySection />
+          <WeatherModelBlock />
         </PageSection>
       </Reveal>
 

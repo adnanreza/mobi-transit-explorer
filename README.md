@@ -49,6 +49,8 @@ python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
 .venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
 .venv/bin/python pipeline/geo_publish.py     # simplified shoreline geometry
 .venv/bin/python pipeline/quality_report.py  # regenerate docs/data-quality-report.md
+.venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather
+.venv/bin/python pipeline/train_model.py     # ridership model -> forecast.json
 ```
 
 Committed: the source manifest (with checksums for all 102 files) and the small generated aggregates. Never committed: raw trip data or the warehouse.
@@ -88,4 +90,4 @@ Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https:
 
 On acquisition: the DLA restricts access to the interface VBS provides. The trip files here are the ones VBS links publicly on its system-data page; `pipeline/download.py` automates clicking those same links for reproducibility, and manually downloading the files into `data-raw/` is an equally supported path (the checksum manifest verifies either). Questions about the agreement go to info@mobibikes.ca.
 
-Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with, approved, endorsed, or sponsored by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
+Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather observations from [Environment and Climate Change Canada](https://climate.weather.gc.ca) (Open Government Licence – Canada). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with, approved, endorsed, or sponsored by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
