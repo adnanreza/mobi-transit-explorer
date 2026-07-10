@@ -177,6 +177,43 @@ def build_artifacts(con) -> dict[str, object]:
             GROUP BY name ORDER BY name""")
     ]
 
+    # Flows: hourly departure/return profiles + balance stats, limited to the
+    # station set the app already renders (active with coordinates).
+    station_ids = {s["id"] for s in stations}
+    flow_profiles: dict[str, dict] = {
+        sid: {
+            "weekday": {"dep": [0] * 24, "ret": [0] * 24},
+            "weekend": {"dep": [0] * 24, "ret": [0] * 24},
+        }
+        for sid in station_ids
+    }
+    for r in rows(con, "SELECT * FROM v_station_flows"):
+        profile = flow_profiles.get(r["station_id"])
+        if profile is None:
+            continue
+        profile[r["day_type"]]["dep"][r["hour"]] = r["departures"]
+        profile[r["day_type"]]["ret"][r["hour"]] = r["returns"]
+    balance = {
+        r["station_id"]: r
+        for r in rows(con, "SELECT * FROM v_station_balance")
+    }
+    day_counts = rows(con, "SELECT * FROM v_flow_day_counts")[0]
+    flows = {
+        "networkDailyRebalancing": one(con, "SELECT bikes_per_day FROM v_network_rebalancing"),
+        "weekdayCount": day_counts["weekday_count"],
+        "weekendCount": day_counts["weekend_count"],
+        "stations": [
+            {
+                "id": s["id"],
+                "avgDailyNet": balance.get(s["id"], {}).get("avg_daily_net", 0),
+                "avgAbsDailyNet": balance.get(s["id"], {}).get("avg_abs_daily_net", 0),
+                "avgPeakSwing": balance.get(s["id"], {}).get("avg_peak_swing", 0),
+                **flow_profiles[s["id"]],
+            }
+            for s in stations
+        ],
+    }
+
     rule_labels = {
         "dock-capacity-pressure": "Increase dock capacity",
         "ebike-gap": "Prioritize e-bikes",
@@ -258,6 +295,7 @@ def build_artifacts(con) -> dict[str, object]:
         "weather.json": weather,
         "stations.json": {"stations": stations, "transit": transit},
         "opportunities.json": opportunities,
+        "flows.json": flows,
     }
 
 

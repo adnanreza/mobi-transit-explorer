@@ -161,6 +161,102 @@ SELECT
   CAST(round(100 * c_diversity) AS INTEGER) AS comp_destination_diversity
 FROM scored;
 
+-- Station flows: departures and returns per station x day type x hour over
+-- the trailing 12 months. Day type comes from each end's own timestamp — a
+-- late ride can depart on a Friday and return on a Saturday.
+CREATE OR REPLACE VIEW v_flow_day_counts AS
+SELECT
+  sum(CASE WHEN isodow(d) < 6 THEN 1 ELSE 0 END) AS weekday_count,
+  sum(CASE WHEN isodow(d) >= 6 THEN 1 ELSE 0 END) AS weekend_count
+FROM (
+  SELECT DISTINCT date_key AS d FROM countable_trips
+  WHERE trip_month IN (SELECT trip_month FROM v_t12_months)
+);
+
+CREATE OR REPLACE VIEW v_station_flows AS
+WITH events AS (
+  SELECT departure_station_id AS station_id,
+         CASE WHEN isodow(departure_ts) >= 6 THEN 'weekend' ELSE 'weekday' END AS day_type,
+         CAST(hour(departure_ts) AS INTEGER) AS hour,
+         1 AS departures, 0 AS returns
+  FROM countable_trips
+  WHERE departure_station_id IS NOT NULL
+    AND trip_month IN (SELECT trip_month FROM v_t12_months)
+  UNION ALL
+  SELECT return_station_id,
+         CASE WHEN isodow(return_ts) >= 6 THEN 'weekend' ELSE 'weekday' END,
+         CAST(hour(return_ts) AS INTEGER),
+         0, 1
+  FROM countable_trips
+  WHERE return_station_id IS NOT NULL
+    AND trip_month IN (SELECT trip_month FROM v_t12_months)
+)
+SELECT station_id, day_type, hour,
+       sum(departures) AS departures, sum(returns) AS returns
+FROM events
+GROUP BY 1, 2, 3;
+
+-- Daily net flow per station (returns - departures): the imbalance riders
+-- create, which crews must undo. Mobi excludes its own rebalancing trips
+-- from the published data, so this is inference — and labelled as such.
+CREATE OR REPLACE VIEW v_station_daily_net AS
+WITH events AS (
+  SELECT departure_station_id AS station_id, departure_ts::DATE AS day, -1 AS net
+  FROM countable_trips
+  WHERE departure_station_id IS NOT NULL
+    AND trip_month IN (SELECT trip_month FROM v_t12_months)
+  UNION ALL
+  SELECT return_station_id, return_ts::DATE, 1
+  FROM countable_trips
+  WHERE return_station_id IS NOT NULL
+    AND trip_month IN (SELECT trip_month FROM v_t12_months)
+)
+SELECT station_id, day, sum(net) AS net
+FROM events GROUP BY 1, 2;
+
+CREATE OR REPLACE VIEW v_station_balance AS
+WITH hourly AS (
+  SELECT station_id, day, h, sum(net) AS net FROM (
+    SELECT departure_station_id AS station_id, departure_ts::DATE AS day,
+           hour(departure_ts) AS h, -1 AS net
+    FROM countable_trips
+    WHERE departure_station_id IS NOT NULL
+      AND trip_month IN (SELECT trip_month FROM v_t12_months)
+    UNION ALL
+    SELECT return_station_id, return_ts::DATE, hour(return_ts), 1
+    FROM countable_trips
+    WHERE return_station_id IS NOT NULL
+      AND trip_month IN (SELECT trip_month FROM v_t12_months)
+  ) GROUP BY 1, 2, 3
+),
+cumulative AS (
+  SELECT station_id, day,
+         sum(net) OVER (PARTITION BY station_id, day ORDER BY h) AS running
+  FROM hourly
+),
+swings AS (
+  -- measured against the day's zero starting point, so a station that only
+  -- drains still shows its full drift
+  SELECT station_id, day,
+         greatest(max(running), 0) - least(min(running), 0) AS swing
+  FROM cumulative GROUP BY 1, 2
+)
+SELECT
+  n.station_id,
+  round(avg(n.net), 2)      AS avg_daily_net,
+  round(avg(abs(n.net)), 2) AS avg_abs_daily_net,
+  round(avg(s.swing), 1)    AS avg_peak_swing
+FROM v_station_daily_net n
+JOIN swings s USING (station_id, day)
+GROUP BY 1;
+
+CREATE OR REPLACE VIEW v_network_rebalancing AS
+SELECT CAST(round(avg(moved)) AS INTEGER) AS bikes_per_day
+FROM (
+  SELECT day, sum(abs(net)) / 2.0 AS moved
+  FROM v_station_daily_net GROUP BY day
+);
+
 -- Rule-based operational opportunities, each citing its evidence numbers.
 CREATE OR REPLACE VIEW v_opportunities AS
 WITH profile AS (

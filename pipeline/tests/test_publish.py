@@ -88,6 +88,66 @@ def test_same_file_duplicates_are_kept(env):  # noqa: F811
     assert dupes == 0
 
 
+def test_flows_bucket_hours_and_reconcile(env):  # noqa: F811
+    con, data_raw, _ = env
+    rows = [
+        # weekday (2026-05-01 is a Friday): departs 0001 at 10, returns 0002 at 10
+        modern_row(),
+        # weekend (2026-05-02 is a Saturday)
+        modern_row(dep="2026-05-02 14:00:00", ret="2026-05-02 15:00:00"),
+    ]
+    may = data_raw / "trips" / "2026-05.csv"
+    may.write_text(MODERN_HEADER + "\n" + "\n".join(rows) + "\n", encoding="utf-8")
+    run_pipeline(con, data_raw, {"2026-05": (may, "csv")})
+    run_publish_views(con)
+
+    flows = {
+        (r[0], r[1], r[2]): (r[3], r[4])
+        for r in con.execute(
+            "SELECT station_id, day_type, hour, departures, returns FROM v_station_flows"
+        ).fetchall()
+    }
+    assert flows[("0001", "weekday", 10)] == (1, 0)
+    assert flows[("0002", "weekday", 10)] == (0, 1)
+    assert flows[("0001", "weekend", 14)] == (1, 0)
+    assert flows[("0002", "weekend", 15)] == (0, 1)
+
+    total_dep = con.execute("SELECT sum(departures) FROM v_station_flows").fetchone()[0]
+    resolved = con.execute(
+        "SELECT count(*) FROM countable_trips WHERE departure_station_id IS NOT NULL"
+    ).fetchone()[0]
+    assert total_dep == resolved
+
+    day_counts = con.execute(
+        "SELECT weekday_count, weekend_count FROM v_flow_day_counts"
+    ).fetchone()
+    assert day_counts == (1, 1)
+
+
+def test_station_balance_and_network_rebalancing(env):  # noqa: F811
+    con, data_raw, _ = env
+    # One day: two bikes ride 0001 -> 0002 and never come back.
+    rows = [
+        modern_row(),
+        modern_row(dep="2026-05-01 12:00:00", ret="2026-05-01 12:30:00"),
+    ]
+    may = data_raw / "trips" / "2026-05.csv"
+    may.write_text(MODERN_HEADER + "\n" + "\n".join(rows) + "\n", encoding="utf-8")
+    run_pipeline(con, data_raw, {"2026-05": (may, "csv")})
+    run_publish_views(con)
+
+    balance = {
+        r[0]: (r[1], r[2])
+        for r in con.execute(
+            "SELECT station_id, avg_daily_net, avg_peak_swing FROM v_station_balance"
+        ).fetchall()
+    }
+    assert balance["0001"] == (-2.0, 2.0)  # drained two bikes, swing 2
+    assert balance["0002"] == (2.0, 2.0)   # gained two bikes
+    network = con.execute("SELECT bikes_per_day FROM v_network_rebalancing").fetchone()[0]
+    assert network == 2  # (|-2| + |2|) / 2
+
+
 def test_monthly_view_reconciles_with_countable_trips(env):  # noqa: F811
     con, data_raw, _ = env
     rows = [

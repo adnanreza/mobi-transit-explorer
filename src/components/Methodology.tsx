@@ -98,6 +98,20 @@ export function Methodology() {
         </p>
       </Section>
 
+      <Section title="Flows and implied rebalancing">
+        <p>
+          Every trip has two ends, so each station's hourly inflow and outflow
+          — and its daily net imbalance — falls straight out of the fact
+          table. The "bikes moved by hand" number is the average daily sum of
+          absolute station imbalances across the network, divided by two
+          (a moved bike leaves one station and lands at another). It is an
+          inference, not a measurement: Mobi removes its crews' rebalancing
+          trips before publishing, which is precisely why rider-created
+          imbalance must be undone invisibly. Trips with only one resolvable
+          end (~2% of recent months) count toward the end they have.
+        </p>
+      </Section>
+
       <Section title="Scores and rules">
         <p>
           The connector score weighs five signals over the trailing twelve
