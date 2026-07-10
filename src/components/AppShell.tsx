@@ -80,7 +80,8 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
           <p>A data product by Adnan Reza.</p>
           <p>
             Data: Mobi by Rogers system data · Mobi GBFS · City of Vancouver
-            Open Data. Not affiliated with Mobi or the City of Vancouver.
+            Open Data · Basemap © OpenFreeMap, OpenStreetMap contributors.
+            Not affiliated with Mobi or the City of Vancouver.
           </p>
         </div>
       </footer>

@@ -28,6 +28,7 @@ The offline data pipeline (`pipeline/`) is build-time tooling, like the existing
 | 023 | `feature/yearly-story` | Year-over-year narrative section: growth, seasonality, COVID, e-bikes, weather |
 | 024 | `feature/explorer-refresh` | Explorer rebuilt on multi-year data: filters, station profiles, opportunities |
 | 025 | `feature/methodology-case-study` | Methodology rewritten as a data-engineering case study; README and copy pass |
+| 026 | `feature/interactive-map` | Zoomable MapLibre GL map on the OpenFreeMap basemap (supersedes 021's static SVG at the owner's request) |
 
 Specs 018-020 are the foundation and should land first, in order. 021 depends on 020. 022 can start in parallel with 021. 023-025 depend on 020 and 022.
 

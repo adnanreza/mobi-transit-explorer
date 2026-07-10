@@ -59,3 +59,24 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* MapLibre chrome, tuned to the design system */
+.station-popup .maplibregl-popup-content {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  box-shadow: none;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+}
+
+.station-popup .maplibregl-popup-content strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}

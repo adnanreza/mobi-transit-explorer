@@ -34,8 +34,8 @@ In under 30 seconds, the app should communicate:
 - Design-system layout foundation with reusable sections and status badges.
 - Generated real-data station metrics, overview charts, and opportunities from public Mobi CSVs.
 - Overview metric cards.
-- Interactive filter panel.
-- Custom map-style mobility explorer without Leaflet or MapLibre.
+- Interactive filter panel and station finder.
+- Zoomable MapLibre GL map (OpenFreeMap basemap) with every station at its true GBFS location.
 - Station detail panel.
 - Main explorer composition with filter, map, and station profile state.
 - Opportunity ranking table.
