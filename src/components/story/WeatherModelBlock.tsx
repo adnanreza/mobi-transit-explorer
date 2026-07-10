@@ -33,16 +33,8 @@ export function WeatherModelBlock() {
   const card = forecast.modelCard;
 
   return (
-    <div className="border-t border-border pt-10">
-      <h3 className="text-lg font-medium tracking-tight text-foreground">
-        What moves ridership
-      </h3>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-        A gradient-boosted model over calendar and Environment Canada weather,
-        trained on 2017–2024 and tested on everything since. Pick a day:
-      </p>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-4">
+    <div>
+      <div className="grid gap-3 border-t border-border pt-10 sm:grid-cols-4">
         <Picker
           label="Month"
           value={String(month)}

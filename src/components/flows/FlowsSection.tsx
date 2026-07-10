@@ -4,7 +4,7 @@ import type { ChartOptions } from "chart.js";
 import { chartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { StationFinder } from "@/components/StationFinder";
-import { flows } from "@/data";
+import { flows, stationsArtifact } from "@/data";
 import {
   eveningExporters,
   morningImporters,
@@ -40,6 +40,8 @@ export function FlowsSection() {
   const exporters = eveningExporters();
   const profile = stationDayProfile(stationId, dayType);
   const balance = stationBalance(stationId);
+  const stationName =
+    stationsArtifact.stations.find((s) => s.id === stationId)?.name ?? stationId;
 
   return (
     <div className="space-y-16">
@@ -101,7 +103,14 @@ export function FlowsSection() {
           </div>
         </div>
 
-        <div className="mt-6 h-64 sm:h-72">
+        <p className="mt-6 text-base font-medium tracking-tight text-foreground">
+          {stationName}
+          <span className="font-normal text-muted-foreground">
+            {" "}
+            — a typical {dayType === "weekday" ? "weekday" : "weekend day"}, hour by hour
+          </span>
+        </p>
+        <div className="mt-4 h-64 sm:h-72">
           {testMode ? (
             <div
               role="img"
@@ -111,7 +120,9 @@ export function FlowsSection() {
               Station flow chart
             </div>
           ) : (
-            <ChartReveal>
+            // key remounts the chart on every change, replaying the draw
+            // animation — switching stations is visibly a new chart
+            <ChartReveal key={`${stationId}-${dayType}`}>
               <Line
                 data={{
                   labels: HOUR_LABELS,
