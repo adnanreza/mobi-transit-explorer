@@ -11,10 +11,12 @@ export function Methodology() {
   return (
     <div className="max-w-3xl space-y-14">
       <p className="text-lg leading-8 text-foreground">
-        I live in Vancouver without a car. Mobi, my feet, and TransLink are how
-        I move through this city — so when Mobi publishes nine years of trip
-        data, that's not an abstract dataset to me. This section is the honest
-        account of how those files become the numbers above.
+        I moved to Vancouver in August 2015 and have never owned a car here —
+        transit, bike share, and walking, with zero regrets and some fun along
+        the way. Mobi arrived the summer after I did, so its entire public
+        record overlaps my own years moving through this city. That's why nine
+        years of trip files aren't an abstract dataset to me, and why this
+        section is the honest account of how they become the numbers above.
       </p>
 
       <Section title="The data">
