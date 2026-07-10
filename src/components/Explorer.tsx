@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
 import { MobilityMap } from "@/components/MobilityMap";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
-import { Badge } from "@/components/ui/badge";
 import { meta, stationsAll as stations } from "@/data";
 
 export function Explorer() {
@@ -15,20 +14,16 @@ export function Explorer() {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="outline" className="bg-white text-muted-foreground">
-          Trailing 12 months to {meta.sourceWindow.lastMonth}
-        </Badge>
-        <Badge variant="outline" className="bg-white text-muted-foreground">
-          {formatFilter(filters.dayType)} days
-        </Badge>
-        <Badge variant="outline" className="bg-white text-muted-foreground">
-          {filters.transitDistance} transit walk
-        </Badge>
-      </div>
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        <span>Trailing 12 months to {meta.sourceWindow.lastMonth}</span>
+        <span aria-hidden="true"> · </span>
+        <span>{formatFilter(filters.dayType)} days</span>
+        <span aria-hidden="true"> · </span>
+        <span>{filters.transitDistance} transit walk</span>
+      </p>
 
-      <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
+      <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <FilterPanel
           filters={filters}
           onFiltersChange={setFilters}

@@ -1,16 +1,6 @@
-import { ArrowUpRight } from "lucide-react";
 import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
 import { opportunities as defaultOpportunities, stationsAll as stations } from "@/data";
 import type { Opportunity, PriorityLevel } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -30,112 +20,97 @@ export function OpportunityTable({
 }: OpportunityTableProps) {
   if (opportunities.length === 0) {
     return (
-      <Card className="bg-white/90 shadow-sm">
-        <CardHeader>
-          <CardTitle>No opportunities ranked yet</CardTitle>
-          <CardDescription>
-            Opportunity scores will appear here when processed Mobi station data is available.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="border-t border-border pt-6">
+        <h3 className="text-lg font-medium tracking-tight text-foreground">
+          No opportunities ranked yet
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Opportunity scores will appear here when processed Mobi station data
+          is available.
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card className="bg-white/90 shadow-sm">
-      <CardHeader>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-1.5">
-            <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-              Ranked insights
-            </Badge>
-            <CardTitle>Opportunity ranking</CardTitle>
-            <CardDescription>
-              Decision-oriented priorities for where Mobi can better support transit access.
-            </CardDescription>
-          </div>
-          <Badge className="w-fit bg-primary/10 text-primary" variant="secondary">
-            {opportunities.length} ranked areas
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Separator className="mb-2" />
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Rank</TableHead>
-              <TableHead>Area/station</TableHead>
-              <TableHead>Opportunity type</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Priority</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {opportunities.map((opportunity) => {
-              const station = stations.find((item) => item.id === opportunity.stationId);
+    <div className="border-t border-border pt-2">
+      <h3 className="sr-only">Opportunity ranking</h3>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>Rank</TableHead>
+            <TableHead>Station</TableHead>
+            <TableHead>Opportunity</TableHead>
+            <TableHead>Evidence</TableHead>
+            <TableHead>Priority</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {opportunities.map((opportunity) => {
+            const station = stations.find((item) => item.id === opportunity.stationId);
 
-              return (
-                <TableRow key={opportunity.rank}>
-                  <TableCell className="font-semibold text-slate-950">
-                    #{opportunity.rank}
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium text-slate-950">
-                      {station?.name ?? opportunity.area}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {opportunity.area}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2 font-medium">
-                      <ArrowUpRight className="h-4 w-4 text-primary" aria-hidden="true" />
-                      {opportunity.type}
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-md text-muted-foreground">
-                    <div className="flex items-start gap-3">
-                      {station ? (
-                        <div
-                          className="mt-0.5 hidden shrink-0 sm:block"
-                        >
-                          <MiniTrendChart
-                            ariaLabel="Connector score component chart"
-                            data={Object.values(station.connectorScoreComponents)}
-                            type="bar"
-                            color="#008fd3"
-                          />
-                        </div>
-                      ) : null}
-                      <span>{opportunity.reason}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <PriorityBadge priority={opportunity.priority} />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            return (
+              <TableRow key={opportunity.rank} className="hover:bg-muted/40">
+                <TableCell className="text-muted-foreground tabular-nums">
+                  #{opportunity.rank}
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium text-foreground">
+                    {station?.name ?? opportunity.area}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {opportunity.area}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium text-foreground">
+                  {opportunity.type}
+                </TableCell>
+                <TableCell className="max-w-md text-muted-foreground">
+                  <div className="flex items-start gap-3">
+                    {station ? (
+                      <div className="mt-0.5 hidden shrink-0 sm:block">
+                        <MiniTrendChart
+                          ariaLabel="Connector score component chart"
+                          data={Object.values(station.connectorScoreComponents)}
+                          type="bar"
+                          color="#008fd3"
+                        />
+                      </div>
+                    ) : null}
+                    <span className="text-sm leading-6">{opportunity.reason}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <PriorityText priority={opportunity.priority} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
-function PriorityBadge({ priority }: { priority: PriorityLevel }) {
+function PriorityText({ priority }: { priority: PriorityLevel }) {
   return (
-    <Badge
-      variant="outline"
+    <span
       className={cn(
-        "w-fit",
-        priority === "High" && "border-rose-200 bg-rose-50 text-rose-700",
-        priority === "Medium" && "border-amber-200 bg-amber-50 text-amber-700",
-        priority === "Low" && "border-emerald-200 bg-emerald-50 text-emerald-700",
+        "inline-flex items-center gap-2 text-sm",
+        priority === "High" && "font-semibold text-foreground",
+        priority === "Medium" && "font-medium text-muted-foreground",
+        priority === "Low" && "text-muted-foreground",
       )}
     >
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full",
+          priority === "High" && "bg-primary",
+          priority === "Medium" && "bg-primary/40",
+          priority === "Low" && "bg-border",
+        )}
+      />
       {priority}
-    </Badge>
+    </span>
   );
 }

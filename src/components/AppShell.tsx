@@ -1,7 +1,4 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Bike } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -32,63 +29,61 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
   }, []);
 
   return (
-    <main
-      className={cn(
-        "min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(0,143,211,0.12),transparent_34rem),linear-gradient(180deg,#ffffff_0%,#fafcff_54%,#f0f8fd_100%)]",
-        className,
-      )}
-    >
+    <main className={cn("min-h-screen bg-background", className)}>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-sm"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-10 border-b border-white/75 bg-white/86 backdrop-blur-xl">
-        <div className="container flex flex-col gap-5 py-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-                <Bike className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold tracking-normal text-slate-950 sm:text-3xl">
-                  Mobi Transit Explorer
-                </h1>
-                <p className="text-sm text-muted-foreground sm:text-base">
-                  How bike share extends transit in Vancouver
-                </p>
-              </div>
-            </div>
-            <Badge variant="outline" className="bg-white/75 text-muted-foreground">
-              A front-end data product by Adnan Reza
-            </Badge>
+      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
+        <div className="container flex flex-col gap-1.5 py-3 sm:h-14 sm:flex-row sm:items-center sm:justify-between sm:py-0">
+          <div className="flex items-baseline gap-3">
+            <h1 className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground">
+              Mobi Transit Explorer
+            </h1>
+            <p className="hidden text-sm text-muted-foreground lg:block">
+              How bike share extends transit in Vancouver
+            </p>
           </div>
 
-          <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
+          <nav
+            aria-label="Primary navigation"
+            className="-mx-1.5 flex gap-1 overflow-x-auto sm:mx-0 sm:gap-5"
+          >
             {navItems.map((item) => (
-              <Button
+              <a
                 key={item.href}
-                asChild
-                variant={activeHref === item.href ? "outline" : "ghost"}
-                size="sm"
+                href={item.href}
+                aria-current={activeHref === item.href ? "page" : undefined}
+                onClick={() => setActiveHref(item.href)}
+                className={cn(
+                  "rounded-sm px-1.5 py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                  activeHref === item.href
+                    ? "font-medium text-foreground"
+                    : "text-muted-foreground",
+                )}
               >
-                <a
-                  href={item.href}
-                  aria-current={activeHref === item.href ? "page" : undefined}
-                  onClick={() => setActiveHref(item.href)}
-                >
-                  {item.label}
-                </a>
-              </Button>
+                {item.label}
+              </a>
             ))}
           </nav>
         </div>
       </header>
 
-      <div id="main-content" className="container py-12 sm:py-16 lg:py-20">
+      <div id="main-content" className="container pb-24 pt-16 sm:pt-24">
         {children}
       </div>
+
+      <footer className="border-t border-border">
+        <div className="container flex flex-col gap-2 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>A data product by Adnan Reza.</p>
+          <p>
+            Data: Mobi by Rogers system data · Mobi GBFS · City of Vancouver
+            Open Data. Not affiliated with Mobi or the City of Vancouver.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

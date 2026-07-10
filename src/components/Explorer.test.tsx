@@ -14,7 +14,7 @@ describe("Explorer", () => {
   it("renders filters, map, and detail panel", () => {
     render(<Explorer />);
 
-    expect(screen.getByText("Filter real trip metrics")).toBeInTheDocument();
+    expect(screen.getByText("Filters")).toBeInTheDocument();
     expect(screen.getByText("Mobility map")).toBeInTheDocument();
     expect(screen.getByText("Select a station")).toBeInTheDocument();
   });

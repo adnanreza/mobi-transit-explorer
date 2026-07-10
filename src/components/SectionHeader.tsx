@@ -1,10 +1,8 @@
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type SectionHeaderProps = {
   title: string;
   description?: string;
-  eyebrow?: string;
   headingLevel?: 2 | 3;
   className?: string;
 };
@@ -12,7 +10,6 @@ type SectionHeaderProps = {
 export function SectionHeader({
   title,
   description,
-  eyebrow,
   headingLevel = 2,
   className,
 }: SectionHeaderProps) {
@@ -20,12 +17,7 @@ export function SectionHeader({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {eyebrow ? (
-        <Badge className="bg-primary/10 text-primary" variant="secondary">
-          {eyebrow}
-        </Badge>
-      ) : null}
-      <Heading className="text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">
+      <Heading className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
         {title}
       </Heading>
       {description ? (

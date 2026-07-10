@@ -1,5 +1,4 @@
 import { Bar, Doughnut, Line } from "react-chartjs-2";
-import { Bike, Clock3, Database, MapPin } from "lucide-react";
 import type { ChartOptions, TooltipItem } from "chart.js";
 import {
   hourly,
@@ -9,35 +8,22 @@ import {
   stationsArtifact,
   yearly,
 } from "@/data";
-import "@/components/charts/chartSetup";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-const blue = "#008fd3";
-const slate = "#334155";
-const green = "#16a34a";
-const purple = "#9333ea";
+import { chartColors } from "@/components/charts/chartTheme";
 
 const latestHourly = hourly.find((row) => row.year === lastCompleteYear);
 const latestYearly = yearly.find((row) => row.year === lastCompleteYear);
 const topStations = stationsArtifact.stations.slice(0, 8);
 const hourLabels = Array.from({ length: 24 }, (_, hour) => `${hour}:00`);
+const ebikeShare = latestYearly?.ebikeSharePct ?? 0;
 
 export function RealMobiCharts() {
   const testMode = import.meta.env.MODE === "test";
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      <ChartCard
-        icon={Database}
+    <div className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
+      <ChartBlock
         title="Trips per month since 2017"
-        description={`${meta.totals.trips.toLocaleString("en-CA")} rider trips across ${monthly.length} months of published Mobi data.`}
+        caption={`${meta.totals.trips.toLocaleString("en-CA")} rider trips over ${monthly.length} months. The seasonal wave repeats every year; 2020 bends it without breaking it.`}
       >
         {testMode ? (
           <ChartPlaceholder label="Monthly trips chart" />
@@ -49,24 +35,23 @@ export function RealMobiCharts() {
                 {
                   label: "Trips",
                   data: monthly.map((row) => row.trips),
-                  borderColor: blue,
-                  backgroundColor: "rgba(0, 143, 211, 0.12)",
-                  borderWidth: 2,
+                  borderColor: chartColors.blue,
+                  backgroundColor: chartColors.blueSoft,
+                  borderWidth: 1.5,
                   pointRadius: 0,
                   tension: 0.3,
                   fill: true,
                 },
               ],
             }}
-            options={lineOptions("Trips")}
+            options={lineOptions("Trips", false)}
           />
         )}
-      </ChartCard>
+      </ChartBlock>
 
-      <ChartCard
-        icon={Clock3}
+      <ChartBlock
         title={`Hourly departures, ${lastCompleteYear}`}
-        description="Weekday commute peaks vs the weekend afternoon curve (timestamps are hour-rounded at source)."
+        caption="Weekdays peak twice — the morning and evening commute. Weekends build to one long afternoon. Timestamps are hour-rounded at source."
       >
         {testMode ? (
           <ChartPlaceholder label="Hourly departures chart" />
@@ -78,9 +63,9 @@ export function RealMobiCharts() {
                 {
                   label: "Weekday",
                   data: latestHourly?.weekday ?? [],
-                  borderColor: slate,
-                  backgroundColor: "rgba(51, 65, 85, 0.08)",
-                  borderWidth: 2,
+                  borderColor: chartColors.grayStrong,
+                  backgroundColor: chartColors.graySoft,
+                  borderWidth: 1.5,
                   pointRadius: 0,
                   tension: 0.35,
                   fill: true,
@@ -88,26 +73,25 @@ export function RealMobiCharts() {
                 {
                   label: "Weekend",
                   data: latestHourly?.weekend ?? [],
-                  borderColor: blue,
-                  backgroundColor: "rgba(0, 143, 211, 0.12)",
-                  borderWidth: 2,
+                  borderColor: chartColors.blue,
+                  backgroundColor: chartColors.blueSoft,
+                  borderWidth: 1.5,
                   pointRadius: 0,
                   tension: 0.35,
                   fill: true,
                 },
               ],
             }}
-            options={lineOptions("Departures")}
+            options={lineOptions("Departures", true)}
           />
         )}
-      </ChartCard>
+      </ChartBlock>
 
-      <ChartCard
-        icon={Bike}
+      <ChartBlock
         title={`Bike type split, ${lastCompleteYear}`}
-        description={`E-bikes carried ${latestYearly?.ebikeSharePct ?? 0}% of ${lastCompleteYear} trips, from the source's Electric bike flag.`}
+        caption={`E-bikes carried ${ebikeShare}% of ${lastCompleteYear} trips — the fastest behavioural change in the network's history.`}
       >
-        <div className="mx-auto h-72 max-w-sm">
+        <div className="mx-auto h-64 max-w-xs">
           {testMode ? (
             <ChartPlaceholder label="Bike type split chart" />
           ) : (
@@ -116,35 +100,26 @@ export function RealMobiCharts() {
                 labels: ["Classic", "E-bike"],
                 datasets: [
                   {
-                    data: [
-                      100 - (latestYearly?.ebikeSharePct ?? 0),
-                      latestYearly?.ebikeSharePct ?? 0,
-                    ],
-                    backgroundColor: [slate, purple],
+                    data: [100 - ebikeShare, ebikeShare],
+                    backgroundColor: [chartColors.gray, chartColors.blue],
                     borderColor: "#ffffff",
-                    borderWidth: 3,
+                    borderWidth: 2,
                   },
                 ],
               }}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                    labels: { boxWidth: 12, boxHeight: 12 },
-                  },
-                },
+                cutout: "72%",
               }}
             />
           )}
         </div>
-      </ChartCard>
+      </ChartBlock>
 
-      <ChartCard
-        icon={MapPin}
+      <ChartBlock
         title="Busiest stations, trailing 12 months"
-        description="Departures from the highest-volume stations in the current network."
+        caption={`${topStations[0]?.name ?? ""} leads the network — the seawall, not the office towers, drives peak demand.`}
       >
         {testMode ? (
           <ChartPlaceholder label="Top stations chart" />
@@ -156,15 +131,17 @@ export function RealMobiCharts() {
                 {
                   label: "Departures",
                   data: topStations.map((station) => station.trailing12.trips),
-                  backgroundColor: green,
-                  borderRadius: 8,
+                  backgroundColor: topStations.map((_, index) =>
+                    index === 0 ? chartColors.blue : chartColors.gray,
+                  ),
+                  borderRadius: 4,
                 },
               ],
             }}
-            options={barOptions("Departures", true)}
+            options={barOptions("Departures")}
           />
         )}
-      </ChartCard>
+      </ChartBlock>
     </div>
   );
 }
@@ -174,80 +151,63 @@ function ChartPlaceholder({ label }: { label: string }) {
     <div
       role="img"
       aria-label={label}
-      className="flex h-full items-center justify-center rounded-lg border border-dashed bg-slate-50 text-sm text-muted-foreground"
+      className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground"
     >
       {label}
     </div>
   );
 }
 
-function ChartCard({
-  icon: Icon,
+function ChartBlock({
   title,
-  description,
+  caption,
   children,
 }: {
-  icon: typeof Database;
   title: string;
-  description: string;
+  caption: string;
   children: React.ReactNode;
 }) {
   return (
-    <Card className="bg-white shadow-sm">
-      <CardHeader>
-        <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-          Real Mobi data
-        </Badge>
-        <CardTitle className="flex items-center gap-2">
-          <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-          {title}
-        </CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-80">{children}</div>
-      </CardContent>
-    </Card>
+    <figure>
+      <h3 className="text-lg font-medium tracking-tight text-foreground">{title}</h3>
+      <div className="mt-4 h-64">{children}</div>
+      <figcaption className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
+        {caption}
+      </figcaption>
+    </figure>
   );
 }
 
-function barOptions(label: string, horizontal = false): ChartOptions<"bar"> {
+function barOptions(label: string): ChartOptions<"bar"> {
   return {
-    indexAxis: horizontal ? ("y" as const) : ("x" as const),
+    indexAxis: "y" as const,
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "bottom" as const },
+      legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (context: TooltipItem<"bar">) => {
-            const value = horizontal ? context.parsed.x : context.parsed.y;
-            return `${context.dataset.label ?? label}: ${Number(value).toLocaleString("en-CA")}`;
-          },
+          label: (context: TooltipItem<"bar">) =>
+            `${label}: ${Number(context.parsed.x).toLocaleString("en-CA")}`,
         },
       },
     },
     scales: {
       x: {
-        stacked: !horizontal,
-        grid: { color: "rgba(148, 163, 184, 0.18)" },
+        grid: { color: chartColors.grid },
         ticks: { callback: (value: string | number) => Number(value).toLocaleString("en-CA") },
       },
-      y: {
-        stacked: !horizontal,
-        grid: { display: !horizontal },
-        ticks: horizontal ? undefined : { callback: (value: string | number) => Number(value).toLocaleString("en-CA") },
-      },
+      y: { grid: { display: false } },
     },
   };
 }
 
-function lineOptions(label: string): ChartOptions<"line"> {
+function lineOptions(label: string, showLegend: boolean): ChartOptions<"line"> {
   return {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "bottom" as const },
+      legend: { display: showLegend },
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<"line">) =>
@@ -258,11 +218,11 @@ function lineOptions(label: string): ChartOptions<"line"> {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 9 },
       },
       y: {
         beginAtZero: true,
-        grid: { color: "rgba(148, 163, 184, 0.18)" },
+        grid: { color: chartColors.grid },
         ticks: { callback: (value: string | number) => Number(value).toLocaleString("en-CA") },
       },
     },

@@ -6,8 +6,8 @@ type PageSectionProps = ComponentPropsWithoutRef<"section"> & {
 };
 
 const spacingClasses = {
-  default: "mt-14",
-  compact: "mt-8",
+  default: "mt-24 sm:mt-32",
+  compact: "mt-12",
   hero: "",
 };
 
@@ -18,7 +18,7 @@ export function PageSection({
 }: PageSectionProps) {
   return (
     <section
-      className={cn("scroll-mt-32", spacingClasses[spacing], className)}
+      className={cn("scroll-mt-24", spacingClasses[spacing], className)}
       {...props}
     />
   );

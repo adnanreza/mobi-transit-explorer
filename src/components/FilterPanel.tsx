@@ -1,7 +1,4 @@
-import { RotateCcw, SlidersHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -9,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
 export type FilterState = {
   dayType: "all" | "weekday" | "weekend";
@@ -85,84 +81,55 @@ export function FilterPanel({
     onFiltersChange({ ...filters, [key]: value } as FilterState);
   };
 
-  const selectedSummary = [
-    getOptionLabel("dayType", filters.dayType),
-    getOptionLabel("timeOfDay", filters.timeOfDay),
-    getOptionLabel("bikeType", filters.bikeType),
-    getOptionLabel("transitDistance", filters.transitDistance),
-  ];
-
   return (
-    <Card className="bg-white/90 shadow-sm">
-      <CardHeader className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-              Interactive filters
-            </Badge>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <SlidersHorizontal className="h-5 w-5 text-primary" aria-hidden="true" />
-              Filter real trip metrics
-            </CardTitle>
-          </div>
-          <Button type="button" variant="outline" onClick={() => onFiltersChange(defaultFilters)}>
-            <RotateCcw className="h-4 w-4" aria-hidden="true" />
-            Reset filters
-          </Button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {selectedSummary.map((label, index) => (
-            <Badge
-              key={`${label}-${index}`}
-              variant="secondary"
-              className="bg-primary/10 text-primary"
-            >
-              {label}
-            </Badge>
-          ))}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <Separator />
-        <div
-          className={
-            layout === "compact"
-              ? "grid gap-4"
-              : "grid gap-4 md:grid-cols-2 xl:grid-cols-5"
-          }
+    <div>
+      <div className="flex items-center justify-between border-b border-border pb-3">
+        <h3 className="text-sm font-medium text-foreground">Filters</h3>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label="Reset filters"
+          className="h-auto px-2 py-1 text-sm text-primary hover:text-primary"
+          onClick={() => onFiltersChange(defaultFilters)}
         >
-          {filterConfig.map((filter) => (
-            <label key={filter.key} className="space-y-2">
-              <span className="text-sm font-medium text-slate-700">
-                {filter.label}
-              </span>
-              <Select
-                value={filters[filter.key]}
-                onValueChange={(value) => updateFilter(filter.key, value)}
+          Reset
+        </Button>
+      </div>
+      <div
+        className={
+          layout === "compact"
+            ? "divide-y divide-border"
+            : "grid gap-x-8 md:grid-cols-2 xl:grid-cols-4"
+        }
+      >
+        {filterConfig.map((filter) => (
+          <label
+            key={filter.key}
+            className="flex items-center justify-between gap-4 py-3"
+          >
+            <span className="text-sm text-muted-foreground">{filter.label}</span>
+            <Select
+              value={filters[filter.key]}
+              onValueChange={(value) => updateFilter(filter.key, value)}
+            >
+              <SelectTrigger
+                aria-label={filter.label}
+                className="h-8 w-40 border-none bg-transparent px-2 text-sm font-medium shadow-none hover:bg-muted focus:ring-0"
               >
-                <SelectTrigger aria-label={filter.label}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {filter.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </label>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {filter.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+        ))}
+      </div>
+    </div>
   );
-}
-
-function getOptionLabel(key: keyof FilterState, value: string) {
-  const option = filterConfig
-    .find((filter) => filter.key === key)
-    ?.options.find((item) => item.value === value);
-
-  return option?.label ?? value;
 }
