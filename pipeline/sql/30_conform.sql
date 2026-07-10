@@ -34,6 +34,11 @@ SELECT
          THEN 'missing_station_id' END,
     CASE WHEN least(departure_temp_c, return_temp_c) < -30
            OR greatest(departure_temp_c, return_temp_c) > 45
-         THEN 'temp_out_of_range' END
+         THEN 'temp_out_of_range' END,
+    -- from mid-2025 the source writes 0 instead of null for missing
+    -- temperatures (~850k trips); real both-ends-0.0 readings are a few
+    -- hundred per year, acceptable collateral for excluding the sentinel
+    CASE WHEN departure_temp_c = 0 AND return_temp_c = 0
+         THEN 'temp_suspect_zero' END
   ], x -> x IS NOT NULL) AS quality_flags
 FROM ids;

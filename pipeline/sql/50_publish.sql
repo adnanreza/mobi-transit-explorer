@@ -42,7 +42,7 @@ SELECT
        THEN round(100.0 * sum(CASE WHEN is_ebike THEN 1 ELSE 0 END) / count(is_ebike), 1)
   END AS ebike_share_pct,  -- NULL before the Electric bike column exists
   count(DISTINCT departure_station_id) AS active_stations,
-  round(avg(CASE WHEN NOT list_contains(quality_flags, 'temp_out_of_range')
+  round(avg(CASE WHEN NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
                  THEN departure_temp_c END), 1) AS avg_departure_temp_c
 FROM countable_trips
 GROUP BY 1 ORDER BY 1;
@@ -78,7 +78,7 @@ SELECT
   count(DISTINCT date_key) AS days_observed
 FROM countable_trips
 WHERE departure_temp_c IS NOT NULL
-  AND NOT list_contains(quality_flags, 'temp_out_of_range')
+  AND NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
 GROUP BY 1 HAVING count(*) >= 100 ORDER BY 1;
 
 CREATE OR REPLACE VIEW v_station_year AS

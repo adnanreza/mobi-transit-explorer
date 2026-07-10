@@ -154,6 +154,9 @@ def build(con) -> str:
         "šxʷƛ̓ənəq Xwtl'e7énḵ Square (transcoded, preserving rows).",
         "- The source page misspells the November 2021 link (`Novemeber 2021`) and "
         "carries an unlabeled duplicate of the 2017 export.",
+        "- From mid-2025 the files write `0` instead of null for missing "
+        "temperatures; those trips carry the `temp_suspect_zero` flag and are "
+        "excluded from weather measures.",
         "",
         "## Known limitations",
         "",

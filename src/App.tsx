@@ -6,12 +6,14 @@ import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
 import { RealMobiCharts } from "@/components/RealMobiCharts";
 import { Reveal } from "@/components/Reveal";
+import { StorySection } from "@/components/story/StorySection";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { meta } from "@/data";
 
 const navItems = [
   { label: "Overview", href: "#overview" },
+  { label: "Nine years", href: "#story" },
   { label: "Map", href: "#map" },
   { label: "Opportunities", href: "#opportunities" },
   { label: "Methodology", href: "#methodology" },
@@ -52,6 +54,16 @@ function App() {
           />
           <OverviewCards />
           <RealMobiCharts />
+        </PageSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <PageSection id="story" className="space-y-14">
+          <SectionHeader
+            title="Nine years"
+            description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike."
+          />
+          <StorySection />
         </PageSection>
       </Reveal>
 
