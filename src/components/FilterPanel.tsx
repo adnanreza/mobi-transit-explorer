@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { lastCompleteYear, yearly } from "@/data";
 import {
   Select,
   SelectContent,
@@ -7,65 +8,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Every option here changes what the map actually shows — no decorative
+// filters. Year re-renders station volumes from tripsByYear; transit
+// distance filters stations by their real haversine distance to rapid
+// transit.
 export type FilterState = {
-  dayType: "all" | "weekday" | "weekend";
-  timeOfDay: "all" | "morning-commute" | "midday" | "evening-commute" | "late-night";
-  bikeType: "all" | "classic" | "e-bike";
-  transitDistance: "150m" | "300m" | "500m";
-};
-
-type FilterConfig = {
-  key: keyof FilterState;
-  label: string;
-  options: Array<{ value: FilterState[keyof FilterState]; label: string }>;
+  year: string; // "t12" or a four-digit year
+  transitDistance: "all" | "150" | "300" | "500";
 };
 
 export const defaultFilters: FilterState = {
-  dayType: "all",
-  timeOfDay: "all",
-  bikeType: "all",
-  transitDistance: "300m",
+  year: "t12",
+  transitDistance: "all",
 };
 
-const filterConfig: FilterConfig[] = [
-  {
-    key: "dayType",
-    label: "Day type",
-    options: [
-      { value: "all", label: "All" },
-      { value: "weekday", label: "Weekday" },
-      { value: "weekend", label: "Weekend" },
-    ],
-  },
-  {
-    key: "timeOfDay",
-    label: "Time of day",
-    options: [
-      { value: "all", label: "All" },
-      { value: "morning-commute", label: "Morning commute" },
-      { value: "midday", label: "Midday" },
-      { value: "evening-commute", label: "Evening commute" },
-      { value: "late-night", label: "Late night" },
-    ],
-  },
-  {
-    key: "bikeType",
-    label: "Bike type",
-    options: [
-      { value: "all", label: "All" },
-      { value: "classic", label: "Classic" },
-      { value: "e-bike", label: "E-bike" },
-    ],
-  },
-  {
-    key: "transitDistance",
-    label: "Transit distance",
-    options: [
-      { value: "150m", label: "150m" },
-      { value: "300m", label: "300m" },
-      { value: "500m", label: "500m" },
-    ],
-  },
+const yearOptions = [
+  { value: "t12", label: "Trailing 12 months" },
+  ...yearly
+    .filter((row) => row.year <= lastCompleteYear)
+    .map((row) => ({ value: String(row.year), label: String(row.year) }))
+    .reverse(),
+];
+
+const distanceOptions = [
+  { value: "all", label: "All stations" },
+  { value: "150", label: "Within 150 m" },
+  { value: "300", label: "Within 300 m" },
+  { value: "500", label: "Within 500 m" },
+];
+
+const filterConfig = [
+  { key: "year" as const, label: "Year", options: yearOptions },
+  { key: "transitDistance" as const, label: "Transit distance", options: distanceOptions },
 ];
 
 export function FilterPanel({
@@ -98,9 +72,7 @@ export function FilterPanel({
       </div>
       <div
         className={
-          layout === "compact"
-            ? "divide-y divide-border"
-            : "grid gap-x-8 md:grid-cols-2 xl:grid-cols-4"
+          layout === "compact" ? "divide-y divide-border" : "grid gap-x-8 md:grid-cols-2"
         }
       >
         {filterConfig.map((filter) => (
@@ -115,7 +87,7 @@ export function FilterPanel({
             >
               <SelectTrigger
                 aria-label={filter.label}
-                className="h-8 w-40 border-none bg-transparent px-2 text-sm font-medium shadow-none hover:bg-muted focus:ring-0"
+                className="h-8 w-44 border-none bg-transparent px-2 text-sm font-medium shadow-none hover:bg-muted focus:ring-0"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -130,6 +102,11 @@ export function FilterPanel({
           </label>
         ))}
       </div>
+      <p className="mt-4 text-xs leading-5 text-muted-foreground">
+        Year view sizes stations by that year's departures — watch the network
+        grow outward from downtown. Distance measures each station to its
+        nearest rapid-transit entrance.
+      </p>
     </div>
   );
 }

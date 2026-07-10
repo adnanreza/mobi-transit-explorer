@@ -2,6 +2,7 @@ import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { defaultFilters, FilterPanel, type FilterState } from "@/components/FilterPanel";
+import { lastCompleteYear } from "@/data";
 
 function FilterPanelHarness({
   onChange,
@@ -29,33 +30,37 @@ async function chooseOption(label: string, option: string) {
 }
 
 describe("FilterPanel", () => {
-  it("renders filter labels", () => {
+  it("renders the two honest filters", () => {
     render(<FilterPanelHarness />);
 
-    for (const label of ["Day type", "Time of day", "Bike type", "Transit distance"]) {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    }
+    expect(screen.getByText("Year")).toBeInTheDocument();
+    expect(screen.getByText("Transit distance")).toBeInTheDocument();
   });
 
-  it("lets users change filter values", async () => {
-    render(<FilterPanelHarness />);
-
-    await chooseOption("Day type", "Weekend");
-
-    expect(screen.getByRole("combobox", { name: "Day type" })).toHaveTextContent(
-      "Weekend",
-    );
-  });
-
-  it("resets filters to defaults", async () => {
+  it("offers every complete year plus the trailing window", async () => {
     const user = userEvent.setup();
     render(<FilterPanelHarness />);
 
-    await chooseOption("Day type", "Weekend");
-    await user.click(screen.getByRole("button", { name: "Reset filters" }));
+    await user.click(screen.getByRole("combobox", { name: "Year" }));
+    expect(
+      await screen.findByRole("option", { name: "Trailing 12 months" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "2017" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: String(lastCompleteYear) }),
+    ).toBeInTheDocument();
+  });
 
-    expect(screen.getByRole("combobox", { name: "Day type" })).toHaveTextContent(
-      "All",
+  it("changes and resets filter values", async () => {
+    const user = userEvent.setup();
+    render(<FilterPanelHarness />);
+
+    await chooseOption("Year", "2019");
+    expect(screen.getByRole("combobox", { name: "Year" })).toHaveTextContent("2019");
+
+    await user.click(screen.getByRole("button", { name: "Reset filters" }));
+    expect(screen.getByRole("combobox", { name: "Year" })).toHaveTextContent(
+      "Trailing 12 months",
     );
   });
 
@@ -63,11 +68,11 @@ describe("FilterPanel", () => {
     const handleChange = vi.fn();
     render(<FilterPanelHarness onChange={handleChange} />);
 
-    await chooseOption("Bike type", "E-bike");
+    await chooseOption("Transit distance", "Within 300 m");
 
     expect(handleChange).toHaveBeenCalledWith({
       ...defaultFilters,
-      bikeType: "e-bike",
+      transitDistance: "300",
     });
   });
 });
