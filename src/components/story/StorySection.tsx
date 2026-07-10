@@ -108,12 +108,15 @@ function ebikeData(): ChartData<"line"> {
 }
 
 function weatherData(): ChartData<"bar"> {
-  const peak = weather.reduce((a, b) => (b.trips > a.trips ? b : a));
+  // Per-day rate, matching the chapter's claim (raw totals would mostly
+  // measure how common mild days are, not how much people ride on them).
+  const rate = (w: (typeof weather)[number]) => w.trips / Math.max(w.daysObserved, 1);
+  const peak = weather.reduce((a, b) => (rate(b) > rate(a) ? b : a));
   return {
     labels: weather.map((w) => `${w.tempBandC}°`),
     datasets: [
       {
-        data: weather.map((w) => w.trips),
+        data: weather.map((w) => Math.round(rate(w))),
         backgroundColor: weather.map((w) =>
           w.tempBandC === peak.tempBandC ? chartColors.blue : chartColors.gray,
         ),

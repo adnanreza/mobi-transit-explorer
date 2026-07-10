@@ -95,14 +95,18 @@ export function ebikeChapter(
 }
 
 export function weatherChapter(rows: WeatherRow[] = weather): Chapter {
-  const peak = rows.reduce((a, b) => (b.trips > a.trips ? b : a));
+  // Rank by trips per observed day, not raw totals — mild days are also the
+  // most common days, and raw totals would just measure that.
+  const rate = (row: WeatherRow) => row.trips / Math.max(row.daysObserved, 1);
+  const peak = rows.reduce((a, b) => (rate(b) > rate(a) ? b : a));
   return {
     id: "weather",
     headline: `Vancouver rides at ${peak.tempBandC}°.`,
     caption:
-      `More trips start between ${peak.tempBandC} and ${peak.tempBandC + 2}°C than in any ` +
-      "other temperature band. Temperature travels with season and daylight, so this is " +
-      "association, not cause — but the rain city rides anyway.",
+      `Days in the ${peak.tempBandC}–${peak.tempBandC + 2}°C band average ` +
+      `${Math.round(rate(peak)).toLocaleString("en-CA")} departures — the highest ` +
+      "per-day rate of any temperature. Temperature travels with season and " +
+      "daylight, so this is association, not cause — but the rain city rides anyway.",
   };
 }
 

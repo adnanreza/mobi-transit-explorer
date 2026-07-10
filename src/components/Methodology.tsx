@@ -54,9 +54,16 @@ export function Methodology() {
           2019's <Code>4/20/19 16:06</Code>. Three 2020 files use classic-Mac
           line endings; three 2023 files corrupt the Squamish-language station
           name šxʷƛ̓ənəq Xwtl'e7énḵ Square into invalid UTF-8; from mid-2025,
-          missing temperatures arrive as 0° instead of null. Every one of these
-          is handled by an explicit, tested rule — never a silent guess. An
-          unrecognized header stops the pipeline until a human maps it.
+          missing temperatures arrive as 0° instead of null. In May and June
+          2025 station names lost their numeric IDs entirely (resolved through
+          a name-to-ID crosswalk built from the prefixed months and the GBFS
+          feed) while most membership labels went blank (kept and reported as
+          Unknown — {formatNumber(meta.quality.unknownMembershipTrips)} real
+          trips ride under that label). A few hundred distances arrive as
+          negative integer-wraparound values near −4,294 km and are flagged
+          out of distance totals. Every one of these is handled by an
+          explicit, tested rule — never a silent guess. An unrecognized header
+          stops the pipeline until a human maps it.
         </p>
       </Section>
 
@@ -100,7 +107,10 @@ export function Methodology() {
           findings are explicit rules over the same window — dock-capacity
           pressure against the network median, commute-heavy stations with
           bottom-quartile e-bike share, busy stations near transit that still
-          score low — and every row cites the numbers that triggered it.
+          score low — and every row cites the numbers that triggered it. One
+          honest limit: dock-capacity findings read departures against current
+          dock counts. That is a pressure signal, not proof of stockouts — the
+          public data has no availability or historical-capacity record.
         </p>
       </Section>
 

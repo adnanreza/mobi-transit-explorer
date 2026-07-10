@@ -70,12 +70,21 @@ def download_trip(period: str, entry: dict) -> dict:
                 time.sleep(2**attempt)
                 continue
             if fmt in ("csv", "xlsx"):
+                sha = common.sha256_file(tmp)
+                expected = entry.get("sha256")
+                if expected and sha != expected and not entry.get("accept_changes"):
+                    tmp.unlink(missing_ok=True)
+                    raise RuntimeError(
+                        f"{period}: source content changed (checksum {sha[:12]} != "
+                        f"manifest {expected[:12]}); the manifest is the reproducibility "
+                        "contract — rerun with --accept-changes to accept the new content"
+                    )
                 final = common.trip_file_path(period, fmt)
                 tmp.replace(final)
                 return {
                     **entry,
                     "format": fmt,
-                    "sha256": common.sha256_file(final),
+                    "sha256": sha,
                     "bytes": final.stat().st_size,
                     "downloaded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 }
@@ -113,6 +122,11 @@ def main() -> int:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--only", help="download a single period, e.g. 2019-07")
     parser.add_argument("--skip-reference", action="store_true")
+    parser.add_argument(
+        "--accept-changes",
+        action="store_true",
+        help="accept source content whose checksum differs from the manifest",
+    )
     args = parser.parse_args()
 
     manifest = common.load_manifest()
@@ -126,13 +140,14 @@ def main() -> int:
     for period, entry in sorted(manifest["trips"].items()):
         if args.only and period != args.only:
             continue
-        entry = {**entry, "period": period}
+        entry = {**entry, "period": period, "accept_changes": args.accept_changes}
         if not needs_download(entry, args.force):
             skipped += 1
             continue
         try:
             updated = download_trip(period, entry)
             updated.pop("period", None)
+            updated.pop("accept_changes", None)
             manifest["trips"][period] = updated
             fetched += 1
             print(f"{period}: {updated['format']} {updated['bytes']:,} bytes")
