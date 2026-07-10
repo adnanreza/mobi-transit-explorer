@@ -47,6 +47,17 @@ const config = {
       boxShadow: {
         soft: "0 24px 80px -48px rgba(15, 23, 42, 0.35)",
       },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        // `both` holds opacity-0 through animation-delay, which is what makes
+        // a pure-CSS stagger possible
+        "fade-up": "fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
+      },
     },
   },
   plugins: [],

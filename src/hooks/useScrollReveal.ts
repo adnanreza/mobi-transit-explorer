@@ -5,9 +5,11 @@ type UseScrollRevealOptions = {
   unobserve?: boolean;
 };
 
-export function useScrollReveal(options?: UseScrollRevealOptions) {
+export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
+  options?: UseScrollRevealOptions,
+) {
   const { threshold = 0.15, unobserve = true } = options ?? {};
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

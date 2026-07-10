@@ -1,3 +1,4 @@
+import { Bike, Database } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Explorer } from "@/components/Explorer";
 import { Methodology } from "@/components/Methodology";
@@ -26,22 +27,34 @@ function App() {
   return (
     <AppShell navItems={navItems}>
       <PageSection spacing="hero" className="mx-auto max-w-4xl">
-        <h2 className="text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+        <h2 className="text-5xl font-semibold leading-[1.05] tracking-tight text-foreground motion-safe:animate-fade-up sm:text-6xl lg:text-7xl">
           Nine years of Vancouver,
           <br />
           by bike share.
         </h2>
-        <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl sm:leading-9">
+        <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground motion-safe:animate-fade-up motion-safe:[animation-delay:120ms] sm:text-xl sm:leading-9">
           {totalTrips} Mobi trips — {millionKm} million kilometres of riding —
           from every trip file the system has ever published, cleaned and
           mapped against Vancouver's transit network.
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-4">
-          <Button asChild size="lg">
-            <a href="#map">See the map</a>
+        <div className="mt-10 flex flex-wrap items-center gap-4 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
+          <Button asChild size="lg" className="group">
+            <a href="#map">
+              See the map
+              <Bike
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+              />
+            </a>
           </Button>
-          <Button asChild variant="ghost" size="lg">
-            <a href="#methodology">How the data works</a>
+          <Button asChild variant="ghost" size="lg" className="group">
+            <a href="#methodology">
+              How the data works
+              <Database
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+              />
+            </a>
           </Button>
         </div>
       </PageSection>

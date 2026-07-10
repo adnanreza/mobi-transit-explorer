@@ -50,7 +50,7 @@ export function OpportunityTable({
             const station = stations.find((item) => item.id === opportunity.stationId);
 
             return (
-              <TableRow key={opportunity.rank} className="hover:bg-muted/40">
+              <TableRow key={opportunity.rank} className="transition-colors hover:bg-muted/40">
                 <TableCell className="text-muted-foreground tabular-nums">
                   #{opportunity.rank}
                 </TableCell>

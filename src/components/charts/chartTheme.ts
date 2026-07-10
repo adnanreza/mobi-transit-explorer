@@ -36,3 +36,14 @@ ChartJS.defaults.plugins.tooltip.borderWidth = 1;
 ChartJS.defaults.plugins.tooltip.cornerRadius = 8;
 ChartJS.defaults.plugins.tooltip.padding = 10;
 ChartJS.defaults.plugins.tooltip.displayColors = false;
+
+// Charts draw themselves over ~900ms when they enter the viewport (see
+// ChartReveal); under reduced motion they render complete on first paint.
+const prefersReducedMotion =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+ChartJS.defaults.animation = prefersReducedMotion
+  ? (false as unknown as typeof ChartJS.defaults.animation)
+  : ({ duration: 900, easing: "easeOutQuart" } as typeof ChartJS.defaults.animation);

@@ -2,6 +2,8 @@ import { Bar, Line } from "react-chartjs-2";
 import type { ChartOptions, TooltipItem } from "chart.js";
 import { hourly, lastCompleteYear, stationsArtifact } from "@/data";
 import { chartColors } from "@/components/charts/chartTheme";
+import { ChartReveal } from "@/components/charts/ChartReveal";
+import { Reveal } from "@/components/Reveal";
 
 const latestHourly = hourly.find((row) => row.year === lastCompleteYear);
 const topStations = stationsArtifact.stations.slice(0, 8);
@@ -11,7 +13,7 @@ export function RealMobiCharts() {
   const testMode = import.meta.env.MODE === "test";
 
   return (
-    <div className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
+    <Reveal stagger className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
       <ChartBlock
         title={`Hourly departures, ${lastCompleteYear}`}
         caption="Weekdays peak twice — the morning and evening commute. Weekends build to one long afternoon. Timestamps are hour-rounded at source."
@@ -19,6 +21,7 @@ export function RealMobiCharts() {
         {testMode ? (
           <ChartPlaceholder label="Hourly departures chart" />
         ) : (
+          <ChartReveal>
           <Line
             data={{
               labels: hourLabels,
@@ -47,6 +50,7 @@ export function RealMobiCharts() {
             }}
             options={lineOptions("Departures", true)}
           />
+          </ChartReveal>
         )}
       </ChartBlock>
 
@@ -57,6 +61,7 @@ export function RealMobiCharts() {
         {testMode ? (
           <ChartPlaceholder label="Top stations chart" />
         ) : (
+          <ChartReveal>
           <Bar
             data={{
               labels: topStations.map((station) => station.name),
@@ -73,9 +78,10 @@ export function RealMobiCharts() {
             }}
             options={barOptions("Departures")}
           />
+          </ChartReveal>
         )}
       </ChartBlock>
-    </div>
+    </Reveal>
   );
 }
 
