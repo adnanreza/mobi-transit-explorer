@@ -3,15 +3,6 @@ import { stations as defaultStations, stationsArtifact } from "@/data";
 import landJson from "@/data/generated/geo/land.json";
 import { isInsideView, project, VIEW_H, VIEW_W } from "@/lib/projection";
 import type { MobiStation } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 type MobilityMapProps = {
@@ -80,21 +71,20 @@ export function MobilityMap({
   );
 
   return (
-    <Card className="overflow-hidden bg-white/90 shadow-sm">
-      <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1.5">
-          <Badge variant="outline" className="w-fit bg-white text-muted-foreground">
-            Real Vancouver geometry
-          </Badge>
-          <CardTitle>Mobility map</CardTitle>
-          <CardDescription>
+    <div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-lg font-medium tracking-tight text-foreground">
+            Mobility map
+          </h3>
+          <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
             Every active Mobi station at its true location. Dot size reflects
             trip volume; blue intensity reflects transit connector score.
-          </CardDescription>
+          </p>
         </div>
         <Legend />
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div>
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           role="group"
@@ -243,21 +233,17 @@ export function MobilityMap({
           Land geometry: City of Vancouver shoreline (Open Government Licence).
           Station positions: Mobi GBFS feed.
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 function Legend() {
   return (
-    <div className="min-w-44 rounded-lg border bg-white p-3 text-xs text-muted-foreground">
-      <div className="font-medium text-slate-800">Connector score</div>
-      <Separator className="my-2" />
-      <div className="space-y-2">
-        <LegendItem className="bg-primary" label="85-100 strong" />
-        <LegendItem className="bg-primary/60" label="70-84 emerging" />
-        <LegendItem className="bg-primary/30" label="Below 70 watch" />
-      </div>
+    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+      <LegendItem className="bg-primary" label="85+" />
+      <LegendItem className="bg-primary/60" label="70–84" />
+      <LegendItem className="bg-primary/30" label="Below 70" />
     </div>
   );
 }

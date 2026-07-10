@@ -8,9 +8,7 @@ describe("App", () => {
     expect(
       screen.getByText("How bike share extends transit in Vancouver"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("A front-end data product by Adnan Reza"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("A data product by Adnan Reza.")).toBeInTheDocument();
   });
 
   it("renders the title", () => {
