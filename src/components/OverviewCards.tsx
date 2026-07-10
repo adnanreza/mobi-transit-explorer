@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/Reveal";
+import { useCountUp } from "@/hooks/useCountUp";
 import { overviewMetrics } from "@/data";
 import type { OverviewMetric } from "@/types";
 
@@ -18,18 +20,27 @@ export function OverviewCards({ metrics = overviewMetrics }: OverviewCardsProps)
   }
 
   return (
-    <dl className="grid gap-x-8 gap-y-10 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-4">
+    <Reveal
+      as="dl"
+      stagger
+      className="grid gap-x-8 gap-y-10 border-t border-border pt-10 sm:grid-cols-2 lg:grid-cols-4"
+    >
       {metrics.map((metric) => (
         <div key={metric.id}>
           <dt className="text-sm text-muted-foreground">{metric.label}</dt>
           <dd className="mt-2 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
-            {metric.value}
+            <CountUpValue value={metric.value} />
           </dd>
           <p className="mt-3 max-w-[26ch] text-sm leading-6 text-muted-foreground">
             {metric.caption}
           </p>
         </div>
       ))}
-    </dl>
+    </Reveal>
   );
+}
+
+function CountUpValue({ value }: { value: string }) {
+  const { ref, display } = useCountUp<HTMLSpanElement>(value);
+  return <span ref={ref}>{display}</span>;
 }

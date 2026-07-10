@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -14,6 +14,9 @@ type AppShellProps = {
 
 export function AppShell({ children, navItems, className }: AppShellProps) {
   const [activeHref, setActiveHref] = useState(navItems[0]?.href ?? "");
+  // After a nav click, smooth scroll sweeps past intermediate sections;
+  // hold the clicked state briefly so the active link doesn't flicker.
+  const suppressUntil = useRef(0);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -27,6 +30,33 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
 
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  // Scrollspy: the active nav link follows reading position. This is state
+  // tracking, not motion, so it is not gated on prefers-reduced-motion.
+  useEffect(() => {
+    const ids = navItems.map((item) => item.href.slice(1));
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
+
+    const inView = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) inView.add(entry.target.id);
+          else inView.delete(entry.target.id);
+        }
+        if (Date.now() < suppressUntil.current) return;
+        const currentId = ids.filter((id) => inView.has(id)).pop();
+        if (currentId) setActiveHref(`#${currentId}`);
+      },
+      // collapse the observation zone to a band ~20-30% down the viewport
+      { rootMargin: "-20% 0px -70% 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [navItems]);
 
   return (
     <main className={cn("min-h-screen bg-background", className)}>
@@ -56,7 +86,10 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 aria-current={activeHref === item.href ? "page" : undefined}
-                onClick={() => setActiveHref(item.href)}
+                onClick={() => {
+                  suppressUntil.current = Date.now() + 700;
+                  setActiveHref(item.href);
+                }}
                 className={cn(
                   "rounded-sm px-1.5 py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
                   activeHref === item.href

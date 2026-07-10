@@ -1,6 +1,7 @@
 import { Bar, Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
 import { chartColors } from "@/components/charts/chartTheme";
+import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
 import { lastCompleteYear, monthly, seasonality, weather } from "@/data";
 import {
@@ -147,11 +148,28 @@ export function StorySection() {
   const charts: Record<string, React.ReactNode> = testMode
     ? {}
     : {
-        growth: <Line data={growthData()} options={quietLine} />,
-        seasons: <Line data={seasonsData()} options={quietLine} />,
-        pandemic: <Line data={pandemicData()} options={quietLine} />,
-        ebikes: <Line data={ebikeData()} options={percentLine} />,
+        growth: (
+          <ChartReveal>
+            <Line data={growthData()} options={quietLine} />
+          </ChartReveal>
+        ),
+        seasons: (
+          <ChartReveal>
+            <Line data={seasonsData()} options={quietLine} />
+          </ChartReveal>
+        ),
+        pandemic: (
+          <ChartReveal>
+            <Line data={pandemicData()} options={quietLine} />
+          </ChartReveal>
+        ),
+        ebikes: (
+          <ChartReveal>
+            <Line data={ebikeData()} options={percentLine} />
+          </ChartReveal>
+        ),
         weather: (
+          <ChartReveal>
           <Bar
             data={weatherData()}
             options={{
@@ -169,6 +187,7 @@ export function StorySection() {
               },
             }}
           />
+          </ChartReveal>
         ),
       };
 

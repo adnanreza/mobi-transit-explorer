@@ -1,4 +1,5 @@
 import { PipelineDiagram } from "@/components/PipelineDiagram";
+import { Reveal } from "@/components/Reveal";
 import { meta } from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
@@ -9,7 +10,7 @@ const REPO_URL = "https://github.com/adnanreza/mobi-transit-explorer";
 
 export function Methodology() {
   return (
-    <div className="max-w-3xl space-y-14">
+    <Reveal stagger className="max-w-3xl space-y-14">
       <p className="text-lg leading-8 text-foreground">
         I moved to Vancouver in August 2015 and have never owned a car here —
         transit, bike share, and walking, with zero regrets and some fun along
@@ -121,7 +122,7 @@ export function Methodology() {
           </li>
         </ul>
       </Section>
-    </div>
+    </Reveal>
   );
 }
 
