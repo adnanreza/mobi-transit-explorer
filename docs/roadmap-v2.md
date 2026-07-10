@@ -29,6 +29,16 @@ The offline data pipeline (`pipeline/`) is build-time tooling, like the existing
 | 024 | `feature/explorer-refresh` | Explorer rebuilt on multi-year data: filters, station profiles, opportunities |
 | 025 | `feature/methodology-case-study` | Methodology rewritten as a data-engineering case study; README and copy pass |
 | 026 | `feature/interactive-map` | Zoomable MapLibre GL map on the OpenFreeMap basemap (supersedes 021's static SVG at the owner's request) |
+| 027 | `feature/motion-polish` | Subtle Apple-style motion: staggered reveals, count-up numerals, charts that draw on arrival, scrollspy nav |
+| 028 | `feature/data-integrity-fixes` | External-review response: membership retention, station crosswalk, negative distances, cross-file-only dedup, license posture |
+
+## v3 sequence (improve the flagship)
+
+| Spec | Branch | Delivers |
+| --- | --- | --- |
+| 029 | `feature/station-flows` | Station flows by hour + implied rebalancing (~416 bikes/day moved by hand) |
+| 030 | `feature/weather-model` | Environment Canada weather ETL + constrained GBM ridership model + forecast widget |
+| 031 | `feature/ebike-purpose` | E-bike vs classic contrasts (detour factor) + leisure/utility heuristic, story chapter 6, map colour mode |
 
 Specs 018-020 are the foundation and should land first, in order. 021 depends on 020. 022 can start in parallel with 021. 023-025 depend on 020 and 022.
 

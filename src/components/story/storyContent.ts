@@ -3,8 +3,23 @@
 // functions take their data as arguments (with artifact defaults) so tests
 // can drive them with fixtures.
 
-import type { MonthlyRow, SeasonalityRow, WeatherRow, YearlyRow } from "@/data/contracts";
-import { lastCompleteYear, monthly, seasonality, weather, yearly } from "@/data";
+import type {
+  EbikeArtifact,
+  MonthlyRow,
+  SeasonalityRow,
+  StationsArtifact,
+  WeatherRow,
+  YearlyRow,
+} from "@/data/contracts";
+import {
+  ebike,
+  lastCompleteYear,
+  monthly,
+  seasonality,
+  stationsArtifact,
+  weather,
+  yearly,
+} from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
 
@@ -110,10 +125,38 @@ export function weatherChapter(rows: WeatherRow[] = weather): Chapter {
   };
 }
 
+export function purposeChapter(
+  artifact: EbikeArtifact = ebike,
+  stations: StationsArtifact = stationsArtifact,
+): Chapter {
+  const classified = stations.stations.filter((s) => s.leisureSharePct !== null);
+  const most = classified.reduce((a, b) =>
+    (b.leisureSharePct ?? 0) > (a.leisureSharePct ?? 0) ? b : a,
+  );
+  const least = classified.reduce((a, b) =>
+    (b.leisureSharePct ?? 100) < (a.leisureSharePct ?? 100) ? b : a,
+  );
+  const { classic, ebike: electric } = artifact.compare;
+  return {
+    id: "purpose",
+    headline: "Two networks in one.",
+    caption:
+      `By a documented heuristic, about ${Math.round(artifact.purpose.leisureSharePct)}% ` +
+      `of the last year's rides are leisure — but they are not evenly spread: ` +
+      `${most.name} runs ${Math.round(most.leisureSharePct ?? 0)}% leisure while ` +
+      `${least.name} runs ${Math.round(least.leisureSharePct ?? 0)}%. The seawall and the ` +
+      `commute share one fleet. E-bikes serve both harder: median trips are longer ` +
+      `(${electric.medianDistanceKm} km vs ${classic.medianDistanceKm} km), faster ` +
+      `(${electric.medianSpeedKmh} vs ${classic.medianSpeedKmh} km/h), and straighter ` +
+      `(detour ${electric.medianDetour}× vs ${classic.medianDetour}×).`,
+  };
+}
+
 export const chapters: Chapter[] = [
   growthChapter(),
   seasonsChapter(),
   pandemicChapter(),
   ebikeChapter(),
   weatherChapter(),
+  purposeChapter(),
 ];

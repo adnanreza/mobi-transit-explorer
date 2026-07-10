@@ -44,6 +44,7 @@ export function Explorer() {
   const [selectedStationId, setSelectedStationId] = useState<string | null>(
     initial.stationId,
   );
+  const [colorMode, setColorMode] = useState<"score" | "leisure">("score");
 
   useEffect(() => {
     writeUrlState(filters, selectedStationId);
@@ -65,13 +66,37 @@ export function Explorer() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        <span>{scopeLabel}</span>
-        <span aria-hidden="true"> · </span>
-        <span>{distanceLabel}</span>
-        <span aria-hidden="true"> · </span>
-        <span>link reflects this view</span>
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          <span>{scopeLabel}</span>
+          <span aria-hidden="true"> · </span>
+          <span>{distanceLabel}</span>
+          <span aria-hidden="true"> · </span>
+          <span>link reflects this view</span>
+        </p>
+        <div className="flex gap-1" role="group" aria-label="Colour stations by">
+          {(
+            [
+              ["score", "Transit score"],
+              ["leisure", "Leisure share"],
+            ] as const
+          ).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={colorMode === mode}
+              onClick={() => setColorMode(mode)}
+              className={
+                colorMode === mode
+                  ? "rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground"
+                  : "rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <div className="space-y-6">
@@ -102,6 +127,7 @@ export function Explorer() {
             maxTransitM={
               filters.transitDistance === "all" ? null : Number(filters.transitDistance)
             }
+            colorMode={colorMode}
           />
         </Suspense>
         <StationDetailPanel station={selectedStation} />
