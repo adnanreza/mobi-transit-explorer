@@ -1,34 +1,48 @@
 import { render, screen } from "@testing-library/react";
 import { Methodology } from "@/components/Methodology";
+import { meta } from "@/data";
 
 describe("Methodology", () => {
-  it("renders the methodology section", () => {
-    render(<Methodology />);
-
-    expect(screen.getByText("Data sources")).toBeInTheDocument();
-  });
-
-  it("renders key methodology headings", () => {
+  it("renders the case-study sections", () => {
     render(<Methodology />);
 
     for (const heading of [
-      "Data sources",
-      "Connector score",
-      "Limitations",
-      "Future version",
+      "The data",
+      "The pipeline",
+      "Nine years of drift",
+      "Data quality",
+      "Scores and rules",
+      "What this data cannot say",
     ]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
   });
 
-  it("renders limitations", () => {
+  it("surfaces generated pipeline numbers, not hand-written ones", () => {
     render(<Methodology />);
 
     expect(
-      screen.getByText("Public trip data is anonymized and cannot identify individual riders."),
-    ).toBeInTheDocument();
+      screen.getAllByText(new RegExp(meta.quality.rowsLanded.toLocaleString("en-CA"))).length,
+    ).toBeGreaterThan(0);
     expect(
-      screen.getByText("The source does not include exact route paths between stations."),
-    ).toBeInTheDocument();
+      screen.getAllByText(new RegExp(meta.quality.rowsKept.toLocaleString("en-CA"))).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("links to the committed data-quality report", () => {
+    render(<Methodology />);
+
+    expect(
+      screen.getByRole("link", { name: "the data-quality report" }),
+    ).toHaveAttribute(
+      "href",
+      expect.stringContaining("docs/data-quality-report.md"),
+    );
+  });
+
+  it("keeps the honest limitations", () => {
+    render(<Methodology />);
+
+    expect(screen.getByText(/association, not cause/)).toBeInTheDocument();
   });
 });

@@ -1,82 +1,21 @@
 # Data Methodology
 
-## Current Data Approach
+The app uses every trip file Mobi by Rogers has published — one 2017 workbook plus monthly files from January 2018 onward (102 files, 8.96M raw rows) — together with Mobi's GBFS station feed and City of Vancouver Open Data (rapid-transit stations, shoreline).
 
-The MVP now uses real public Mobi by Rogers system-data CSVs for April and May 2026. Raw CSV files are processed locally into small static TypeScript datasets that are committed with the app. The browser receives generated station metrics, opportunity rankings, and chart data; it does not parse raw CSVs at runtime.
+The authoritative, always-current description lives in two generated places:
 
-## Source Files
+- **The methodology section of the app** (`src/components/Methodology.tsx`) — sources, pipeline stages, drift handling, score definitions, limitations, with figures surfaced from `src/data/generated/meta.json`.
+- **[`docs/data-quality-report.md`](data-quality-report.md)** — the full generated accounting: per-stage row funnel, drop reasons, quality-flag counts, membership mapping, trips per month.
 
-- Source page: `https://www.mobibikes.ca/en/system-data`
-- April 2026: `public-trips-3.0-2026-04.csv`
-- May 2026: `public-trips-3.0-2026-05.csv`
-- Data license: linked from the Mobi system-data page.
+## Pipeline summary
 
-Raw source files belong in `data-raw/`, which is ignored by git. For this implementation, the processor was run against downloaded CSVs in `/tmp`.
+`pipeline/` (Python 3.11 + DuckDB; transforms in `pipeline/sql/`):
 
-## Processing
+1. **acquire** — manifest-verified downloads (`download.py`), checksummed in `pipeline/manifest.json`; inventory checks (`inventory.py`).
+2. **extract** — every file lands as VARCHAR with headers unified by `pipeline/mappings/column_eras.json`; unknown headers abort the run.
+3. **clean** — typing, five timestamp formats, hard drops (blank stations, unparseable timestamps, exact duplicates from cross-file spillover).
+4. **conform** — station IDs from name prefixes, canonical departure month, quality flags (flag, don't delete).
+5. **model** — Kimball star schema: `fact_trips`, `dim_station` (GBFS coordinates + haversine distance to rapid transit), `dim_date`, `dim_membership` (all 85 raw labels explicitly mapped).
+6. **publish** — `publish.py` and `geo_publish.py` emit ~40 KB (gzip) of typed JSON to `src/data/generated/`, enforced by a size budget; no per-trip data ships to the browser.
 
-Run:
-
-```bash
-npm run data:process -- --april /path/to/public-trips-3.0-2026-04.csv --may /path/to/public-trips-3.0-2026-05.csv
-```
-
-The script reads the public CSV schema:
-
-- `Departure`
-- `Return`
-- `Bike`
-- `Electric bike`
-- `Departure station`
-- `Return station`
-- `Formula`
-- `Covered distance (m)`
-- `Duration (sec.)`
-- `Lock duration (sec.)`
-- `Number of bike locks`
-- temperature fields
-
-It generates:
-
-- `src/data/stations.ts`
-- `src/data/opportunities.ts`
-- `src/data/realMobi.ts`
-
-Rows with blank departure or return station names are skipped because they cannot be mapped to station-level metrics.
-
-## Derived Metrics
-
-- Monthly trips: count of trips departing from a station.
-- E-bike share: share of station departures where `Electric bike` is `True`.
-- Top destinations: most common return stations for each departure station.
-- Commute strength: share of departures during AM and PM commute windows.
-- Hourly departures: departure counts by rounded public timestamp hour.
-- Bike type split: classic versus e-bike trip counts.
-- Opportunity ranking: generated from connector score, e-bike share, trip volume, and transit context.
-
-## Transit Context
-
-The public trip CSVs include station names but not station coordinates. The current implementation estimates nearby transit context from station names and known transit landmarks. That means real trip counts are used, while map placement and transit proximity remain derived front-end estimates until official station coordinates are added.
-
-Connector score combines:
-
-- transit proximity estimate
-- trip volume
-- commute pattern
-- e-bike share
-- station connectivity
-
-## Source Limitations
-
-The Mobi system-data page states that:
-
-- departure and return times are rounded to the nearest hour
-- accounts are anonymized
-- operations trips for rebalancing and maintenance are removed
-- stopovers represent cable-lock use away from a station
-
-The app should not claim exact routes, exact rider behavior, or surveyed station-to-transit distances from these CSVs alone.
-
-## Future Upgrade
-
-The next real-data upgrade should add official station coordinates from a station feed or maintained reference, then replace generated map positions with geographic coordinates. A later version can expand processing to a rolling 12-month source window.
+Raw data and the warehouse are never committed; the manifest and aggregates are. Commands: see `pipeline/README.md`.
