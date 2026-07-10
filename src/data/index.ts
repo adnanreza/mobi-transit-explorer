@@ -4,6 +4,7 @@
 // specs 021-024 rebuild those components on the generated types directly.
 
 import type {
+  FlowsArtifact,
   GeneratedOpportunity,
   GeneratedStation,
   HourlyRow,
@@ -31,6 +32,7 @@ import hourlyJson from "@/data/generated/hourly.json";
 import weatherJson from "@/data/generated/weather.json";
 import stationsJson from "@/data/generated/stations.json";
 import opportunitiesJson from "@/data/generated/opportunities.json";
+import flowsJson from "@/data/generated/flows.json";
 
 export const meta = metaJson as Meta;
 export const yearly = yearlyJson as YearlyRow[];
@@ -41,6 +43,7 @@ export const weather = weatherJson as WeatherRow[];
 export const stationsArtifact = stationsJson as StationsArtifact;
 export const generatedOpportunities =
   opportunitiesJson as unknown as GeneratedOpportunity[];
+export const flows = flowsJson as FlowsArtifact;
 
 export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),

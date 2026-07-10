@@ -94,6 +94,24 @@ export type StationsArtifact = {
   transit: TransitStation[];
 };
 
+export type FlowProfile = { dep: number[]; ret: number[] }; // 24 hourly slots each
+
+export type StationFlows = {
+  id: string;
+  avgDailyNet: number; // returns - departures, averaged over active days
+  avgAbsDailyNet: number;
+  avgPeakSwing: number; // avg max intraday cumulative imbalance
+  weekday: FlowProfile;
+  weekend: FlowProfile;
+};
+
+export type FlowsArtifact = {
+  networkDailyRebalancing: number; // implied bikes/day crews must move
+  weekdayCount: number; // weekday days in the trailing-12-month window
+  weekendCount: number;
+  stations: StationFlows[];
+};
+
 export type OpportunityRule =
   | "dock-capacity-pressure"
   | "ebike-gap"

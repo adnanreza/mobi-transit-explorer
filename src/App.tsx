@@ -1,6 +1,7 @@
 import { Bike, Database } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Explorer } from "@/components/Explorer";
+import { FlowsSection } from "@/components/flows/FlowsSection";
 import { Methodology } from "@/components/Methodology";
 import { OpportunityTable } from "@/components/OpportunityTable";
 import { OverviewCards } from "@/components/OverviewCards";
@@ -15,6 +16,7 @@ import { meta } from "@/data";
 const navItems = [
   { label: "Overview", href: "#overview" },
   { label: "Nine years", href: "#story" },
+  { label: "Flows", href: "#flows" },
   { label: "Map", href: "#map" },
   { label: "Opportunities", href: "#opportunities" },
   { label: "Methodology", href: "#methodology" },
@@ -77,6 +79,16 @@ function App() {
             description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike."
           />
           <StorySection />
+        </PageSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <PageSection id="flows" className="space-y-10">
+          <SectionHeader
+            title="Flows"
+            description="Bikes don't stay where riders leave them. Where the network fills, where it drains, and the daily work of putting it back."
+          />
+          <FlowsSection />
         </PageSection>
       </Reveal>
 

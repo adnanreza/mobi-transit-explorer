@@ -3,6 +3,7 @@
 // before anything renders wrong.
 
 import {
+  flows,
   generatedOpportunities,
   hourly,
   meta,
@@ -114,11 +115,37 @@ describe("generated data contracts", () => {
     expect(overviewMetrics).toHaveLength(4);
   });
 
+  it("flows artifact is consistent with the station set", () => {
+    expect(flows.networkDailyRebalancing).toBeGreaterThan(50);
+    expect(flows.weekdayCount).toBeGreaterThan(200);
+    expect(flows.weekendCount).toBeGreaterThan(80);
+    const ids = new Set(stationsArtifact.stations.map((s) => s.id));
+    expect(flows.stations.length).toBe(stationsArtifact.stations.length);
+    for (const s of flows.stations) {
+      expect(ids.has(s.id)).toBe(true);
+      for (const profile of [s.weekday, s.weekend]) {
+        expect(profile.dep).toHaveLength(24);
+        expect(profile.ret).toHaveLength(24);
+      }
+    }
+    // network-wide, every departure eventually returns somewhere: totals
+    // should be within a few percent (one-sided trips create the gap)
+    const dep = flows.stations.reduce(
+      (sum, s) => sum + s.weekday.dep.concat(s.weekend.dep).reduce((a, b) => a + b, 0),
+      0,
+    );
+    const ret = flows.stations.reduce(
+      (sum, s) => sum + s.weekday.ret.concat(s.weekend.ret).reduce((a, b) => a + b, 0),
+      0,
+    );
+    expect(Math.abs(dep - ret) / dep).toBeLessThan(0.05);
+  });
+
   it("total generated payload stays inside the size budget", () => {
     // artifacts are written compact, so re-stringifying reproduces file size
     const artifacts: unknown[] = [
       meta, yearly, monthly, seasonality, hourly, weather,
-      stationsArtifact, generatedOpportunities,
+      stationsArtifact, generatedOpportunities, flows,
     ];
     const total = artifacts.reduce(
       (sum: number, artifact) => sum + JSON.stringify(artifact).length,
