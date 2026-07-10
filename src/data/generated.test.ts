@@ -3,6 +3,7 @@
 // before anything renders wrong.
 
 import {
+  ebike,
   flows,
   generatedOpportunities,
   hourly,
@@ -113,6 +114,24 @@ describe("generated data contracts", () => {
     // Commercial-Broadway appear once per line in the source)
     expect(transitNodes).toHaveLength(20);
     expect(overviewMetrics).toHaveLength(4);
+  });
+
+  it("ebike artifact and leisure shares are plausible", () => {
+    expect(ebike.compare.ebike.trips).toBeGreaterThan(100_000);
+    expect(ebike.compare.classic.trips).toBeGreaterThan(ebike.compare.ebike.trips / 10);
+    expect(ebike.compare.ebike.medianSpeedKmh).toBeGreaterThan(
+      ebike.compare.classic.medianSpeedKmh,
+    );
+    expect(ebike.purpose.leisureSharePct).toBeGreaterThan(3);
+    expect(ebike.purpose.leisureSharePct).toBeLessThan(60);
+    const classified = stationsArtifact.stations.filter(
+      (s) => s.leisureSharePct !== null,
+    );
+    expect(classified.length).toBeGreaterThan(200);
+    for (const s of classified) {
+      expect(s.leisureSharePct).toBeGreaterThanOrEqual(0);
+      expect(s.leisureSharePct).toBeLessThanOrEqual(100);
+    }
   });
 
   it("flows artifact is consistent with the station set", () => {

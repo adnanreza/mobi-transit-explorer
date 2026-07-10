@@ -104,6 +104,11 @@ def build_artifacts(con) -> dict[str, object]:
             return "Unknown station"
         return full.split(" ", 1)[1] if full[:4].isdigit() and " " in full else full
 
+    leisure_by_station = {
+        r["station_id"]: r["leisure_share_pct"]
+        for r in rows(con, "SELECT * FROM v_station_leisure")
+    }
+
     stations = []
     for r in rows(con, """
         SELECT t.*, s.station_name, s.lat, s.lon, s.capacity, s.first_seen,
@@ -123,6 +128,7 @@ def build_artifacts(con) -> dict[str, object]:
             "lon": r["lon"],
             "capacity": r["capacity"],
             "firstSeen": str(r["first_seen"])[:7],
+            "leisureSharePct": leisure_by_station.get(r["station_id"]),
             "tripsByYear": station_years.get(r["station_id"], {}),
             "trailing12": {
                 "trips": r["trips"],
@@ -214,6 +220,34 @@ def build_artifacts(con) -> dict[str, object]:
         ],
     }
 
+    # E-bike vs classic + trip-purpose heuristic outputs.
+    compare = {
+        ("ebike" if r["is_ebike"] else "classic"): {
+            "trips": r["trips"],
+            "medianDurationMin": r["median_duration_min"],
+            "medianDistanceKm": r["median_distance_km"],
+            "medianSpeedKmh": r["median_speed_kmh"],
+            "medianDetour": r["median_detour"],
+        }
+        for r in rows(con, "SELECT * FROM v_ebike_compare")
+    }
+    purpose = rows(con, "SELECT * FROM v_network_purpose")[0]
+    ebike = {
+        "since": "2022-08",
+        "compare": compare,
+        "shareByTempBand": [
+            {"tempBandC": r["temp_band_c"], "ebikeSharePct": r["ebike_share_pct"]}
+            for r in rows(con, "SELECT * FROM v_ebike_share_by_temp")
+        ],
+        "purpose": {
+            "leisureSharePct": purpose["leisure_share_pct"],
+            "classifiedTrips": purpose["trips"],
+            "definition": "leisure when score >= 4: same-station round trip +3, "
+            "weekend +1, midday depart +1, >20min +1 / >40min +2, detour >1.8x +1, "
+            "seawall-adjacent endpoint +2",
+        },
+    }
+
     rule_labels = {
         "dock-capacity-pressure": "Increase dock capacity",
         "ebike-gap": "Prioritize e-bikes",
@@ -296,6 +330,7 @@ def build_artifacts(con) -> dict[str, object]:
         "stations.json": {"stations": stations, "transit": transit},
         "opportunities.json": opportunities,
         "flows.json": flows,
+        "ebike.json": ebike,
     }
 
 

@@ -9,6 +9,12 @@ type InteractiveMapProps = {
   onStationSelect?: (stationId: string) => void;
   year?: string; // "t12" or a four-digit year
   maxTransitM?: number | null;
+  colorMode?: "score" | "leisure";
+};
+
+const OPACITY_EXPRESSIONS: Record<"score" | "leisure", unknown> = {
+  score: ["+", 0.3, ["*", 0.007, ["get", "score"]]],
+  leisure: ["+", 0.15, ["*", 0.0085, ["get", "leisure"]]],
 };
 
 const MOBI_BLUE = "#008fd3";
@@ -40,6 +46,7 @@ function stationFeatures(year = "t12", maxTransitM: number | null = null): Featu
             ? `${Math.round(trips / 12).toLocaleString("en-CA")} trips/month`
             : `${trips.toLocaleString("en-CA")} trips in ${year}`,
         score: s.connector.score,
+        leisure: s.leisureSharePct ?? 0,
         // base radius in px at zoom 11; zoom interpolation scales it
         r: 2 + 6 * Math.sqrt(trips / sliceMax),
       },
@@ -94,6 +101,7 @@ export default function InteractiveMap({
   onStationSelect,
   year = "t12",
   maxTransitM = null,
+  colorMode = "score",
 }: InteractiveMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -232,12 +240,13 @@ export default function InteractiveMap({
         const feature = event.features?.[0];
         if (!feature || feature.geometry.type !== "Point") return;
         const props = feature.properties as {
-          name: string; label: string; score: number;
+          name: string; label: string; score: number; leisure: number;
         };
         popup
           .setLngLat(feature.geometry.coordinates as [number, number])
           .setHTML(
-            `<strong>${props.name}</strong><br/>${props.label} · score ${props.score}`,
+            `<strong>${props.name}</strong><br/>${props.label} · score ${props.score}` +
+              (props.leisure ? ` · ${Math.round(props.leisure)}% leisure` : ""),
           )
           .addTo(map);
       });
@@ -268,6 +277,18 @@ export default function InteractiveMap({
     const source = map.getSource("stations") as maplibregl.GeoJSONSource | undefined;
     source?.setData(stationFeatures(year, maxTransitM));
   }, [year, maxTransitM, loaded]);
+
+  // Recolor without re-creating data: blue intensity = connector score or
+  // leisure share, depending on the mode.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded) return;
+    map.setPaintProperty(
+      "stations",
+      "circle-opacity",
+      OPACITY_EXPRESSIONS[colorMode] as never,
+    );
+  }, [colorMode, loaded]);
 
   useEffect(() => {
     const map = mapRef.current;

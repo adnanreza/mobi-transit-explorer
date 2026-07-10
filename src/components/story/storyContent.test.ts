@@ -63,8 +63,8 @@ describe("storyContent derives every number from data", () => {
     expect(chapter.headline).toBe("Vancouver rides at 20°.");
   });
 
-  it("real artifacts produce five plausible chapters", () => {
-    expect(chapters).toHaveLength(5);
+  it("real artifacts produce six plausible chapters", () => {
+    expect(chapters).toHaveLength(6);
     for (const chapter of chapters) {
       expect(chapter.headline.length).toBeGreaterThan(10);
       expect(chapter.caption.length).toBeGreaterThan(40);

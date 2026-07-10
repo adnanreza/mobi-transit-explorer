@@ -257,6 +257,89 @@ FROM (
   FROM v_station_daily_net GROUP BY day
 );
 
+-- E-bike vs classic comparison, from the month the flag first appears.
+-- Detour factor = odometer distance / straight-line distance between the two
+-- stations' real coordinates: a proxy for how indirect the ride was.
+CREATE OR REPLACE MACRO hav_m(lat1, lon1, lat2, lon2) AS (
+  2 * 6371000 * asin(sqrt(
+    pow(sin(radians(lat2 - lat1) / 2), 2)
+    + cos(radians(lat1)) * cos(radians(lat2))
+      * pow(sin(radians(lon2 - lon1) / 2), 2)
+  ))
+);
+
+CREATE OR REPLACE VIEW v_trip_geometry AS
+SELECT
+  c.*,
+  hav_m(sd.lat, sd.lon, sr.lat, sr.lon) AS straight_m,
+  CASE
+    WHEN hav_m(sd.lat, sd.lon, sr.lat, sr.lon) >= 300
+     AND c.distance_m / hav_m(sd.lat, sd.lon, sr.lat, sr.lon) BETWEEN 1 AND 5
+    THEN c.distance_m / hav_m(sd.lat, sd.lon, sr.lat, sr.lon)
+  END AS detour_factor
+FROM countable_trips c
+JOIN dim_station sd ON c.departure_station_id = sd.station_id AND sd.lat IS NOT NULL
+JOIN dim_station sr ON c.return_station_id = sr.station_id AND sr.lat IS NOT NULL;
+
+CREATE OR REPLACE VIEW v_ebike_compare AS
+SELECT
+  is_ebike,
+  count(*) AS trips,
+  round(median(duration_s) / 60.0, 1) AS median_duration_min,
+  round(median(distance_m) / 1000.0, 2) AS median_distance_km,
+  round(median(distance_m * 3.6 / duration_s), 1) AS median_speed_kmh,
+  round(median(detour_factor), 2) AS median_detour
+FROM v_trip_geometry
+WHERE trip_month >= '2022-08'
+  AND is_ebike IS NOT NULL
+  AND duration_s >= 180
+  AND NOT list_has_any(quality_flags,
+        ['excessive_duration', 'excessive_distance', 'negative_distance'])
+GROUP BY 1;
+
+CREATE OR REPLACE VIEW v_ebike_share_by_temp AS
+SELECT
+  CAST(floor(departure_temp_c / 4) * 4 AS INTEGER) AS temp_band_c,
+  round(100.0 * sum(CASE WHEN is_ebike THEN 1 ELSE 0 END) / count(*), 1) AS ebike_share_pct,
+  count(*) AS trips
+FROM countable_trips
+WHERE trip_month >= '2022-08' AND is_ebike IS NOT NULL
+  AND departure_temp_c IS NOT NULL
+  AND NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
+GROUP BY 1 HAVING count(*) >= 500 ORDER BY 1;
+
+-- Trip purpose: a documented heuristic, not ground truth. Points for the
+-- signatures of a leisure ride; >= 4 points classifies as leisure.
+CREATE OR REPLACE VIEW v_trip_purpose AS
+SELECT
+  g.*,
+  (CASE WHEN departure_station_name = return_station_name THEN 3 ELSE 0 END
+   + CASE WHEN isodow(departure_ts) >= 6 THEN 1 ELSE 0 END
+   + CASE WHEN hour(departure_ts) BETWEEN 10 AND 15 THEN 1 ELSE 0 END
+   + CASE WHEN duration_s > 2400 THEN 2 WHEN duration_s > 1200 THEN 1 ELSE 0 END
+   + CASE WHEN detour_factor > 1.8 THEN 1 ELSE 0 END
+   + CASE WHEN regexp_matches(departure_station_name || ' ' || return_station_name,
+       'Stanley Park|Seawall|Beach|English Bay|Vanier Park|Aquatic Centre')
+     THEN 2 ELSE 0 END) AS leisure_score
+FROM v_trip_geometry g
+WHERE trip_month IN (SELECT trip_month FROM v_t12_months);
+
+CREATE OR REPLACE VIEW v_station_leisure AS
+SELECT
+  departure_station_id AS station_id,
+  round(100.0 * sum(CASE WHEN leisure_score >= 4 THEN 1 ELSE 0 END) / count(*), 1)
+    AS leisure_share_pct,
+  count(*) AS trips
+FROM v_trip_purpose
+GROUP BY 1;
+
+CREATE OR REPLACE VIEW v_network_purpose AS
+SELECT
+  round(100.0 * sum(CASE WHEN leisure_score >= 4 THEN 1 ELSE 0 END) / count(*), 1)
+    AS leisure_share_pct,
+  count(*) AS trips
+FROM v_trip_purpose;
+
 -- Rule-based operational opportunities, each citing its evidence numbers.
 CREATE OR REPLACE VIEW v_opportunities AS
 WITH profile AS (

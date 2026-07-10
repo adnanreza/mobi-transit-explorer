@@ -128,6 +128,22 @@ export function Methodology() {
         </p>
       </Section>
 
+      <Section title="Trip purpose and the detour factor">
+        <p>
+          "Two networks in one" rests on two derived measures. The detour
+          factor divides a trip's odometer distance by the straight-line
+          distance between its two stations' real coordinates — a proxy for
+          how indirect the ride was, only computed where both ends resolve and
+          the ratio is sane (1–5×, ends ≥300 m apart). The leisure label is a
+          documented heuristic, not ground truth: points for a same-station
+          round trip (+3), a seawall-adjacent endpoint (+2), rides over 40
+          minutes (+2, over 20 +1), weekends (+1), midday departures (+1), and
+          detours above 1.8× (+1); four points classifies a ride as leisure.
+          The weights are visible in the published artifact and deliberately
+          crude — the point is the contrast they reveal, not per-trip truth.
+        </p>
+      </Section>
+
       <Section title="The model">
         <p>
           The ridership widget is a gradient-boosted model (scikit-learn) over

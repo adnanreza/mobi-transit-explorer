@@ -3,12 +3,13 @@ import type { ChartData, ChartOptions } from "chart.js";
 import { chartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
-import { lastCompleteYear, monthly, seasonality, weather } from "@/data";
+import { lastCompleteYear, monthly, seasonality, stationsArtifact, weather } from "@/data";
 import {
   chapters,
   ebikeChapter,
   growthChapter,
   pandemicChapter,
+  purposeChapter,
   seasonsChapter,
   weatherChapter,
 } from "@/components/story/storyContent";
@@ -126,6 +127,43 @@ function weatherData(): ChartData<"bar"> {
   };
 }
 
+function purposeData(): ChartData<"bar"> {
+  // Every classified station, sorted by leisure share: the cliff between the
+  // seawall stations and the rest IS the chart.
+  const sorted = stationsArtifact.stations
+    .filter((s) => s.leisureSharePct !== null)
+    .sort((a, b) => (b.leisureSharePct ?? 0) - (a.leisureSharePct ?? 0));
+  return {
+    labels: sorted.map((s) => s.name),
+    datasets: [
+      {
+        data: sorted.map((s) => s.leisureSharePct ?? 0),
+        backgroundColor: sorted.map((s) =>
+          (s.leisureSharePct ?? 0) >= 50 ? chartColors.blue : chartColors.gray,
+        ),
+        borderRadius: 1,
+        barPercentage: 1,
+        categoryPercentage: 0.9,
+      },
+    ],
+  };
+}
+
+const purposeOptions: ChartOptions<"bar"> = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { display: false },
+    y: {
+      beginAtZero: true,
+      max: 100,
+      grid: { color: chartColors.grid },
+      ticks: { callback: (v: string | number) => `${v}%` },
+    },
+  },
+};
+
 const percentLine: ChartOptions<"line"> = {
   ...quietLine,
   scales: {
@@ -146,6 +184,7 @@ export function StorySection() {
     pandemic: pandemicChapter(),
     ebikes: ebikeChapter(),
     weather: weatherChapter(),
+    purpose: purposeChapter(),
   };
 
   const charts: Record<string, React.ReactNode> = testMode
@@ -169,6 +208,11 @@ export function StorySection() {
         ebikes: (
           <ChartReveal>
             <Line data={ebikeData()} options={percentLine} />
+          </ChartReveal>
+        ),
+        purpose: (
+          <ChartReveal>
+            <Bar data={purposeData()} options={purposeOptions} />
           </ChartReveal>
         ),
         weather: (

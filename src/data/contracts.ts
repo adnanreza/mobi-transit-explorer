@@ -59,6 +59,7 @@ export type GeneratedStation = {
   lon: number;
   capacity: number | null;
   firstSeen: string; // YYYY-MM
+  leisureSharePct: number | null; // trailing-12-month heuristic, null if unclassified
   tripsByYear: Record<string, number>;
   trailing12: {
     trips: number;
@@ -129,6 +130,25 @@ export type ForecastArtifact = {
   rainLevelsMm: number[];
   // [month-1][0=weekday,1=weekend][tempIdx][rainIdx] -> predicted daily trips
   grid: number[][][][];
+};
+
+export type EbikeCompare = {
+  trips: number;
+  medianDurationMin: number;
+  medianDistanceKm: number;
+  medianSpeedKmh: number;
+  medianDetour: number;
+};
+
+export type EbikeArtifact = {
+  since: string; // first month the e-bike flag exists
+  compare: { classic: EbikeCompare; ebike: EbikeCompare };
+  shareByTempBand: { tempBandC: number; ebikeSharePct: number }[];
+  purpose: {
+    leisureSharePct: number;
+    classifiedTrips: number;
+    definition: string;
+  };
 };
 
 export type OpportunityRule =
