@@ -98,6 +98,26 @@ export function Explorer() {
         </div>
       </div>
 
+      <p className="text-xs leading-5 text-muted-foreground">
+        {colorMode === "score" ? (
+          <>
+            Blue intensity shows each station's <strong className="font-medium text-foreground">transit connector score</strong> (0–100):
+            distance to rapid transit, trip volume, commute pattern, e-bike
+            share, and destination diversity, weighted as defined in the{" "}
+          </>
+        ) : (
+          <>
+            Blue intensity shows the share of each station's trips classified
+            as <strong className="font-medium text-foreground">leisure</strong> by a documented heuristic (round trips,
+            seawall endpoints, long meandering rides) — definition in the{" "}
+          </>
+        )}
+        <a href="#methodology" className="text-primary underline-offset-2 hover:underline">
+          methodology
+        </a>
+        . Dot size is trip volume either way.
+      </p>
+
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <div className="space-y-6">
           <StationFinder

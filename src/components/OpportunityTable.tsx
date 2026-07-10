@@ -1,4 +1,3 @@
-import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
 import { opportunities as defaultOpportunities, stationsAll as stations } from "@/data";
 import type { Opportunity, PriorityLevel } from "@/types";
 import {
@@ -66,19 +65,7 @@ export function OpportunityTable({
                   {opportunity.type}
                 </TableCell>
                 <TableCell className="max-w-md text-muted-foreground">
-                  <div className="flex items-start gap-3">
-                    {station ? (
-                      <div className="mt-0.5 hidden shrink-0 sm:block">
-                        <MiniTrendChart
-                          ariaLabel="Connector score component chart"
-                          data={Object.values(station.connectorScoreComponents)}
-                          type="bar"
-                          color="#008fd3"
-                        />
-                      </div>
-                    ) : null}
-                    <span className="text-sm leading-6">{opportunity.reason}</span>
-                  </div>
+                  <span className="text-sm leading-6">{opportunity.reason}</span>
                 </TableCell>
                 <TableCell>
                   <PriorityText priority={opportunity.priority} />

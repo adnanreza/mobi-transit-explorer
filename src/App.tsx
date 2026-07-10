@@ -17,6 +17,7 @@ import { meta } from "@/data";
 const navItems = [
   { label: "Overview", href: "#overview" },
   { label: "Nine years", href: "#story" },
+  { label: "Forecast", href: "#forecast" },
   { label: "Flows", href: "#flows" },
   { label: "Map", href: "#map" },
   { label: "Opportunities", href: "#opportunities" },
@@ -80,6 +81,15 @@ function App() {
             description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike."
           />
           <StorySection />
+        </PageSection>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <PageSection id="forecast" className="space-y-10">
+          <SectionHeader
+            title="Forecast"
+            description="What moves ridership: a model over calendar and Environment Canada weather, trained on 2017–2024 and tested on everything since. Pick a day."
+          />
           <WeatherModelBlock />
         </PageSection>
       </Reveal>
