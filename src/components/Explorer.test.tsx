@@ -10,6 +10,10 @@ async function chooseOption(label: string, option: string) {
   await user.click(await screen.findByRole("option", { name: option }));
 }
 
+afterEach(() => {
+  window.history.replaceState(null, "", window.location.pathname);
+});
+
 describe("Explorer", () => {
   it("renders finder, filters, map, and detail panel", async () => {
     render(<Explorer />);
@@ -22,7 +26,7 @@ describe("Explorer", () => {
     ).toBeInTheDocument();
   });
 
-  it("selecting a station through the finder updates the detail panel", async () => {
+  it("selecting a station through the finder updates the detail panel and URL", async () => {
     render(<Explorer />);
     await screen.findByLabelText("Interactive map of Mobi stations");
 
@@ -31,23 +35,42 @@ describe("Explorer", () => {
     expect(
       screen.getByRole("heading", { name: stationsAll[0].name }),
     ).toBeInTheDocument();
+    expect(window.location.search).toContain(`station=${stationsAll[0].id}`);
   });
 
-  it("changing filters updates displayed filter state", async () => {
+  it("restores state from the URL", async () => {
+    window.history.replaceState(
+      null,
+      "",
+      `?station=${stationsAll[1].id}&year=2019&transit=300`,
+    );
     render(<Explorer />);
 
-    await chooseOption("Day type", "Weekend");
-
-    expect(screen.getByText("Weekend days")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: stationsAll[1].name }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Showing 2019")).toBeInTheDocument();
+    expect(
+      screen.getByText("within 300 m of rapid transit"),
+    ).toBeInTheDocument();
   });
 
-  it("reset filters works", async () => {
+  it("changing the year filter updates the scope line and URL", async () => {
+    render(<Explorer />);
+
+    await chooseOption("Year", "2021");
+
+    expect(screen.getByText("Showing 2021")).toBeInTheDocument();
+    expect(window.location.search).toContain("year=2021");
+  });
+
+  it("reset returns to the trailing window", async () => {
     const user = userEvent.setup();
     render(<Explorer />);
 
-    await chooseOption("Day type", "Weekend");
+    await chooseOption("Year", "2021");
     await user.click(screen.getByRole("button", { name: "Reset filters" }));
 
-    expect(screen.getByText("All days")).toBeInTheDocument();
+    expect(screen.getByText(/Trailing 12 months to/)).toBeInTheDocument();
   });
 });

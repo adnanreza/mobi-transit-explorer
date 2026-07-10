@@ -1,4 +1,5 @@
 import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
+import { stationsArtifact } from "@/data";
 import type { MobiStation } from "@/types";
 import { Progress } from "@/components/ui/progress";
 
@@ -74,7 +75,35 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
           ))}
         </ul>
       </div>
+
+      <StationFacts stationId={station.id} />
     </div>
+  );
+}
+
+function StationFacts({ stationId }: { stationId: string }) {
+  const generated = stationsArtifact.stations.find((s) => s.id === stationId);
+  if (!generated) return null;
+
+  return (
+    <dl className="mt-6 space-y-1.5 border-t border-border pt-6 text-sm">
+      {generated.capacity ? (
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted-foreground">Docks</dt>
+          <dd className="font-medium text-foreground tabular-nums">{generated.capacity}</dd>
+        </div>
+      ) : null}
+      <div className="flex justify-between gap-4">
+        <dt className="text-muted-foreground">Nearest rapid transit</dt>
+        <dd className="text-right font-medium text-foreground">
+          {generated.nearestTransit.name}
+        </dd>
+      </div>
+      <div className="flex justify-between gap-4">
+        <dt className="text-muted-foreground">In the data since</dt>
+        <dd className="font-medium text-foreground tabular-nums">{generated.firstSeen}</dd>
+      </div>
+    </dl>
   );
 }
 

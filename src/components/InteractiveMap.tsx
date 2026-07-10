@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import type { Feature, FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -7,6 +7,8 @@ import { stationsArtifact } from "@/data";
 type InteractiveMapProps = {
   selectedStationId?: string | null;
   onStationSelect?: (stationId: string) => void;
+  year?: string; // "t12" or a four-digit year
+  maxTransitM?: number | null;
 };
 
 const MOBI_BLUE = "#008fd3";
@@ -16,20 +18,30 @@ const maxTrips = Math.max(
   ...stationsArtifact.stations.map((s) => s.trailing12.trips),
 );
 
-function stationFeatures(): FeatureCollection {
+function stationFeatures(year = "t12", maxTransitM: number | null = null): FeatureCollection {
+  const slice = stationsArtifact.stations
+    .filter((s) => (maxTransitM ? s.nearestTransit.distanceM <= maxTransitM : true))
+    .map((s) => ({
+      station: s,
+      trips: year === "t12" ? s.trailing12.trips : (s.tripsByYear[year] ?? 0),
+    }))
+    .filter((entry) => entry.trips > 0);
+  const sliceMax = Math.max(1, ...slice.map((entry) => entry.trips));
   return {
     type: "FeatureCollection",
-    features: stationsArtifact.stations.map((s) => ({
+    features: slice.map(({ station: s, trips }) => ({
       type: "Feature",
       geometry: { type: "Point", coordinates: [s.lon, s.lat] },
       properties: {
         id: s.id,
         name: s.name,
-        trips: s.trailing12.trips,
-        monthly: Math.round(s.trailing12.trips / 12),
+        label:
+          year === "t12"
+            ? `${Math.round(trips / 12).toLocaleString("en-CA")} trips/month`
+            : `${trips.toLocaleString("en-CA")} trips in ${year}`,
         score: s.connector.score,
         // base radius in px at zoom 11; zoom interpolation scales it
-        r: 2 + 6 * Math.sqrt(s.trailing12.trips / maxTrips),
+        r: 2 + 6 * Math.sqrt(trips / sliceMax),
       },
     })),
   };
@@ -80,10 +92,13 @@ function selectionFeatures(stationId: string | null | undefined): FeatureCollect
 export default function InteractiveMap({
   selectedStationId,
   onStationSelect,
+  year = "t12",
+  maxTransitM = null,
 }: InteractiveMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const loadedRef = useRef(false);
+  const [loaded, setLoaded] = useState(false);
   const onSelectRef = useRef(onStationSelect);
   onSelectRef.current = onStationSelect;
 
@@ -217,14 +232,12 @@ export default function InteractiveMap({
         const feature = event.features?.[0];
         if (!feature || feature.geometry.type !== "Point") return;
         const props = feature.properties as {
-          name: string; monthly: number; score: number;
+          name: string; label: string; score: number;
         };
         popup
           .setLngLat(feature.geometry.coordinates as [number, number])
           .setHTML(
-            `<strong>${props.name}</strong><br/>${Number(props.monthly).toLocaleString(
-              "en-CA",
-            )} trips/month · score ${props.score}`,
+            `<strong>${props.name}</strong><br/>${props.label} · score ${props.score}`,
           )
           .addTo(map);
       });
@@ -234,10 +247,12 @@ export default function InteractiveMap({
       });
 
       loadedRef.current = true;
+      setLoaded(true);
     });
 
     return () => {
       loadedRef.current = false;
+      setLoaded(false);
       mapRef.current = null;
       map.remove();
     };
@@ -245,6 +260,14 @@ export default function InteractiveMap({
     // effect below via the "selection" source.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testMode]);
+
+  // Filter changes re-render the station slice without touching the camera.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded) return;
+    const source = map.getSource("stations") as maplibregl.GeoJSONSource | undefined;
+    source?.setData(stationFeatures(year, maxTransitM));
+  }, [year, maxTransitM, loaded]);
 
   useEffect(() => {
     const map = mapRef.current;
