@@ -4,7 +4,7 @@
 
 Nine years of Vancouver bike share — 8+ million Mobi trips — cleaned, modeled, and told as an interactive data story.
 
-I live in Vancouver without a car: Mobi, walking, and TransLink are how I actually move through this city. This project turns every trip file the system has ever published into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
+I've lived in Vancouver since 2015 and have never owned a car here — Mobi, walking, and TransLink are how I actually move through this city, zero regrets. This project turns every trip file the system has ever published into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
 
 ## What it shows
 
