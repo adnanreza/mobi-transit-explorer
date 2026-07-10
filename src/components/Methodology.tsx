@@ -128,6 +128,21 @@ export function Methodology() {
         </p>
       </Section>
 
+      <Section title="The model">
+        <p>
+          The ridership widget is a gradient-boosted model (scikit-learn) over
+          calendar and weather features — day of week, cyclical month, mean
+          temperature, precipitation, a BC-holiday flag, and a year index.
+          Weather comes from Environment Canada's Vancouver Harbour station
+          (Open Government Licence – Canada) because the trip files publish no
+          precipitation and their temperatures break after mid-2025. It trains
+          on 2017–2024 and is scored on 2025 onward — days it never saw — and
+          it must beat a seasonal-naive baseline to ship. Rain carries a
+          monotonic constraint: more of it can never predict more trips. The
+          browser gets a 5 KB precomputed grid, not a model.
+        </p>
+      </Section>
+
       <Section title="What this data cannot say">
         <ul className="list-disc space-y-2 pl-5">
           <li>
