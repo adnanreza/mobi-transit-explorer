@@ -1,23 +1,67 @@
--- Stage 30: conform to the unified trip grain. Station IDs are the leading
--- 4-digit prefix of station names ("0154 Kitsilano Beach Park" -> "0154").
--- A trip's canonical month is its departure month. Suspect measurements are
--- flagged, never silently removed; the publish stage decides per-measure
--- which flags invalidate which aggregates.
+-- Stage 30: conform to the unified trip grain. Station IDs come from the
+-- leading 4-digit prefix of station names ("0154 Kitsilano Beach Park" ->
+-- "0154"); for the mid-2025 files where Mobi removed the prefix entirely,
+-- a crosswalk resolves bare names ("Kitsilano Beach Park") to IDs using the
+-- prefixed months (modal ID per name) plus the GBFS feed. A trip's canonical
+-- month is its departure month. Suspect measurements are flagged, never
+-- silently removed; the publish stage decides per-measure which flags
+-- invalidate which aggregates.
 
-CREATE OR REPLACE TABLE conformed_trips AS
-SELECT
-  *,
-  regexp_extract(departure_station_name, '^(\d{4}) ', 1) AS departure_station_id_raw,
-  regexp_extract(return_station_name, '^(\d{4}) ', 1)    AS return_station_id_raw
-FROM clean_trips;
-
-CREATE OR REPLACE TABLE conformed_trips AS
-WITH ids AS (
+CREATE OR REPLACE TABLE station_name_xwalk AS
+WITH from_trips AS (
   SELECT
-    * EXCLUDE (departure_station_id_raw, return_station_id_raw),
-    nullif(departure_station_id_raw, '') AS departure_station_id,
-    nullif(return_station_id_raw, '')    AS return_station_id
-  FROM conformed_trips
+    trim(regexp_replace(name, '^\d{4} ', '')) AS station_name,
+    regexp_extract(name, '^(\d{4}) ', 1)      AS station_id,
+    count(*) AS observations
+  FROM (
+    SELECT departure_station_name AS name FROM clean_trips
+    UNION ALL
+    SELECT return_station_name FROM clean_trips
+  )
+  WHERE name IS NOT NULL AND regexp_matches(name, '^\d{4} ')
+  GROUP BY 1, 2
+),
+modal AS (
+  SELECT station_name, station_id
+  FROM (
+    SELECT *, row_number() OVER (
+      PARTITION BY station_name ORDER BY observations DESC, station_id
+    ) AS rn
+    FROM from_trips
+  )
+  WHERE rn = 1
+),
+gbfs AS (
+  SELECT trim(s.name) AS station_name, s.station_id
+  FROM (
+    SELECT unnest(data.stations) AS s
+    FROM read_json_auto(getvariable('data_raw') || '/gbfs/station_information.json')
+  )
+)
+SELECT station_name, station_id FROM modal
+UNION ALL
+SELECT g.station_name, g.station_id
+FROM gbfs g
+WHERE g.station_name NOT IN (SELECT station_name FROM modal);
+
+CREATE OR REPLACE TABLE conformed_trips AS
+WITH prefixed AS (
+  SELECT
+    c.*,
+    nullif(regexp_extract(departure_station_name, '^(\d{4}) ', 1), '') AS dep_prefix,
+    nullif(regexp_extract(return_station_name, '^(\d{4}) ', 1), '')    AS ret_prefix
+  FROM clean_trips c
+),
+resolved AS (
+  SELECT
+    p.* EXCLUDE (dep_prefix, ret_prefix),
+    coalesce(p.dep_prefix, dx.station_id) AS departure_station_id,
+    coalesce(p.ret_prefix, rx.station_id) AS return_station_id
+  FROM prefixed p
+  LEFT JOIN station_name_xwalk dx
+    ON p.dep_prefix IS NULL AND trim(p.departure_station_name) = dx.station_name
+  LEFT JOIN station_name_xwalk rx
+    ON p.ret_prefix IS NULL AND trim(p.return_station_name) = rx.station_name
 )
 SELECT
   *,
@@ -28,6 +72,8 @@ SELECT
     CASE WHEN duration_s < 0 THEN 'negative_duration' END,
     CASE WHEN duration_s > 86400 THEN 'excessive_duration' END,
     CASE WHEN distance_m > 60000 THEN 'excessive_distance' END,
+    -- integer wraparound artifacts near -4,294,000 m in the source
+    CASE WHEN distance_m < 0 THEN 'negative_distance' END,
     CASE WHEN departure_station_name = return_station_name
           AND duration_s < 120 THEN 'round_trip_false_start' END,
     CASE WHEN departure_station_id IS NULL OR return_station_id IS NULL
@@ -41,4 +87,4 @@ SELECT
     CASE WHEN departure_temp_c = 0 AND return_temp_c = 0
          THEN 'temp_suspect_zero' END
   ], x -> x IS NOT NULL) AS quality_flags
-FROM ids;
+FROM resolved;

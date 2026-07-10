@@ -84,4 +84,8 @@ Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https:
 
 ## License and credits
 
-Trip data © Mobi by Rogers under the [Mobi Data License Agreement](https://www.mobibikes.ca/en/system-data). Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with Mobi by Rogers or the City of Vancouver.
+**Code** is MIT-licensed (see `LICENSE`). **The MIT license does not extend to data**: the generated files under `src/data/generated/` and `docs/data-quality-report.md` are analysis outputs derived from Vancouver Bike Share Inc. (Mobi) system data and are published here solely as source material for this non-commercial analysis, as permitted by the [Mobi Data License Agreement](https://www.mobibikes.ca/en/system-data); they may not be redistributed for commercial purposes or treated as MIT-licensed. Raw trip data is never committed.
+
+On acquisition: the DLA restricts access to the interface VBS provides. The trip files here are the ones VBS links publicly on its system-data page; `pipeline/download.py` automates clicking those same links for reproducibility, and manually downloading the files into `data-raw/` is an equally supported path (the checksum manifest verifies either). Questions about the agreement go to info@mobibikes.ca.
+
+Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with, approved, endorsed, or sponsored by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.

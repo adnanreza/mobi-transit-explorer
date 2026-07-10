@@ -72,14 +72,20 @@ kept AS (
     AND departure_ts IS NOT NULL
     AND return_ts IS NOT NULL
 )
-SELECT * EXCLUDE (dup_rank)
+-- Dedup collapses ONLY cross-file spillover: a trip repeated because monthly
+-- files overlap appears in more than one file with an identical key, and the
+-- earliest file's copy wins. Identical rows WITHIN one file are kept — under
+-- hour-rounded timestamps they can be genuinely distinct rides, and there is
+-- no evidence to justify deleting them.
+SELECT * EXCLUDE (first_file)
 FROM (
   SELECT *,
-    row_number() OVER (
+    first_value(source_file) OVER (
       PARTITION BY departure_ts, return_ts, bike_id,
-                   departure_station_name, return_station_name, duration_s
+                   departure_station_name, return_station_name,
+                   duration_s, distance_m, is_ebike
       ORDER BY source_period, source_file
-    ) AS dup_rank
+    ) AS first_file
   FROM kept
 )
-WHERE dup_rank = 1;
+WHERE source_file = first_file;

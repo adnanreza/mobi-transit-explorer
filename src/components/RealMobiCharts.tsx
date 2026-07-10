@@ -9,14 +9,33 @@ const latestHourly = hourly.find((row) => row.year === lastCompleteYear);
 const topStations = stationsArtifact.stations.slice(0, 8);
 const hourLabels = Array.from({ length: 24 }, (_, hour) => `${hour}:00`);
 
+// Compare like with like: a year has ~2.5x more weekdays than weekend days,
+// so the chart shows average departures per day of each type, not totals.
+function dayTypeCounts(year: number): { weekdays: number; weekendDays: number } {
+  let weekdays = 0;
+  let weekendDays = 0;
+  const date = new Date(Date.UTC(year, 0, 1));
+  while (date.getUTCFullYear() === year) {
+    const day = date.getUTCDay();
+    if (day === 0 || day === 6) weekendDays += 1;
+    else weekdays += 1;
+    date.setUTCDate(date.getUTCDate() + 1);
+  }
+  return { weekdays, weekendDays };
+}
+
+const { weekdays, weekendDays } = dayTypeCounts(lastCompleteYear);
+const weekdayPerDay = (latestHourly?.weekday ?? []).map((v) => Math.round(v / weekdays));
+const weekendPerDay = (latestHourly?.weekend ?? []).map((v) => Math.round(v / weekendDays));
+
 export function RealMobiCharts() {
   const testMode = import.meta.env.MODE === "test";
 
   return (
     <Reveal stagger className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
       <ChartBlock
-        title={`Hourly departures, ${lastCompleteYear}`}
-        caption="Weekdays peak twice — the morning and evening commute. Weekends build to one long afternoon. Timestamps are hour-rounded at source."
+        title={`Departures per day by hour, ${lastCompleteYear}`}
+        caption="Average departures on a weekday vs a weekend day. Weekdays peak twice — the morning and evening commute; weekends build to one long afternoon. Timestamps are hour-rounded at source."
       >
         {testMode ? (
           <ChartPlaceholder label="Hourly departures chart" />
@@ -28,7 +47,7 @@ export function RealMobiCharts() {
               datasets: [
                 {
                   label: "Weekday",
-                  data: latestHourly?.weekday ?? [],
+                  data: weekdayPerDay,
                   borderColor: chartColors.grayStrong,
                   backgroundColor: chartColors.graySoft,
                   borderWidth: 1.5,
@@ -37,8 +56,8 @@ export function RealMobiCharts() {
                   fill: true,
                 },
                 {
-                  label: "Weekend",
-                  data: latestHourly?.weekend ?? [],
+                  label: "Weekend day",
+                  data: weekendPerDay,
                   borderColor: chartColors.blue,
                   backgroundColor: chartColors.blueSoft,
                   borderWidth: 1.5,

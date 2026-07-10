@@ -201,6 +201,22 @@ def build_artifacts(con) -> dict[str, object]:
         (s, m): v
         for s, m, v in con.execute("SELECT stage, metric, value FROM etl_metrics").fetchall()
     }
+
+    # Station analytics silently losing trips is exactly the failure mode the
+    # mid-2025 prefixless files caused; gate on trailing-12-month coverage.
+    station_coverage = one(con, """
+        SELECT 100.0 * sum(CASE WHEN departure_station_id IS NOT NULL THEN 1 ELSE 0 END)
+               / count(*)
+        FROM countable_trips
+        WHERE trip_month IN (SELECT trip_month FROM v_t12_months)""")
+    if station_coverage < 95:
+        raise SystemExit(
+            f"station-ID coverage over the trailing 12 months is {station_coverage:.1f}% "
+            "(minimum 95%); fix the crosswalk before publishing"
+        )
+    unknown_membership = one(
+        con, "SELECT count(*) FROM countable_trips WHERE membership_raw IS NULL"
+    )
     meta = {
         "generatedAt": generated_at,
         "sourceWindow": {"firstMonth": window["first_month"], "lastMonth": window["last_month"]},
@@ -219,6 +235,8 @@ def build_artifacts(con) -> dict[str, object]:
             "droppedBadTimestamp": metrics[("clean", "rows_dropped_bad_timestamp")],
             "droppedDuplicates": metrics[("clean", "rows_dropped_duplicates")],
             "rowsFlagged": metrics[("conform", "rows_flagged")],
+            "stationIdCoveragePctT12": round(station_coverage, 1),
+            "unknownMembershipTrips": unknown_membership,
         },
         "sources": {
             "trips": "https://www.mobibikes.ca/en/system-data",

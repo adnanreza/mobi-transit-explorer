@@ -13,11 +13,14 @@ SELECT
   '2017-01' AS first_month,
   (SELECT max(source_period) FROM fact_trips WHERE source_period <> '2017') AS last_month;
 
+-- LEFT JOIN is load-bearing: trips with a blank membership label (91k in
+-- May 2025 alone) are real rides and count as 'Unknown'. Only staff
+-- 'Operations' riding is excluded from ridership.
 CREATE OR REPLACE VIEW countable_trips AS
-SELECT f.*, m.membership_group
+SELECT f.*, coalesce(m.membership_group, 'Unknown') AS membership_group
 FROM fact_trips f
-JOIN dim_membership m USING (membership_raw)
-WHERE m.membership_group <> 'Operations'
+LEFT JOIN dim_membership m USING (membership_raw)
+WHERE coalesce(m.membership_group, 'Unknown') <> 'Operations'
   AND f.trip_month BETWEEN (SELECT first_month FROM v_window)
                        AND (SELECT last_month FROM v_window)
   AND NOT list_has_any(f.quality_flags,
@@ -34,7 +37,7 @@ CREATE OR REPLACE VIEW v_yearly AS
 SELECT
   trip_year AS year,
   count(*) AS trips,
-  CAST(round(sum(CASE WHEN NOT list_contains(quality_flags, 'excessive_distance')
+  CAST(round(sum(CASE WHEN NOT list_has_any(quality_flags, ['excessive_distance', 'negative_distance'])
                       THEN coalesce(distance_m, 0) END) / 1e3) AS BIGINT) AS distance_km,
   CAST(round(median(CASE WHEN NOT list_contains(quality_flags, 'excessive_duration')
                          THEN duration_s END) / 60.0, 1) AS DOUBLE) AS median_duration_min,

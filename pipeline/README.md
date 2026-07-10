@@ -62,7 +62,13 @@ regenerated into `docs/data-quality-report.md`.
 ## Sources
 
 - Trip files: https://www.mobibikes.ca/en/system-data (Mobi Data License
-  Agreement applies). One `ALL of 2017` file, then one file per month from
+  Agreement applies — non-commercial analysis use; see the License section of
+  the repo README). The downloader automates clicking the same public links
+  the page provides; placing manually-downloaded files in `data-raw/trips/`
+  named `<period>.<ext>` is an equally supported path, and the manifest
+  verifies checksums either way. A re-download whose content differs from the
+  manifest checksum fails unless `--accept-changes` is passed.
+  One `ALL of 2017` file, then one file per month from
   January 2018. Formats drift across the years (XLSX, CSV, Google Sheets);
   the downloader detects real content by magic bytes, never by extension.
   Page quirks handled deliberately: the November 2021 label is misspelled

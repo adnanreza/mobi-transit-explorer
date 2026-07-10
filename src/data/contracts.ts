@@ -20,6 +20,8 @@ export type Meta = {
     droppedBadTimestamp: number;
     droppedDuplicates: number;
     rowsFlagged: number;
+    stationIdCoveragePctT12: number;
+    unknownMembershipTrips: number;
   };
   sources: { trips: string; gbfs: string; cityOfVancouver: string };
 };
