@@ -1,8 +1,12 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { defaultFilters, FilterPanel } from "@/components/FilterPanel";
-import { MobilityMap } from "@/components/MobilityMap";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
+import { StationFinder } from "@/components/StationFinder";
 import { meta, stationsAll as stations } from "@/data";
+
+// MapLibre is the heaviest dependency in the app; loading it lazily keeps
+// the hero and overview paint-fast.
+const InteractiveMap = lazy(() => import("@/components/InteractiveMap"));
 
 export function Explorer() {
   const [filters, setFilters] = useState(defaultFilters);
@@ -24,16 +28,32 @@ export function Explorer() {
       </p>
 
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-        <FilterPanel
-          filters={filters}
-          onFiltersChange={setFilters}
-          layout="compact"
-        />
-        <MobilityMap
-          stations={stations}
-          selectedStationId={selectedStationId}
-          onStationSelect={(station) => setSelectedStationId(station.id)}
-        />
+        <div className="space-y-6">
+          <StationFinder
+            selectedStationId={selectedStationId}
+            onStationSelect={setSelectedStationId}
+          />
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={setFilters}
+            layout="compact"
+          />
+        </div>
+        <Suspense
+          fallback={
+            <div
+              aria-label="Loading map"
+              className="flex h-[560px] items-center justify-center rounded-xl border border-border text-sm text-muted-foreground"
+            >
+              Loading map…
+            </div>
+          }
+        >
+          <InteractiveMap
+            selectedStationId={selectedStationId}
+            onStationSelect={setSelectedStationId}
+          />
+        </Suspense>
         <StationDetailPanel station={selectedStation} />
       </div>
     </div>

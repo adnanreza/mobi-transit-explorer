@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
-import { stations } from "@/data";
+import { stationsAll } from "@/data";
 
 async function chooseOption(label: string, option: string) {
   const user = userEvent.setup();
@@ -11,26 +11,25 @@ async function chooseOption(label: string, option: string) {
 }
 
 describe("Explorer", () => {
-  it("renders filters, map, and detail panel", () => {
+  it("renders finder, filters, map, and detail panel", async () => {
     render(<Explorer />);
 
     expect(screen.getByText("Filters")).toBeInTheDocument();
-    expect(screen.getByText("Mobility map")).toBeInTheDocument();
+    expect(screen.getByText("Find a station")).toBeInTheDocument();
     expect(screen.getByText("Select a station")).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText("Interactive map of Mobi stations"),
+    ).toBeInTheDocument();
   });
 
-  it("selecting a station updates the detail panel", async () => {
-    const user = userEvent.setup();
+  it("selecting a station through the finder updates the detail panel", async () => {
     render(<Explorer />);
+    await screen.findByLabelText("Interactive map of Mobi stations");
 
-    await user.click(
-      screen.getByRole("button", {
-        name: `${stations[0].name}, connector score ${stations[0].connectorScore}`,
-      }),
-    );
+    await chooseOption("Find a station", stationsAll[0].name);
 
     expect(
-      screen.getByRole("heading", { name: stations[0].name }),
+      screen.getByRole("heading", { name: stationsAll[0].name }),
     ).toBeInTheDocument();
   });
 
