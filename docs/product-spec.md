@@ -1,46 +1,31 @@
-# Mobi Transit Explorer Product Spec
+# Mobi Transit Explorer Product Spec (v2)
 
-## Product Purpose
+## Purpose
 
-Mobi Transit Explorer is a front-end data product that explores how Vancouver's Mobi bike share network can extend and complement public transit. The product presents a polished portfolio experience that turns mobility data into clear, inspectable insights.
+Mobi Transit Explorer turns nine years of public Mobi trip data — 8+ million rides — into an interactive story about how bike share works in Vancouver and how messy public data becomes trustworthy numbers. It is a portfolio case study demonstrating data engineering (Python + DuckDB pipeline, dimensional modeling, data-quality discipline) and data-product craft (design, cartography, honest analytics) in one artifact.
 
-## Target Audience
+## Audience
 
-- Hiring managers and product teams evaluating Adnan Reza's front-end product work.
-- Transit, mobility, and civic technology audiences interested in multimodal access.
-- Portfolio visitors who want to see product thinking, data visualization, and implementation quality in one project.
+- Mobi by Rogers — the product should read as genuine knowledge of, and affection for, their system.
+- Data engineering hiring panels — the pipeline, star schema, and generated quality report are the evidence.
+- Urbanism and civic-tech readers who want the story of the network.
 
-## Portfolio Positioning
+## Positioning
 
-This project is designed as a public portfolio case study at `https://mobi-transit-explorer.adnanreza.com`. It should read as a focused front-end data product, not a generic template or dashboard. Each feature branch should add one clearly scoped capability while preserving a polished product feel.
+Live at `https://mobi-transit-explorer.adnanreza.com`. First person where it earns it: the author lives car-free in Vancouver and rides this network. Quiet, editorial, Apple-inspired visual language — big typography, hairline rules, one Mobi-blue accent, no dashboard tropes. Every number on screen is derived from generated artifacts; nothing is hand-written or estimated silently.
 
-## MVP Features
+## Current capabilities
 
-- Project scaffold using React, Vite, TypeScript, Tailwind CSS, shadcn/ui patterns, lucide-react, and Vitest.
-- Responsive app shell with header, navigation, hero copy, and polished content sections.
-- Generated real-data metrics for stations, overview charts, and opportunity rankings.
-- Overview metric cards that explain the product quickly.
-- Interactive filter panel for April/May 2026 source months, day type, time of day, bike type, and transit distance.
-- Custom map-style explorer showing station dots, transit nodes, connector scores, and selected station state.
-- Station detail panel that explains why a selected station matters.
-- Opportunity ranking table for improvement priorities.
-- Methodology section that explains public Mobi CSV processing and source-data limitations.
-- Documentation describing the product, methodology, lifecycle, review standards, and numbered feature specs.
+- Hero and overview: display-scale statement plus stat row (trips, distance, stations, e-bike share) from `meta.json`.
+- Nine Years story: five data-driven chapters — growth, seasonality, the pandemic, e-bike adoption, weather — each a derived headline, full-width chart, and cited caption.
+- Interactive map: MapLibre GL on the OpenFreeMap basemap; 262 stations at true GBFS coordinates sized by any year's volume, transit-distance filtering, station finder, connector-score shading, shareable URL state.
+- Station profiles: connector score with component breakdown, per-year history, top destinations, docks, nearest rapid transit, first-seen date.
+- Opportunities: rule-based findings citing their evidence numbers, linked to methodology definitions.
+- Methodology: first-person data-engineering case study with the generated pipeline funnel and the drift catalogue; links to the committed data-quality report.
 
-## Non-Goals
+## Principles
 
-- No backend service or server-side persistence.
-- No authentication, user accounts, or admin tools.
-- No backend or live production data ingestion in the MVP.
-- No UI libraries outside Tailwind CSS, shadcn/ui patterns, and lucide-react icons.
-- No Bootstrap, Material UI, Chakra, DaisyUI, or plain CSS modules.
-
-## Real-Data Version
-
-The current app uses public Mobi CSV inputs from the Mobi by Rogers system-data page. Raw files are processed locally by `scripts/process-mobi-data.mjs`, then emitted as static front-end TypeScript datasets. The app should continue to run fully in the browser unless a future spec explicitly changes the no-backend constraint.
-
-The next data upgrade should add official station coordinates and expand processing beyond April/May 2026.
-
-## Portfolio Signal
-
-The finished MVP should show that Adnan can shape a product idea, define a data model, build a usable analytical interface, and communicate technical limitations honestly. It should feel intentional to a recruiter or hiring manager reviewing front-end product work.
+- The app is static; the pipeline runs locally and its artifacts are committed.
+- Flag, don't delete: aggregates exclude only the flags that invalidate them.
+- Unknown source drift stops the pipeline until a human maps it.
+- Every feature ships through the branch lifecycle in `docs/feature-lifecycle.md`, specced in `docs/features/`.

@@ -128,8 +128,7 @@ function toMobiStation(s: GeneratedStation): MobiStation {
 
 export const stationsAll: MobiStation[] = stationsArtifact.stations.map(toMobiStation);
 
-// The mock-geography map stays legible with the busiest stations only;
-// the real map in spec 021 renders the full network.
+// Convenience slice of the busiest stations (kept for chart-style consumers).
 export const stations: MobiStation[] = stationsAll.slice(0, 40);
 
 // --- opportunities adapter

@@ -1,123 +1,87 @@
 # Mobi Transit Explorer
 
-Mobi Transit Explorer is a portfolio front-end data product by Adnan Reza. It explores how Vancouver's Mobi bike share network can extend and complement transit access through a focused, browser-only React experience.
+**Live: [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com)**
 
-Future live URL: `https://mobi-transit-explorer.adnanreza.com`
+Nine years of Vancouver bike share — 8+ million Mobi trips — cleaned, modeled, and told as an interactive data story.
 
-## Product Framing
+I live in Vancouver without a car: Mobi, walking, and TransLink are how I actually move through this city. This project turns every trip file the system has ever published into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
 
-The project is built to demonstrate front-end product thinking, data-product UI craft, and an interest in urban mobility. The current MVP processes public Mobi by Rogers system-data CSVs into static front-end datasets so the app remains browser-only while using real trip records.
+## What it shows
 
-In under 30 seconds, the app should communicate:
+- **Nine years of change** — growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching 42% of trips in three years, and how temperature moves ridership.
+- **A zoomable map of the real network** — all 262 active stations at true GBFS coordinates on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
+- **Operational findings that cite their evidence** — dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
-- Where bike share connects strongly with transit.
-- Which stations look like useful transit connectors.
-- Which areas may need more capacity, e-bikes, promotion, or monitoring.
-- How the current front-end product can mature into a fuller mobility case study.
+## How it's built
+
+**Two halves, deliberately separated:**
+
+```
+ Mobi trip files (102, 2017→today)     Mobi GBFS · CoV Open Data
+        │                                      │
+        ▼                                      ▼
+ ┌─────────────────────────────────────────────────────┐
+ │ pipeline/  (Python + DuckDB, runs locally)          │
+ │ acquire → extract → clean → conform → model → publish│
+ │ star schema: fact_trips + dim_station/date/membership│
+ └──────────────────────┬──────────────────────────────┘
+                        ▼  ~40 KB gzipped JSON (committed)
+ ┌─────────────────────────────────────────────────────┐
+ │ src/  (React + TypeScript + Vite, fully static)     │
+ │ story charts · MapLibre map · explorer · methodology │
+ └─────────────────────────────────────────────────────┘
+```
+
+- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). 8,961,723 raw rows in; 8,705,184 trips kept; every drop and flag accounted for in the generated [data-quality report](docs/data-quality-report.md).
+- **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars — the host serves static files.
+- **The hard part, on purpose:** nine years of format drift — 31 column layouts, five timestamp formats, three file containers, broken Unicode in a Squamish-language station name, sentinel zero temperatures — each handled by an explicit, tested rule. Unknown drift stops the pipeline; nothing is guessed silently.
+
+## Reproduce it
+
+```bash
+# App only (uses committed aggregates)
+npm install && npm run dev
+
+# Full pipeline (downloads ~1 GB of public trip files)
+python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
+.venv/bin/python pipeline/download.py        # manifest-verified acquisition
+.venv/bin/python pipeline/etl.py --stage all # DuckDB star schema
+.venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
+.venv/bin/python pipeline/geo_publish.py     # simplified shoreline geometry
+.venv/bin/python pipeline/quality_report.py  # regenerate docs/data-quality-report.md
+```
+
+Committed: the source manifest (with checksums for all 102 files) and the small generated aggregates. Never committed: raw trip data or the warehouse.
+
+## Tests
+
+```bash
+npm run test        # Vitest: components + data contracts
+npm run typecheck
+npm run build
+.venv/bin/python -m pytest pipeline/tests   # pipeline: era mapping, flags, dedupe
+```
+
+## Data notes (the honest part)
+
+- Timestamps are hour-rounded at source for rider privacy; April 2019 alone has minutes.
+- Monthly files repeat neighbouring months' trips — deduplicated; a trip's month is its departure month.
+- From mid-2025 the source writes 0° for missing temperatures — flagged and excluded from weather measures.
+- Retired stations keep their trips but have no public coordinates.
+- Full accounting: [docs/data-quality-report.md](docs/data-quality-report.md).
+
+## Feature lifecycle
+
+Every feature follows `LOAD → START → TEST → REVIEW → COMPLETE` on its own branch (`docs/feature-lifecycle.md`), specced in `docs/features/`. The v2 roadmap is `docs/roadmap-v2.md`.
 
 ## Stack
 
-- React
-- Vite
-- TypeScript
-- Tailwind CSS
-- shadcn/ui component patterns
-- lucide-react
-- Vitest
-- Testing Library
-- Playwright MCP for browser review when available
-- Chart.js and react-chartjs-2 for canvas-backed charts
-
-## Current MVP Features
-
-- Polished app shell and portfolio framing.
-- Design-system layout foundation with reusable sections and status badges.
-- Generated real-data station metrics, overview charts, and opportunities from public Mobi CSVs.
-- Overview metric cards.
-- Interactive filter panel and station finder.
-- Zoomable MapLibre GL map (OpenFreeMap basemap) with every station at its true GBFS location.
-- Station detail panel.
-- Main explorer composition with filter, map, and station profile state.
-- Opportunity ranking table.
-- Methodology section with source-data limitations.
-- Section navigation and accessibility polish.
-- Reproducible local data-processing script.
-
-## Screens and Sections
-
-- `Overview`: high-level real Mobi metrics and canvas-backed charts.
-- `Map`: filter controls, generated station/transit map, and selected station details.
-- `Opportunities`: ranked operational opportunities with priority badges.
-- `Methodology`: source-data disclosure, connector score explanation, limitations, and future data path.
-
-## Data Methodology
-
-The app uses every published Mobi by Rogers trip file (2017 through today, 8M+ rider trips) from `https://www.mobibikes.ca/en/system-data`, plus the Mobi GBFS station feed and City of Vancouver open data.
-
-Raw files are not committed. They are acquired and processed by the offline Python + DuckDB pipeline documented in `pipeline/README.md`:
-
-```bash
-python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
-.venv/bin/python pipeline/download.py        # fetch the full archive (manifest-verified)
-.venv/bin/python pipeline/etl.py --stage all # build the DuckDB star schema
-.venv/bin/python pipeline/publish.py         # emit src/data/generated/*.json
-```
-
-The committed app data lives in `src/data/generated/` (about 40 KB gzipped); the data-quality accounting lives in `docs/data-quality-report.md`.
-
-## Feature Lifecycle
-
-Every feature follows the strict `LOAD -> START -> TEST -> REVIEW -> COMPLETE` workflow documented in `docs/feature-lifecycle.md`.
-
-- Work from `main`.
-- Pull latest from `origin`.
-- Create one feature branch per feature.
-- Add implementation and documentation together.
-- Test with Vitest.
-- Review locally in a browser with Playwright MCP when available.
-- Complete by committing the feature branch, merging locally into `main`, pushing `main`, deleting the local feature branch, and cleaning temporary artifacts.
-
-## Local Setup
-
-```bash
-npm install
-npm run dev
-```
-
-## Testing Commands
-
-```bash
-npm run test
-npm run typecheck
-npm run build
-.venv/bin/python -m pytest pipeline/tests
-```
+React · TypeScript · Vite · Tailwind CSS · shadcn/ui patterns · Chart.js · MapLibre GL · Python · DuckDB · pytest · Vitest · Playwright
 
 ## Deployment
 
-Deployment target: `https://mobi-transit-explorer.adnanreza.com`.
+Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com). Build: `npm run build`, output `dist`, Node 18+. No server-side configuration.
 
-**Platform:** Deploy from the `main` branch via any static host such as Netlify, Vercel, or Cloudflare Pages.
+## License and credits
 
-**Build settings:**
-
-- Build command: `npm run build`
-- Output directory: `dist`
-- Node version: 18+
-
-No server-side configuration is needed. The app is fully client-side with no API routes, redirects, or environment variables required.
-
-### Previewing the Production Build Locally
-
-```bash
-npm run build
-npm run preview
-```
-
-## Future Improvements
-
-- Add official station coordinates from a station feed or maintained reference.
-- Expand processing to a rolling 12-month source window.
-- Graduate the generated coordinate map to a real map engine after the data model is proven.
-- Add production preview checks before each deployment.
-- Publish the portfolio case study at the future subdomain.
+Trip data © Mobi by Rogers under the [Mobi Data License Agreement](https://www.mobibikes.ca/en/system-data). Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with Mobi by Rogers or the City of Vancouver.

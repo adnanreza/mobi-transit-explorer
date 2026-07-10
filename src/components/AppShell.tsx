@@ -77,7 +77,29 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
 
       <footer className="border-t border-border">
         <div className="container flex flex-col gap-2 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>A data product by Adnan Reza.</p>
+          <p>
+            A data product by Adnan Reza. ·{" "}
+            <a
+              href="https://adnanreza.com"
+              className="text-foreground underline-offset-2 hover:underline"
+            >
+              adnanreza.com
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://github.com/adnanreza/mobi-transit-explorer"
+              className="text-foreground underline-offset-2 hover:underline"
+            >
+              GitHub
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://www.linkedin.com/in/adnanreza/"
+              className="text-foreground underline-offset-2 hover:underline"
+            >
+              LinkedIn
+            </a>
+          </p>
           <p>
             Data: Mobi by Rogers system data · Mobi GBFS · City of Vancouver
             Open Data · Basemap © OpenFreeMap, OpenStreetMap contributors.
