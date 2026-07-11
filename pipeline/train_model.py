@@ -26,7 +26,9 @@ import common
 WEATHER_DIR = common.DATA_RAW / "weather"
 OUT = common.REPO_ROOT / "src" / "data" / "generated" / "forecast.json"
 TEST_SPLIT = date(2025, 1, 1)
-TEMP_BANDS_C = [-2, 2, 6, 10, 14, 18, 22, 26, 30]
+# EC ambient means for Vancouver top out near 26C; a 30C band would be pure
+# extrapolation (and produced a byte-identical duplicate of the 26C column).
+TEMP_BANDS_C = [-2, 2, 6, 10, 14, 18, 22, 26]
 RAIN_LEVELS_MM = [0, 2, 10, 25]
 # feature order matters: monotonic_cst is positional
 FEATURES = ["dow", "is_weekend", "month_sin", "month_cos", "temp", "precip", "year_index", "is_holiday"]
@@ -125,7 +127,12 @@ def main() -> int:
     model = HistGradientBoostingRegressor(
         monotonic_cst=MONOTONIC, random_state=42, max_iter=300
     )
-    model.fit(X[train_mask], y[train_mask])
+    # Evaluation model: fit on 2017-2024, scored on unseen 2025+ days. These
+    # are the honest generalization numbers reported in the card.
+    eval_model = HistGradientBoostingRegressor(
+        monotonic_cst=MONOTONIC, random_state=42, max_iter=300
+    )
+    eval_model.fit(X[train_mask], y[train_mask])
 
     # Seasonal-naive baseline: train-period mean by (month, weekend-ness).
     baseline_table: dict[tuple[int, bool], float] = {}
@@ -137,10 +144,18 @@ def main() -> int:
 
     test_days = np.array(days)[~train_mask]
     y_test = y[~train_mask]
-    pred_test = model.predict(X[~train_mask])
+    pred_test = eval_model.predict(X[~train_mask])
     baseline_test = np.array(
         [baseline_means[(d.month, d.weekday() >= 5)] for d in test_days]
     )
+
+    # Grid model: refit on ALL available data so the widget reflects the most
+    # recent demand level, not a frozen training-cutoff year. Anchored at the
+    # last COMPLETE calendar year, stated in the card and the UI.
+    grid_model = model
+    grid_model.fit(X, y)
+    last_full_year = max(d.year for d in days if date(d.year, 12, 31) <= days[-1])
+    year_index = last_full_year - 2017
 
     card = {
         "station": "Vancouver Harbour CS (Environment Canada, OGL-Canada)",
@@ -153,10 +168,12 @@ def main() -> int:
         "testMae": round(float(mean_absolute_error(y_test, pred_test))),
         "baselineMae": round(float(mean_absolute_error(y_test, baseline_test))),
         "testR2": round(float(r2_score(y_test, pred_test)), 3),
+        "gridReferenceYear": last_full_year,
+        "gridFitRange": f"{days[0]} to {days[-1]}",
     }
 
-    # Prediction grid at the latest year index: month x daytype x temp x rain.
-    year_index = max(d.year for d in days) - 2017
+    # Prediction grid: month x daytype x temp x rain, at the reference year.
+    model = grid_model
     rep_dow = {"weekday": 2, "weekend": 5}
     grid: list[list[list[list[int]]]] = []
     for month in range(1, 13):

@@ -59,7 +59,7 @@ def build_artifacts(con) -> dict[str, object]:
             "medianDurationMin": r["median_duration_min"],
             "ebikeSharePct": r["ebike_share_pct"],
             "activeStations": r["active_stations"],
-            "avgDepartureTempC": r["avg_departure_temp_c"],
+            "avgTempC": r["avg_temp_c"],
             "membershipMix": yearly_membership.get(r["year"], {}),
         }
         for r in rows(con, "SELECT * FROM v_yearly")
@@ -74,10 +74,11 @@ def build_artifacts(con) -> dict[str, object]:
         for r in rows(con, "SELECT * FROM v_monthly")
     ]
 
-    seasonality: dict[int, list[int]] = {}
+    # months outside the published window are null (no data), not zero trips
+    seasonality: dict[int, list[int | None]] = {}
     for r in monthly:
         year, month = int(r["month"][:4]), int(r["month"][5:])
-        seasonality.setdefault(year, [0] * 12)[month - 1] = r["trips"]
+        seasonality.setdefault(year, [None] * 12)[month - 1] = r["trips"]
 
     hourly: dict[int, dict[str, list[int]]] = {}
     for r in rows(con, "SELECT * FROM v_hourly"):
@@ -86,7 +87,11 @@ def build_artifacts(con) -> dict[str, object]:
         ][r["hour"]] = r["trips"]
 
     weather = [
-        {"tempBandC": r["temp_band_c"], "trips": r["trips"], "daysObserved": r["days_observed"]}
+        {
+            "tempBandC": r["temp_band_c"],
+            "tripsPerDay": r["trips_per_day"],
+            "daysObserved": r["days_observed"],
+        }
         for r in rows(con, "SELECT * FROM v_weather")
     ]
 

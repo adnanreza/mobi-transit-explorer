@@ -33,7 +33,7 @@ export type YearlyRow = {
   medianDurationMin: number;
   ebikeSharePct: number | null;
   activeStations: number;
-  avgDepartureTempC: number | null;
+  avgTempC: number | null; // Environment Canada ambient mean over ride-days
   membershipMix: Record<string, number>;
 };
 
@@ -43,11 +43,13 @@ export type MonthlyRow = {
   ebikeTrips: number | null; // null before the e-bike flag exists in the source
 };
 
-export type SeasonalityRow = { year: number; tripsByMonth: number[] };
+export type SeasonalityRow = { year: number; tripsByMonth: (number | null)[] };
 
 export type HourlyRow = { year: number; weekday: number[]; weekend: number[] };
 
-export type WeatherRow = { tempBandC: number; trips: number; daysObserved: number };
+// tripsPerDay = average total network trips on days whose EC ambient mean
+// temperature falls in this 2-degree band
+export type WeatherRow = { tempBandC: number; tripsPerDay: number; daysObserved: number };
 
 export type StationDestination = { id: string; name: string; trips: number };
 
@@ -125,6 +127,8 @@ export type ForecastArtifact = {
     testMae: number;
     baselineMae: number;
     testR2: number;
+    gridReferenceYear: number; // demand level the widget's grid reflects
+    gridFitRange: string;
   };
   tempBandsC: number[];
   rainLevelsMm: number[];

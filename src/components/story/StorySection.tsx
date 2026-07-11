@@ -52,7 +52,7 @@ function growthData(): ChartData<"line"> {
 
 function seasonsData(): ChartData<"line"> {
   const complete = seasonality.filter(
-    (r) => r.year <= lastCompleteYear && r.tripsByMonth.every((m) => m > 0),
+    (r) => r.year <= lastCompleteYear && r.tripsByMonth.every((m) => m !== null && m > 0),
   );
   return {
     labels: MONTH_LABELS,
@@ -109,15 +109,13 @@ function ebikeData(): ChartData<"line"> {
 }
 
 function weatherData(): ChartData<"bar"> {
-  // Per-day rate, matching the chapter's claim (raw totals would mostly
-  // measure how common mild days are, not how much people ride on them).
-  const rate = (w: (typeof weather)[number]) => w.trips / Math.max(w.daysObserved, 1);
-  const peak = weather.reduce((a, b) => (rate(b) > rate(a) ? b : a));
+  // True per-day averages, one row per EC ambient temperature band.
+  const peak = weather.reduce((a, b) => (b.tripsPerDay > a.tripsPerDay ? b : a));
   return {
     labels: weather.map((w) => `${w.tempBandC}°`),
     datasets: [
       {
-        data: weather.map((w) => Math.round(rate(w))),
+        data: weather.map((w) => w.tripsPerDay),
         backgroundColor: weather.map((w) =>
           w.tempBandC === peak.tempBandC ? chartColors.blue : chartColors.gray,
         ),

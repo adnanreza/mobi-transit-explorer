@@ -28,6 +28,15 @@ def env(tmp_path):
     (data_raw / "trips").mkdir(parents=True)
     (data_raw / "gbfs").mkdir()
     (data_raw / "geo").mkdir()
+    (data_raw / "weather").mkdir()
+    # EC daily weather covering the dates the fixtures use (May-June 2026)
+    weather_rows = ['"Date/Time","Mean Temp (°C)","Total Precip (mm)"']
+    for day in range(1, 9):
+        weather_rows.append(f'"2026-05-0{day}","18.0","0.0"')
+    weather_rows.append('"2026-06-02","20.0","0.0"')
+    (data_raw / "weather" / "ec-888-2026.csv").write_text(
+        "\n".join(weather_rows) + "\n", encoding="utf-8-sig"
+    )
     (data_raw / "gbfs" / "station_information.json").write_text(json.dumps({
         "data": {"stations": [
             {"station_id": "0001", "name": "Alpha & First", "lat": 49.2828, "lon": -123.1189,

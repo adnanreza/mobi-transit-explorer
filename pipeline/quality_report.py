@@ -106,7 +106,8 @@ def build(con) -> str:
     lines += ["", "| Group | Trips |", "| --- | ---: |"]
     for group, count in q(
         con,
-        """SELECT coalesce(m.membership_group, 'UNMAPPED'), count(*)
+        """SELECT coalesce(m.membership_group, 'Blank / Unknown (no label in source)'),
+                  count(*)
            FROM fact_trips f LEFT JOIN dim_membership m USING (membership_raw)
            GROUP BY 1 ORDER BY 2 DESC""",
     ):

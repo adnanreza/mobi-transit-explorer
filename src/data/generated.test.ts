@@ -80,11 +80,16 @@ describe("generated data contracts", () => {
     }
   });
 
-  it("weather bands are ordered and plausible for Vancouver", () => {
+  it("weather bands are ordered, ambient-plausible, and rise with temperature", () => {
     const bands = weather.map((w) => w.tempBandC);
     expect([...bands].sort((a, b) => a - b)).toEqual(bands);
-    expect(Math.min(...bands)).toBeGreaterThanOrEqual(-30);
-    expect(Math.max(...bands)).toBeLessThanOrEqual(44);
+    // EC ambient means for Vancouver, not bike-sensor fantasy values
+    expect(Math.min(...bands)).toBeGreaterThanOrEqual(-15);
+    expect(Math.max(...bands)).toBeLessThanOrEqual(28);
+    for (const w of weather) expect(w.tripsPerDay).toBeGreaterThan(0);
+    // warmest band should out-ride the coldest
+    const byTemp = [...weather].sort((a, b) => a.tempBandC - b.tempBandC);
+    expect(byTemp[byTemp.length - 1].tripsPerDay).toBeGreaterThan(byTemp[0].tripsPerDay);
   });
 
   it("opportunities cite evidence and resolve to stations", () => {
