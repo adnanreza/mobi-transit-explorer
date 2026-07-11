@@ -180,6 +180,7 @@ function lineOptions(label: string, showLegend: boolean): ChartOptions<"line"> {
       },
       y: {
         beginAtZero: true,
+        title: { display: true, text: `${label.toLowerCase()} per day (avg)` },
         grid: { color: chartColors.grid },
         ticks: { callback: (value: string | number) => Number(value).toLocaleString("en-CA") },
       },

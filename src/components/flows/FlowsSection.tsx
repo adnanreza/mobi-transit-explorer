@@ -26,7 +26,7 @@ const chartOptions: ChartOptions<"line"> = {
     y: {
       beginAtZero: true,
       grid: { color: chartColors.grid },
-      title: { display: false },
+      title: { display: true, text: "bikes per hour (avg)" },
     },
   },
 };

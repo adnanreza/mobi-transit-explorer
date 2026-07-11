@@ -33,7 +33,7 @@ export type YearlyRow = {
   medianDurationMin: number;
   ebikeSharePct: number | null;
   activeStations: number;
-  avgTempC: number | null; // Environment Canada ambient mean over ride-days
+  avgTempC: number | null; // annual mean Environment Canada ambient temperature
   membershipMix: Record<string, number>;
 };
 
@@ -132,6 +132,7 @@ export type ForecastArtifact = {
   };
   tempBandsC: number[];
   rainLevelsMm: number[];
+  monthMeanTempRangeC: Record<string, [number, number]>; // "1".."12" -> [min, max] observed
   // [month-1][0=weekday,1=weekend][tempIdx][rainIdx] -> predicted daily trips
   grid: number[][][][];
 };

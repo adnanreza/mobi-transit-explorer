@@ -32,6 +32,15 @@ export function WeatherModelBlock() {
   const trips = forecast.grid[month][dayType][tempIdx][rainIdx];
   const card = forecast.modelCard;
 
+  // Flag month/temperature combinations Vancouver has never recorded (e.g. a
+  // 22°C January) rather than showing a confident extrapolated number.
+  const selectedTempC = forecast.tempBandsC[tempIdx];
+  const monthRange = forecast.monthMeanTempRangeC[String(month + 1)];
+  const outOfRange =
+    monthRange !== undefined &&
+    (selectedTempC < Math.floor(monthRange[0]) || selectedTempC > Math.ceil(monthRange[1]));
+  const monthName = MONTHS[month];
+
   return (
     <div>
       <div className="grid gap-3 border-t border-border pt-10 sm:grid-cols-4">
@@ -70,15 +79,24 @@ export function WeatherModelBlock() {
         />
       </div>
 
-      <p className="mt-8 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
-        ≈ {trips.toLocaleString("en-CA")}{" "}
-        <span className="text-xl font-normal text-muted-foreground sm:text-2xl">
-          trips on a day like this
-        </span>
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        at {card.gridReferenceYear} network size
-      </p>
+      {outOfRange ? (
+        <p className="mt-8 max-w-xl text-2xl font-medium leading-snug tracking-tight text-foreground sm:text-3xl">
+          No {monthName} on record has averaged {selectedTempC}°C
+          <span className="text-muted-foreground"> — outside the observed range, so the model won't guess.</span>
+        </p>
+      ) : (
+        <>
+          <p className="mt-8 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
+            ≈ {trips.toLocaleString("en-CA")}{" "}
+            <span className="text-xl font-normal text-muted-foreground sm:text-2xl">
+              trips on a day like this
+            </span>
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            at {card.gridReferenceYear} network size
+          </p>
+        </>
+      )}
 
       <p className="mt-6 max-w-2xl text-xs leading-5 text-muted-foreground">
         Model card: {card.features.length} features; {card.constraint}. Evaluated
@@ -89,8 +107,10 @@ export function WeatherModelBlock() {
         seasonal-naive baseline, R² {card.testR2}. The predictions above come
         from a model refit on all data through {card.gridFitRange.slice(-7)} and
         reflect {card.gridReferenceYear} demand levels. Weather from{" "}
-        {card.station}. Associations, not causal claims — the data has no events,
-        and holidays are a single flag.
+        {card.station}. Predictions are only meaningful within each month's
+        historically observed temperature range, and never fall below the fewest
+        trips ever seen in a day. Associations, not causal claims — the data has
+        no events, and holidays are a single flag.
       </p>
     </div>
   );

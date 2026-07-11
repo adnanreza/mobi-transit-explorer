@@ -1,3 +1,10 @@
+This MIT licence applies to the SOURCE CODE only. The data files under
+src/data/generated/ and docs/data-quality-report.md are Mobi-derived analysis
+outputs governed by the Mobi Data License Agreement
+(https://www.mobibikes.ca/en/system-data) — permitted for non-commercial
+analysis only, and not redistributable for commercial purposes. Weather-derived
+values are based on Environment and Climate Change Canada data.
+
 MIT License
 
 Copyright (c) 2026 Adnan Reza

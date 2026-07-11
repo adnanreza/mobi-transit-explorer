@@ -31,12 +31,19 @@ python3 -m venv .venv
 #    Stages are individually re-runnable via --stage.
 .venv/bin/python pipeline/etl.py --stage all
 
-# 5. Regenerate the committed data-quality report from the warehouse.
-.venv/bin/python pipeline/quality_report.py
+# 5. Fetch Environment Canada daily weather. publish.py and train_model.py
+#    both read data-raw/weather/, so this must run before them.
+.venv/bin/python pipeline/weather_fetch.py
 
 # 6. Publish app artifacts: JSON aggregates + simplified land geometry.
 .venv/bin/python pipeline/publish.py
 .venv/bin/python pipeline/geo_publish.py
+
+# 7. Regenerate the committed data-quality report from the warehouse.
+.venv/bin/python pipeline/quality_report.py
+
+# 8. Train the ridership model -> src/data/generated/forecast.json.
+.venv/bin/python pipeline/train_model.py
 
 # Tests (no network)
 .venv/bin/python -m pytest pipeline/tests
@@ -81,6 +88,8 @@ regenerated into `docs/data-quality-report.md`.
 
 ## Monthly refresh
 
-When Mobi publishes a new month: run the three commands above, then the
-process/publish stages (specs 019-020), commit the regenerated artifacts, and
-push - Cloudflare Pages redeploys from the static build.
+When Mobi publishes a new month: rerun the commands above in order
+(`scrape_manifest` → `download` → `inventory` → `etl` → `weather_fetch` →
+`publish` → `geo_publish` → `quality_report` → `train_model`), commit the
+regenerated artifacts, and push — Cloudflare Pages redeploys from the static
+build.

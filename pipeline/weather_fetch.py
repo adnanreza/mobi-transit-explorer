@@ -2,7 +2,7 @@
 
 Station: VANCOUVER HARBOUR CS (stationID 888, climate ID 1108446) — downtown,
 matching where most Mobi riding happens. One CSV per year via the documented
-bulk endpoint; Open Government Licence - Canada. This external source exists
+bulk endpoint; based on Environment and Climate Change Canada data. This source exists
 because the trip files carry no precipitation at all and their temperatures
 turn into 0-sentinels after mid-2025.
 
