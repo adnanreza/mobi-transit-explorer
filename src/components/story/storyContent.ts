@@ -156,6 +156,35 @@ export function purposeChapter(
   };
 }
 
+function membershipShare(row: YearlyRow, group: string): number {
+  const total = Object.values(row.membershipMix).reduce((a, b) => a + b, 0) || 1;
+  return (100 * (row.membershipMix[group] ?? 0)) / total;
+}
+
+export function membershipChapter(
+  years: YearlyRow[] = yearly,
+  lastFull: number = lastCompleteYear,
+): Chapter {
+  const complete = years.filter((y) => y.year <= lastFull);
+  const first = complete[0];
+  const latest = complete[complete.length - 1];
+  const firstCorp = Math.round(membershipShare(first, "Corporate"));
+  const latestCorp = Math.round(membershipShare(latest, "Corporate"));
+  const ratio = Math.max(2, Math.round(100 / membershipShare(latest, "Corporate")));
+  return {
+    id: "membership",
+    headline: `One ride in ${ratio} is now on a corporate pass.`,
+    caption:
+      `Corporate and institutional passes went from ${firstCorp}% of rides in ` +
+      `${first.year} to ${latestCorp}% by ${latest.year}, while casual day-pass ` +
+      "use held flat. My own passes followed that arc — day passes when I lived " +
+      "near UBC, an annual once I settled in East Van, a Langara corporate pass " +
+      "now. Even from Burnaby, outside Mobi's service area, I rode it as the last " +
+      "mile of a SkyTrain trip, finishing from VCC-Clark or Commercial-Broadway. " +
+      "A bike ending a transit trip is the whole idea.",
+  };
+}
+
 export const chapters: Chapter[] = [
   growthChapter(),
   seasonsChapter(),
@@ -163,4 +192,5 @@ export const chapters: Chapter[] = [
   ebikeChapter(),
   weatherChapter(),
   purposeChapter(),
+  membershipChapter(),
 ];

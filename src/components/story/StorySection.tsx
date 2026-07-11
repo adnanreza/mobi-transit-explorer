@@ -3,11 +3,12 @@ import type { ChartData, ChartOptions } from "chart.js";
 import { chartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
-import { lastCompleteYear, monthly, seasonality, stationsArtifact, weather } from "@/data";
+import { lastCompleteYear, monthly, seasonality, stationsArtifact, weather, yearly } from "@/data";
 import {
   chapters,
   ebikeChapter,
   growthChapter,
+  membershipChapter,
   pandemicChapter,
   purposeChapter,
   seasonsChapter,
@@ -174,6 +175,41 @@ const percentLine: ChartOptions<"line"> = {
   },
 };
 
+// Share of each pass type over the years — Corporate highlighted, the rest
+// in the gray ramp. Legend shown because five lines need naming.
+const MEMBERSHIP_GROUPS: { key: string; color: string; width: number }[] = [
+  { key: "Corporate", color: chartColors.blue, width: 2 },
+  { key: "365 Annual", color: chartColors.ink, width: 1.5 },
+  { key: "Casual", color: chartColors.grayStrong, width: 1.5 },
+  { key: "Monthly", color: chartColors.gray, width: 1.5 },
+  { key: "Community", color: "#e2e8f0", width: 1.5 },
+];
+
+function membershipData(): ChartData<"line"> {
+  const years = yearly.filter((y) => y.year <= lastCompleteYear);
+  const share = (row: (typeof years)[number], group: string) => {
+    const total = Object.values(row.membershipMix).reduce((a, b) => a + b, 0) || 1;
+    return Math.round((1000 * (row.membershipMix[group] ?? 0)) / total) / 10;
+  };
+  return {
+    labels: years.map((y) => String(y.year)),
+    datasets: MEMBERSHIP_GROUPS.map((g) => ({
+      label: g.key,
+      data: years.map((y) => share(y, g.key)),
+      borderColor: g.color,
+      backgroundColor: g.color,
+      borderWidth: g.width,
+      pointRadius: 0,
+      tension: 0.3,
+    })),
+  };
+}
+
+const membershipOptions: ChartOptions<"line"> = {
+  ...percentLine,
+  plugins: { legend: { display: true } },
+};
+
 export function StorySection() {
   const testMode = import.meta.env.MODE === "test";
   const byId = {
@@ -183,6 +219,7 @@ export function StorySection() {
     ebikes: ebikeChapter(),
     weather: weatherChapter(),
     purpose: purposeChapter(),
+    membership: membershipChapter(),
   };
 
   const charts: Record<string, React.ReactNode> = testMode
@@ -235,6 +272,11 @@ export function StorySection() {
           />
           </ChartReveal>
         ),
+        membership: (
+          <ChartReveal>
+            <Line data={membershipData()} options={membershipOptions} />
+          </ChartReveal>
+        ),
       };
 
   return (
@@ -250,7 +292,7 @@ export function StorySection() {
               >
                 {content.headline}
               </h3>
-              <div className="mt-10 h-64 sm:h-80">
+              <div className="mt-10 h-64 min-w-0 sm:h-80">
                 {testMode ? (
                   <div
                     role="img"

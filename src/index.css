@@ -59,14 +59,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Clean horizontal scroll strips (mobile nav) — scroll works, no track. */
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
 
   /* Reveal with cascading children: the wrapper observes visibility, CSS
      handles the per-child delays. Delay caps at the seventh child so long

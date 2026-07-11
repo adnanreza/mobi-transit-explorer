@@ -126,9 +126,9 @@ function ChartBlock({
   children: React.ReactNode;
 }) {
   return (
-    <figure>
+    <figure className="min-w-0">
       <h3 className="text-lg font-medium tracking-tight text-foreground">{title}</h3>
-      <div className="mt-4 h-64">{children}</div>
+      <div className="mt-4 h-64 min-w-0">{children}</div>
       <figcaption className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
         {caption}
       </figcaption>

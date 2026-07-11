@@ -60,7 +60,7 @@ export function FlowsSection() {
         </p>
       </div>
 
-      <div className="grid gap-x-12 gap-y-10 border-t border-border pt-10 md:grid-cols-2">
+      <div className="grid min-w-0 gap-x-12 gap-y-10 border-t border-border pt-10 md:grid-cols-2 [&>*]:min-w-0">
         <RankedList
           title="Filling up on weekday mornings"
           caption="Net bikes gained, 7:00–11:00, per weekday — the commute's landing zones."
@@ -110,7 +110,7 @@ export function FlowsSection() {
             — a typical {dayType === "weekday" ? "weekday" : "weekend day"}, hour by hour
           </span>
         </p>
-        <div className="mt-4 h-64 sm:h-72">
+        <div className="mt-4 h-64 min-w-0 sm:h-72">
           {testMode ? (
             <div
               role="img"
