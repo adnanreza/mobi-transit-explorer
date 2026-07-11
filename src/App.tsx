@@ -38,8 +38,8 @@ function App() {
         </h2>
         <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground motion-safe:animate-fade-up motion-safe:[animation-delay:120ms] sm:text-xl sm:leading-9">
           {totalTrips} Mobi trips — {millionKm} million kilometres of riding —
-          from every trip file the system has ever published, cleaned and
-          mapped against Vancouver's transit network.
+          from every monthly trip file Mobi has published, cleaned and mapped
+          against Vancouver's transit network.
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-4 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
           <Button asChild size="lg" className="group">

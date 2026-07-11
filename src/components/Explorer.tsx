@@ -119,7 +119,9 @@ export function Explorer() {
       </p>
 
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-        <div className="space-y-6">
+        {/* On mobile the map leads; controls and detail follow. On xl the
+            source order (controls · map · detail) restores the columns. */}
+        <div className="order-2 space-y-6 xl:order-none">
           <StationFinder
             selectedStationId={selectedStationId}
             onStationSelect={setSelectedStationId}
@@ -130,27 +132,31 @@ export function Explorer() {
             layout="compact"
           />
         </div>
-        <Suspense
-          fallback={
-            <div
-              aria-label="Loading map"
-              className="flex h-[560px] items-center justify-center rounded-xl border border-border text-sm text-muted-foreground"
-            >
-              Loading map…
-            </div>
-          }
-        >
-          <InteractiveMap
-            selectedStationId={selectedStationId}
-            onStationSelect={setSelectedStationId}
-            year={filters.year}
-            maxTransitM={
-              filters.transitDistance === "all" ? null : Number(filters.transitDistance)
+        <div className="order-1 xl:order-none">
+          <Suspense
+            fallback={
+              <div
+                aria-label="Loading map"
+                className="flex h-[560px] items-center justify-center rounded-xl border border-border text-sm text-muted-foreground"
+              >
+                Loading map…
+              </div>
             }
-            colorMode={colorMode}
-          />
-        </Suspense>
-        <StationDetailPanel station={selectedStation} />
+          >
+            <InteractiveMap
+              selectedStationId={selectedStationId}
+              onStationSelect={setSelectedStationId}
+              year={filters.year}
+              maxTransitM={
+                filters.transitDistance === "all" ? null : Number(filters.transitDistance)
+              }
+              colorMode={colorMode}
+            />
+          </Suspense>
+        </div>
+        <div className="order-3 xl:order-none">
+          <StationDetailPanel station={selectedStation} />
+        </div>
       </div>
     </div>
   );

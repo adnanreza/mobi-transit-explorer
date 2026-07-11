@@ -14,6 +14,10 @@ type OpportunityTableProps = {
   opportunities?: Opportunity[];
 };
 
+function stationName(opportunity: Opportunity): string {
+  return stations.find((item) => item.id === opportunity.stationId)?.name ?? opportunity.area;
+}
+
 export function OpportunityTable({
   opportunities = defaultOpportunities,
 }: OpportunityTableProps) {
@@ -34,28 +38,55 @@ export function OpportunityTable({
   return (
     <div className="border-t border-border pt-2">
       <h3 className="sr-only">Opportunity ranking</h3>
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Rank</TableHead>
-            <TableHead>Station</TableHead>
-            <TableHead>Opportunity</TableHead>
-            <TableHead>Evidence</TableHead>
-            <TableHead>Priority</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {opportunities.map((opportunity) => {
-            const station = stations.find((item) => item.id === opportunity.stationId);
 
-            return (
+      {/* Mobile: stacked cards — a 5-column table cannot fit a phone. */}
+      <ul className="space-y-3 md:hidden">
+        {opportunities.map((opportunity) => (
+          <li
+            key={opportunity.rank}
+            className="rounded-xl border border-border p-4"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-muted-foreground tabular-nums">
+                #{opportunity.rank}
+              </span>
+              <PriorityText priority={opportunity.priority} />
+            </div>
+            <p className="mt-2 font-medium text-foreground">
+              {stationName(opportunity)}
+            </p>
+            <p className="text-sm text-muted-foreground">{opportunity.area}</p>
+            <p className="mt-3 text-sm font-medium text-foreground">
+              {opportunity.type}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {opportunity.reason}
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop/tablet: the ranked table. */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Rank</TableHead>
+              <TableHead>Station</TableHead>
+              <TableHead>Opportunity</TableHead>
+              <TableHead>Evidence</TableHead>
+              <TableHead>Priority</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {opportunities.map((opportunity) => (
               <TableRow key={opportunity.rank} className="transition-colors hover:bg-muted/40">
                 <TableCell className="text-muted-foreground tabular-nums">
                   #{opportunity.rank}
                 </TableCell>
                 <TableCell>
                   <div className="font-medium text-foreground">
-                    {station?.name ?? opportunity.area}
+                    {stationName(opportunity)}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {opportunity.area}
@@ -71,10 +102,11 @@ export function OpportunityTable({
                   <PriorityText priority={opportunity.priority} />
                 </TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
       <p className="mt-4 text-xs text-muted-foreground">
         Each finding comes from an explicit rule over the trailing twelve
         months — thresholds and definitions are in the{" "}

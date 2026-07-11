@@ -192,15 +192,15 @@ function RankedList({
       <ol className="mt-4 space-y-3">
         {rows.map((row) => (
           <li key={row.id} className="flex items-center gap-3">
-            <span className="w-44 shrink-0 truncate text-sm font-medium text-foreground sm:w-56">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground sm:max-w-56 sm:flex-none">
               {row.name}
             </span>
             <span
-              className="h-1.5 rounded-full bg-primary/70"
-              style={{ width: `${(row.bikesPerDay / max) * 100}%`, maxWidth: "40%" }}
+              className="hidden h-1.5 rounded-full bg-primary/70 sm:block"
+              style={{ width: `${(row.bikesPerDay / max) * 100}%`, maxWidth: "30%" }}
               aria-hidden="true"
             />
-            <span className="text-sm text-muted-foreground tabular-nums">
+            <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
               {row.bikesPerDay} {unit}
             </span>
           </li>
