@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 
-// Mounts its children only once meaningfully in view, so Chart.js's draw
-// animation plays where the viewer can see it. Under reduced motion the
-// hook flips visible on mount and the global animation default is off, so
-// charts simply render pre-drawn. Test mode renders immediately because the
-// jsdom IntersectionObserver mock never fires.
+// Mounts its children as they approach the viewport, so Chart.js's draw
+// animation plays where the viewer can see it. threshold 0 + a generous
+// rootMargin makes mounting robust to fast mobile momentum scrolling and
+// short viewports (a strict visibility threshold could leave a chart blank
+// when it never crosses that fraction). Under reduced motion the hook flips
+// visible on mount and the global animation default is off. Test mode
+// renders immediately because the jsdom IntersectionObserver mock never fires.
 export function ChartReveal({
   children,
   className,
@@ -14,7 +16,10 @@ export function ChartReveal({
   children: ReactNode;
   className?: string;
 }) {
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.35 });
+  const { ref, isVisible } = useScrollReveal({
+    threshold: 0,
+    rootMargin: "300px 0px",
+  });
   const show = isVisible || import.meta.env.MODE === "test";
 
   return (
