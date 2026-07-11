@@ -66,8 +66,8 @@ describe("storyContent derives every number from data", () => {
     expect(chapter.caption).toContain("8×"); // 4000 / 500 near-freezing
   });
 
-  it("real artifacts produce six plausible chapters", () => {
-    expect(chapters).toHaveLength(6);
+  it("real artifacts produce seven plausible chapters", () => {
+    expect(chapters).toHaveLength(7);
     for (const chapter of chapters) {
       expect(chapter.headline.length).toBeGreaterThan(10);
       expect(chapter.caption.length).toBeGreaterThan(40);

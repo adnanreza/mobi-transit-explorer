@@ -18,7 +18,7 @@ export function ChartReveal({
   const show = isVisible || import.meta.env.MODE === "test";
 
   return (
-    <div ref={ref} className={cn("h-full", className)}>
+    <div ref={ref} className={cn("h-full w-full min-w-0", className)}>
       {show ? children : null}
     </div>
   );

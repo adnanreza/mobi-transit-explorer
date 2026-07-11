@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -14,9 +15,32 @@ type AppShellProps = {
 
 export function AppShell({ children, navItems, className }: AppShellProps) {
   const [activeHref, setActiveHref] = useState(navItems[0]?.href ?? "");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   // After a nav click, smooth scroll sweeps past intermediate sections;
   // hold the clicked state briefly so the active link doesn't flicker.
   const suppressUntil = useRef(0);
+
+  // Close the mobile menu on Escape, outside tap, or growing to desktop width.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    const onOutside = (e: Event) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const wide = window.matchMedia("(min-width: 768px)");
+    const onWide = () => wide.matches && setMenuOpen(false);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onOutside);
+    wide.addEventListener("change", onWide);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onOutside);
+      wide.removeEventListener("change", onWide);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -66,20 +90,24 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="container flex flex-col gap-1.5 py-3 sm:h-14 sm:flex-row sm:items-center sm:justify-between sm:py-0">
-          <div className="flex items-baseline gap-3">
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-sm"
+      >
+        <div className="container flex h-14 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-baseline gap-3">
             <h1 className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground">
               Mobi Transit Explorer
             </h1>
-            <p className="hidden text-sm text-muted-foreground lg:block">
+            <p className="hidden truncate text-sm text-muted-foreground lg:block">
               How bike share extends transit in Vancouver
             </p>
           </div>
 
+          {/* Desktop / tablet: inline nav */}
           <nav
             aria-label="Primary navigation"
-            className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:gap-5 sm:px-0"
+            className="hidden items-center gap-5 md:flex"
           >
             {navItems.map((item) => (
               <a
@@ -91,7 +119,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
                   setActiveHref(item.href);
                 }}
                 className={cn(
-                  "shrink-0 whitespace-nowrap rounded-sm py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                  "whitespace-nowrap rounded-sm py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
                   activeHref === item.href
                     ? "font-medium text-foreground"
                     : "text-muted-foreground",
@@ -101,7 +129,55 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
               </a>
             ))}
           </nav>
+
+          {/* Mobile: hamburger button */}
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMenuOpen((open) => !open)}
+            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring md:hidden"
+          >
+            {menuOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
+
+        {/* Mobile: dropdown panel */}
+        {menuOpen ? (
+          <nav
+            id="mobile-nav"
+            aria-label="Primary navigation"
+            className="absolute inset-x-0 top-full border-b border-border bg-background shadow-sm md:hidden"
+          >
+            <div className="container flex flex-col py-2">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  aria-current={activeHref === item.href ? "page" : undefined}
+                  onClick={() => {
+                    suppressUntil.current = Date.now() + 700;
+                    setActiveHref(item.href);
+                    setMenuOpen(false);
+                  }}
+                  className={cn(
+                    "rounded-lg px-2 py-3 text-base transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                    activeHref === item.href
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </nav>
+        ) : null}
       </header>
 
       <div id="main-content" className="container pb-24 pt-16 sm:pt-24">
