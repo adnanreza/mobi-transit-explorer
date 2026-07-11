@@ -190,9 +190,11 @@ def build(con) -> str:
         "šxʷƛ̓ənəq Xwtl'e7énḵ Square (transcoded, preserving rows).",
         "- The source page misspells the November 2021 link (`Novemeber 2021`) and "
         "carries an unlabeled duplicate of the 2017 export.",
-        "- From mid-2025 the files write `0` instead of null for missing "
-        "temperatures; those trips carry the `temp_suspect_zero` flag and are "
-        "excluded from weather measures.",
+        "- The trip files' temperature column is a bike-mounted sensor (0 "
+        "sentinels, values Vancouver has never reached); no published weather "
+        "measure uses it. Both weather charts band every trip by Environment "
+        "Canada ambient mean temperature instead, so the `temp_suspect_zero` "
+        "flag no longer gates any ridership number.",
         "",
         "## Known limitations",
         "",

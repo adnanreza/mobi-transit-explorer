@@ -48,7 +48,7 @@ export const stationsArtifact = stationsJson as StationsArtifact;
 export const generatedOpportunities =
   opportunitiesJson as unknown as GeneratedOpportunity[];
 export const flows = flowsJson as FlowsArtifact;
-export const forecast = forecastJson as ForecastArtifact;
+export const forecast = forecastJson as unknown as ForecastArtifact;
 export const ebike = ebikeJson as EbikeArtifact;
 
 export const lastCompleteYear = Math.max(
@@ -172,9 +172,11 @@ export const opportunities: Opportunity[] = generatedOpportunities.map((o) => ({
 export const overviewMetrics: OverviewMetric[] = [
   {
     id: "trips-analyzed",
-    label: "Trips analyzed",
+    label: "Rider trips analyzed",
     value: meta.totals.trips.toLocaleString("en-CA"),
-    caption: "Rider trips kept after cleaning, deduplication, and flag rules.",
+    caption:
+      "Countable rider trips: excludes staff/rebalancing and error-flagged rides " +
+      `(${meta.quality.rowsKept.toLocaleString("en-CA")} kept in the warehouse).`,
     context: `2017 – ${meta.sourceWindow.lastMonth}`,
   },
   {

@@ -158,7 +158,7 @@ def main() -> int:
     year_index = last_full_year - 2017
 
     card = {
-        "station": "Vancouver Harbour CS (Environment Canada, OGL-Canada)",
+        "station": "Vancouver Harbour CS — based on Environment and Climate Change Canada data",
         "features": FEATURES,
         "constraint": "precipitation is monotonic non-increasing",
         "trainRange": f"{days[0]} to {TEST_SPLIT - timedelta(days=1)}",
@@ -170,6 +170,19 @@ def main() -> int:
         "testR2": round(float(r2_score(y_test, pred_test)), 3),
         "gridReferenceYear": last_full_year,
         "gridFitRange": f"{days[0]} to {days[-1]}",
+    }
+
+    # Guardrails against confident out-of-distribution predictions:
+    #  - the model never predicts fewer trips than the fewest ever observed on
+    #    a single day (kills clamped "0 trips" cells at rare cold+downpour combos)
+    #  - per-month observed EC temperature ranges let the UI flag impossible
+    #    combinations (e.g. a 22C January day Vancouver has never seen)
+    min_daily = int(np.min(y))
+    month_temps: dict[int, list[float]] = {}
+    for d in days:
+        month_temps.setdefault(d.month, []).append(weather[d][0])
+    month_temp_range = {
+        str(m): [round(min(v), 1), round(max(v), 1)] for m, v in month_temps.items()
     }
 
     # Prediction grid: month x daytype x temp x rain, at the reference year.
@@ -184,7 +197,7 @@ def main() -> int:
                 [
                     int(
                         max(
-                            0,
+                            min_daily,
                             model.predict(
                                 [[
                                     dow,
@@ -210,6 +223,7 @@ def main() -> int:
         "modelCard": card,
         "tempBandsC": TEMP_BANDS_C,
         "rainLevelsMm": RAIN_LEVELS_MM,
+        "monthMeanTempRangeC": month_temp_range,  # "1".."12" -> [minMean, maxMean]
         "grid": grid,  # [month-1][0=weekday,1=weekend][tempIdx][rainIdx] -> trips
     }
     blob = json.dumps(payload, separators=(",", ":")).encode("utf-8")

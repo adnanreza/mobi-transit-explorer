@@ -4,12 +4,12 @@
 
 Nine years of Vancouver bike share — 8+ million Mobi trips — cleaned, modeled, and told as an interactive data story.
 
-I've lived in Vancouver since 2015 and have never owned a car here — Mobi, walking, and TransLink are how I actually move through this city, zero regrets. This project turns every trip file the system has ever published into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
+I've lived in Vancouver since 2015 and have never owned a car here — Mobi, walking, and TransLink are how I actually move through this city, zero regrets. This project turns every monthly trip file Mobi has published (2017 to date) into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
 
 ## What it shows
 
 - **Nine years of change** — growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
-- **A zoomable map of the real network** — all 262 active stations at true GBFS coordinates on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
+- **A zoomable map of the real network** — 262 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
 - **Operational findings that cite their evidence** — dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
 ## How it's built
@@ -46,10 +46,10 @@ npm install && npm run dev
 python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
 .venv/bin/python pipeline/download.py        # manifest-verified acquisition
 .venv/bin/python pipeline/etl.py --stage all # DuckDB star schema
+.venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather (publish needs it)
 .venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
 .venv/bin/python pipeline/geo_publish.py     # simplified shoreline geometry
 .venv/bin/python pipeline/quality_report.py  # regenerate docs/data-quality-report.md
-.venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather
 .venv/bin/python pipeline/train_model.py     # ridership model -> forecast.json
 ```
 
@@ -90,4 +90,4 @@ Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https:
 
 On acquisition: the DLA restricts access to the interface VBS provides. The trip files here are the ones VBS links publicly on its system-data page; `pipeline/download.py` automates clicking those same links for reproducibility, and manually downloading the files into `data-raw/` is an equally supported path (the checksum manifest verifies either). Questions about the agreement go to info@mobibikes.ca.
 
-Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather observations from [Environment and Climate Change Canada](https://climate.weather.gc.ca) (Open Government Licence – Canada). Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with, approved, endorsed, or sponsored by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
+Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather based on [Environment and Climate Change Canada](https://climate.weather.gc.ca) data. Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors. This is an independent project, not affiliated with, approved, endorsed, or sponsored by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.

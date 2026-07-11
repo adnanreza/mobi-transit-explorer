@@ -135,8 +135,10 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
           </p>
           <p>
             Data: Mobi by Rogers system data · Mobi GBFS · City of Vancouver
-            Open Data · Basemap © OpenFreeMap, OpenStreetMap contributors.
-            Not affiliated with Mobi or the City of Vancouver.
+            Open Data · Weather based on Environment and Climate Change Canada
+            data · Basemap © OpenFreeMap, OpenStreetMap contributors. An
+            independent project — not affiliated with, endorsed, or sponsored by
+            Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
           </p>
         </div>
       </footer>

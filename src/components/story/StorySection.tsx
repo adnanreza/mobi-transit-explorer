@@ -224,6 +224,7 @@ export function StorySection() {
               scales: {
                 x: { grid: { display: false } },
                 y: {
+                  title: { display: true, text: "trips per day" },
                   grid: { color: chartColors.grid },
                   ticks: {
                     callback: (v: string | number) => Number(v).toLocaleString("en-CA"),
