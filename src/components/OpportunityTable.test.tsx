@@ -14,7 +14,8 @@ describe("OpportunityTable", () => {
     render(<OpportunityTable />);
 
     for (const opportunity of opportunities) {
-      expect(screen.getByText(`#${opportunity.rank}`)).toBeInTheDocument();
+      // rank appears in both the mobile card and the desktop table row
+      expect(screen.getAllByText(`#${opportunity.rank}`).length).toBeGreaterThan(0);
       expect(screen.getAllByText(opportunity.reason).length).toBeGreaterThan(0);
     }
   });

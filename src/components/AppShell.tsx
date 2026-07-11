@@ -79,7 +79,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
 
           <nav
             aria-label="Primary navigation"
-            className="-mx-1.5 flex gap-1 overflow-x-auto sm:mx-0 sm:gap-5"
+            className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:gap-5 sm:px-0"
           >
             {navItems.map((item) => (
               <a
@@ -91,7 +91,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
                   setActiveHref(item.href);
                 }}
                 className={cn(
-                  "rounded-sm px-1.5 py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                  "shrink-0 whitespace-nowrap rounded-sm py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
                   activeHref === item.href
                     ? "font-medium text-foreground"
                     : "text-muted-foreground",
@@ -108,40 +108,82 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
         {children}
       </div>
 
-      <footer className="border-t border-border">
-        <div className="container flex flex-col gap-2 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            A data product by Adnan Reza. ·{" "}
-            <a
-              href="https://adnanreza.com"
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              adnanreza.com
-            </a>{" "}
-            ·{" "}
-            <a
-              href="https://github.com/adnanreza/mobi-transit-explorer"
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              GitHub
-            </a>{" "}
-            ·{" "}
-            <a
-              href="https://www.linkedin.com/in/adnanreza/"
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              LinkedIn
-            </a>
-          </p>
-          <p>
-            Data: Mobi by Rogers system data · Mobi GBFS · City of Vancouver
-            Open Data · Weather based on Environment and Climate Change Canada
-            data · Basemap © OpenFreeMap, OpenStreetMap contributors. An
-            independent project — not affiliated with, endorsed, or sponsored by
-            Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
+  );
+}
+
+const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
+  {
+    heading: "Built by",
+    links: [
+      { label: "adnanreza.com", href: "https://adnanreza.com" },
+      { label: "GitHub — source", href: "https://github.com/adnanreza/mobi-transit-explorer" },
+      { label: "LinkedIn", href: "https://www.linkedin.com/in/adnanreza/" },
+    ],
+  },
+  {
+    heading: "Data sources",
+    links: [
+      { label: "Mobi by Rogers system data", href: "https://www.mobibikes.ca/en/system-data" },
+      { label: "Mobi GBFS feed", href: "https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/gbfs.json" },
+      { label: "City of Vancouver Open Data", href: "https://opendata.vancouver.ca" },
+      { label: "Environment & Climate Change Canada", href: "https://climate.weather.gc.ca" },
+    ],
+  },
+  {
+    heading: "Basemap",
+    links: [
+      { label: "OpenFreeMap", href: "https://openfreemap.org" },
+      { label: "© OpenStreetMap contributors", href: "https://www.openstreetmap.org/copyright" },
+    ],
+  },
+];
+
+function SiteFooter() {
+  return (
+    <footer className="mt-16 border-t border-border">
+      <div className="container py-12">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <p className="text-sm font-semibold tracking-tight text-foreground">
+              Mobi Transit Explorer
+            </p>
+            <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
+              Nine years of Vancouver bike share, cleaned and mapped. A data
+              product by Adnan Reza.
+            </p>
+          </div>
+          {FOOTER_COLUMNS.map((col) => (
+            <nav key={col.heading} aria-label={col.heading}>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {col.heading}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {col.links.map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+        <p className="mt-10 border-t border-border pt-6 text-xs leading-5 text-muted-foreground">
+          An independent project — not affiliated with, endorsed, or sponsored by
+          Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
+          Mobi trip data is used under the Mobi Data License Agreement for
+          non-commercial analysis; weather is based on Environment and Climate
+          Change Canada data.
+        </p>
+      </div>
+    </footer>
   );
 }
