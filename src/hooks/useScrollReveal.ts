@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from "react";
 type UseScrollRevealOptions = {
   threshold?: number;
   unobserve?: boolean;
+  rootMargin?: string;
 };
 
 export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
   options?: UseScrollRevealOptions,
 ) {
-  const { threshold = 0.15, unobserve = true } = options ?? {};
+  const { threshold = 0.15, unobserve = true, rootMargin = "0px" } = options ?? {};
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -29,12 +30,12 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
           if (unobserve) observer.unobserve(el);
         }
       },
-      { threshold },
+      { threshold, rootMargin },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold, unobserve]);
+  }, [threshold, unobserve, rootMargin]);
 
   return { ref, isVisible };
 }
