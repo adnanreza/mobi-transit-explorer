@@ -8,7 +8,7 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
 
 ## What it shows
 
-- **Nine years of change** — growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching 42% of trips in three years, and how temperature moves ridership.
+- **Nine years of change** — growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
 - **A zoomable map of the real network** — all 262 active stations at true GBFS coordinates on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
 - **Operational findings that cite their evidence** — dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
@@ -32,9 +32,9 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
  └─────────────────────────────────────────────────────┘
 ```
 
-- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). 8,961,723 raw rows in; 8,705,184 trips kept; every drop and flag accounted for in the generated [data-quality report](docs/data-quality-report.md).
+- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). 8,961,723 raw rows in; 8,717,352 trips kept; every drop and flag accounted for in the generated [data-quality report](docs/data-quality-report.md).
 - **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars — the host serves static files.
-- **The hard part, on purpose:** nine years of format drift — 31 column layouts, five timestamp formats, three file containers, broken Unicode in a Squamish-language station name, sentinel zero temperatures — each handled by an explicit, tested rule. Unknown drift stops the pipeline; nothing is guessed silently.
+- **The hard part, on purpose:** nine years of format drift — 31 column layouts, five timestamp formats, three file containers, broken Unicode in a Squamish-language station name — each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
 
 ## Reproduce it
 
@@ -68,7 +68,7 @@ npm run build
 
 - Timestamps are hour-rounded at source for rider privacy; April 2019 alone has minutes.
 - Monthly files repeat neighbouring months' trips — deduplicated; a trip's month is its departure month.
-- From mid-2025 the source writes 0° for missing temperatures — flagged and excluded from weather measures.
+- The trip files' temperature is a bike-mounted sensor (0° sentinels, values Vancouver has never reached); weather analysis uses Environment Canada ambient data instead.
 - Retired stations keep their trips but have no public coordinates.
 - Full accounting: [docs/data-quality-report.md](docs/data-quality-report.md).
 

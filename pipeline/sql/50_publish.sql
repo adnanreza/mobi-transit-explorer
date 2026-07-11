@@ -13,6 +13,22 @@ SELECT
   '2017-01' AS first_month,
   (SELECT max(source_period) FROM fact_trips WHERE source_period <> '2017') AS last_month;
 
+-- Real ambient weather from Environment Canada (Vancouver Harbour CS), one row
+-- per day. The trip files carry a bike-MOUNTED temperature sensor that reads
+-- several degrees high in sun, emits 0-degree sentinels, and produces values
+-- Vancouver has never reached (up to 45C vs an EC record max of 26.0C), so it
+-- is NOT used for any published weather measure. EC daily means are the honest
+-- ambient signal, already downloaded by weather_fetch.py for the model.
+CREATE OR REPLACE VIEW v_ec_weather AS
+SELECT
+  CAST("Date/Time" AS DATE)               AS date_key,
+  CAST("Mean Temp (°C)" AS DOUBLE)        AS mean_temp_c,
+  TRY_CAST("Total Precip (mm)" AS DOUBLE) AS precip_mm
+FROM read_csv(getvariable('data_raw') || '/weather/ec-*.csv',
+              header = true, all_varchar = true, union_by_name = true,
+              filename = false)
+WHERE nullif("Mean Temp (°C)", '') IS NOT NULL;
+
 -- LEFT JOIN is load-bearing: trips with a blank membership label (91k in
 -- May 2025 alone) are real rides and count as 'Unknown'. Only staff
 -- 'Operations' riding is excluded from ridership.
@@ -45,10 +61,13 @@ SELECT
        THEN round(100.0 * sum(CASE WHEN is_ebike THEN 1 ELSE 0 END) / count(is_ebike), 1)
   END AS ebike_share_pct,  -- NULL before the Electric bike column exists
   count(DISTINCT departure_station_id) AS active_stations,
-  round(avg(CASE WHEN NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
-                 THEN departure_temp_c END), 1) AS avg_departure_temp_c
-FROM countable_trips
-GROUP BY 1 ORDER BY 1;
+  -- ambient temperature averaged over the year's ride-days (EC, not the
+  -- unreliable bike sensor)
+  (SELECT round(avg(w.mean_temp_c), 1)
+   FROM (SELECT DISTINCT date_key FROM countable_trips c2 WHERE c2.trip_year = c.trip_year) d
+   JOIN v_ec_weather w USING (date_key)) AS avg_temp_c
+FROM countable_trips c
+GROUP BY trip_year ORDER BY trip_year;
 
 CREATE OR REPLACE VIEW v_yearly_membership AS
 SELECT trip_year AS year, membership_group, count(*) AS trips
@@ -74,15 +93,22 @@ FROM countable_trips c
 JOIN dim_date d ON c.date_key = d.date_key
 GROUP BY 1, 2, 3 ORDER BY 1, 2, 3;
 
+-- Weather vs ridership at the DAILY grain: classify each day once by its EC
+-- ambient mean temperature, then average total trips across the days in each
+-- 2-degree band. "Days near N degrees average M trips" is then literally true.
 CREATE OR REPLACE VIEW v_weather AS
+WITH daily AS (
+  SELECT date_key, count(*) AS trips
+  FROM countable_trips
+  GROUP BY date_key
+)
 SELECT
-  CAST(floor(departure_temp_c / 2) * 2 AS INTEGER) AS temp_band_c,
-  count(*) AS trips,
-  count(DISTINCT date_key) AS days_observed
-FROM countable_trips
-WHERE departure_temp_c IS NOT NULL
-  AND NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
-GROUP BY 1 HAVING count(*) >= 100 ORDER BY 1;
+  CAST(floor(w.mean_temp_c / 2) * 2 AS INTEGER)   AS temp_band_c,
+  CAST(round(avg(d.trips)) AS BIGINT)             AS trips_per_day,
+  count(*)                                        AS days_observed
+FROM daily d
+JOIN v_ec_weather w USING (date_key)
+GROUP BY 1 HAVING count(*) >= 15 ORDER BY 1;
 
 CREATE OR REPLACE VIEW v_station_year AS
 SELECT departure_station_id AS station_id, trip_year AS year, count(*) AS trips
@@ -297,15 +323,15 @@ WHERE trip_month >= '2022-08'
         ['excessive_duration', 'excessive_distance', 'negative_distance'])
 GROUP BY 1;
 
+-- E-bike share by real ambient temperature (EC), banded by each trip's day.
 CREATE OR REPLACE VIEW v_ebike_share_by_temp AS
 SELECT
-  CAST(floor(departure_temp_c / 4) * 4 AS INTEGER) AS temp_band_c,
-  round(100.0 * sum(CASE WHEN is_ebike THEN 1 ELSE 0 END) / count(*), 1) AS ebike_share_pct,
+  CAST(floor(w.mean_temp_c / 4) * 4 AS INTEGER) AS temp_band_c,
+  round(100.0 * sum(CASE WHEN c.is_ebike THEN 1 ELSE 0 END) / count(*), 1) AS ebike_share_pct,
   count(*) AS trips
-FROM countable_trips
-WHERE trip_month >= '2022-08' AND is_ebike IS NOT NULL
-  AND departure_temp_c IS NOT NULL
-  AND NOT list_has_any(quality_flags, ['temp_out_of_range', 'temp_suspect_zero'])
+FROM countable_trips c
+JOIN v_ec_weather w USING (date_key)
+WHERE c.trip_month >= '2022-08' AND c.is_ebike IS NOT NULL
 GROUP BY 1 HAVING count(*) >= 500 ORDER BY 1;
 
 -- Trip purpose: a documented heuristic, not ground truth. Points for the

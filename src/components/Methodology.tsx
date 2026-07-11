@@ -53,8 +53,11 @@ export function Methodology() {
           Timestamps come in five shapes, from Excel serial numbers to April
           2019's <Code>4/20/19 16:06</Code>. Three 2020 files use classic-Mac
           line endings; three 2023 files corrupt the Squamish-language station
-          name šxʷƛ̓ənəq Xwtl'e7énḵ Square into invalid UTF-8; from mid-2025,
-          missing temperatures arrive as 0° instead of null. In May and June
+          name šxʷƛ̓ənəq Xwtl'e7énḵ Square into invalid UTF-8. The trip files'
+          temperature column comes from a bike-mounted sensor that reads high in
+          sun, emits 0° sentinels, and reports values Vancouver has never seen
+          (up to 45°C), so it is not used for weather — the weather chapter uses
+          Environment Canada ambient readings instead. In May and June
           2025 station names lost their numeric IDs entirely (resolved through
           a name-to-ID crosswalk built from the prefixed months and the GBFS
           feed) while most membership labels went blank (kept and reported as
@@ -141,21 +144,27 @@ export function Methodology() {
           detours above 1.8× (+1); four points classifies a ride as leisure.
           The weights are visible in the published artifact and deliberately
           crude — the point is the contrast they reveal, not per-trip truth.
+          One reported difference — e-bikes' higher median speed (13.3 vs 11.1
+          km/h) — is odometer distance over total rental time, stopovers
+          included, not a controlled pace measurement.
         </p>
       </Section>
 
-      <Section title="The model">
+      <Section title="Weather and the model">
         <p>
-          The ridership widget is a gradient-boosted model (scikit-learn) over
-          calendar and weather features — day of week, cyclical month, mean
-          temperature, precipitation, a BC-holiday flag, and a year index.
-          Weather comes from Environment Canada's Vancouver Harbour station
-          (Open Government Licence – Canada) because the trip files publish no
-          precipitation and their temperatures break after mid-2025. It trains
-          on 2017–2024 and is scored on 2025 onward — days it never saw — and
-          it must beat a seasonal-naive baseline to ship. Rain carries a
-          monotonic constraint: more of it can never predict more trips. The
-          browser gets a 5 KB precomputed grid, not a model.
+          Both the weather chapter and the ridership widget use Environment
+          Canada daily observations for Vancouver Harbour (Open Government
+          Licence – Canada), not the unreliable bike-sensor column. The weather
+          chart classifies each day once by its ambient mean temperature and
+          averages that day's trips, so “days near 22° see about N trips” is
+          literally true. The widget is a gradient-boosted model (scikit-learn)
+          over day of week, cyclical month, mean temperature, precipitation, and
+          a BC-holiday flag, with rain constrained so more of it can never
+          predict more trips. It is evaluated by a time split — trained on
+          2017–2024, scored on unseen 2025-onward days, and it must beat a
+          seasonal-naive baseline to ship. The predictions shown come from a
+          model refit on all data and reflect the last complete year's demand;
+          the browser gets a ~5 KB precomputed grid, not a live model.
         </p>
       </Section>
 

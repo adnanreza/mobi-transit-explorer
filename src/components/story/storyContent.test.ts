@@ -15,7 +15,7 @@ const year = (y: number, trips: number, ebike: number | null = null): YearlyRow 
   medianDurationMin: 12,
   ebikeSharePct: ebike,
   activeStations: 200,
-  avgDepartureTempC: 12,
+  avgTempC: 12,
   membershipMix: {},
 });
 
@@ -54,13 +54,16 @@ describe("storyContent derives every number from data", () => {
     expect(chapter.caption).toContain("42% of all trips");
   });
 
-  it("weather names the peak temperature band", () => {
+  it("weather names the peak per-day temperature band", () => {
     const rows: WeatherRow[] = [
-      { tempBandC: 10, trips: 100, daysObserved: 30 },
-      { tempBandC: 20, trips: 900, daysObserved: 30 },
+      { tempBandC: 0, tripsPerDay: 500, daysObserved: 30 },
+      { tempBandC: 10, tripsPerDay: 1500, daysObserved: 60 },
+      { tempBandC: 20, tripsPerDay: 4000, daysObserved: 40 },
     ];
     const chapter = weatherChapter(rows);
     expect(chapter.headline).toBe("Vancouver rides at 20°.");
+    expect(chapter.caption).toContain("4,000 trips");
+    expect(chapter.caption).toContain("8×"); // 4000 / 500 near-freezing
   });
 
   it("real artifacts produce six plausible chapters", () => {

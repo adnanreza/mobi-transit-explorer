@@ -53,7 +53,10 @@ export function seasonsChapter(
   rows: SeasonalityRow[] = seasonality,
   lastFull: number = lastCompleteYear,
 ): Chapter {
-  const complete = rows.filter((r) => r.year <= lastFull && r.tripsByMonth.every((m) => m > 0));
+  const complete = rows.filter(
+    (r): r is { year: number; tripsByMonth: number[] } =>
+      r.year <= lastFull && r.tripsByMonth.every((m): m is number => m !== null && m > 0),
+  );
   const avgMonth = (index: number) =>
     complete.reduce((sum, r) => sum + r.tripsByMonth[index], 0) / complete.length;
   const july = avgMonth(6);
@@ -110,18 +113,19 @@ export function ebikeChapter(
 }
 
 export function weatherChapter(rows: WeatherRow[] = weather): Chapter {
-  // Rank by trips per observed day, not raw totals — mild days are also the
-  // most common days, and raw totals would just measure that.
-  const rate = (row: WeatherRow) => row.trips / Math.max(row.daysObserved, 1);
-  const peak = rows.reduce((a, b) => (rate(b) > rate(a) ? b : a));
+  // Each day is classified once by its Environment Canada ambient mean
+  // temperature; tripsPerDay is the true average across the days in each band.
+  const peak = rows.reduce((a, b) => (b.tripsPerDay > a.tripsPerDay ? b : a));
+  const cold = rows.reduce((a, b) => (a.tempBandC < b.tempBandC ? a : b));
   return {
     id: "weather",
     headline: `Vancouver rides at ${peak.tempBandC}°.`,
     caption:
-      `Days in the ${peak.tempBandC}–${peak.tempBandC + 2}°C band average ` +
-      `${Math.round(rate(peak)).toLocaleString("en-CA")} departures — the highest ` +
-      "per-day rate of any temperature. Temperature travels with season and " +
-      "daylight, so this is association, not cause — but the rain city rides anyway.",
+      `Days averaging ${peak.tempBandC}–${peak.tempBandC + 2}°C see about ` +
+      `${peak.tripsPerDay.toLocaleString("en-CA")} trips — roughly ` +
+      `${Math.round(peak.tripsPerDay / cold.tripsPerDay)}× a near-freezing day. ` +
+      "Temperature travels with season and daylight, so this is association, not " +
+      "cause — but the rain city rides anyway, in ambient weather from Environment Canada.",
   };
 }
 

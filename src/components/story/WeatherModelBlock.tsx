@@ -73,19 +73,24 @@ export function WeatherModelBlock() {
       <p className="mt-8 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
         ≈ {trips.toLocaleString("en-CA")}{" "}
         <span className="text-xl font-normal text-muted-foreground sm:text-2xl">
-          trips that day
+          trips on a day like this
         </span>
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        at {card.gridReferenceYear} network size
       </p>
 
       <p className="mt-6 max-w-2xl text-xs leading-5 text-muted-foreground">
-        Model card: {card.features.length} features; {card.constraint}; trained
-        on {card.nTrain.toLocaleString("en-CA")} days, tested on{" "}
-        {card.nTest.toLocaleString("en-CA")} unseen days ({card.testRange}) —
-        mean error {card.testMae.toLocaleString("en-CA")} trips/day vs{" "}
-        {card.baselineMae.toLocaleString("en-CA")} for a seasonal-naive
-        baseline, R² {card.testR2}. Weather from {card.station}. These are
-        associations at current network size, not causal claims — the data has
-        no events, and holidays are a single flag.
+        Model card: {card.features.length} features; {card.constraint}. Evaluated
+        by a time split — trained on {card.nTrain.toLocaleString("en-CA")} days
+        through 2024, tested on {card.nTest.toLocaleString("en-CA")} unseen days
+        ({card.testRange}): mean error {card.testMae.toLocaleString("en-CA")}{" "}
+        trips/day vs {card.baselineMae.toLocaleString("en-CA")} for a
+        seasonal-naive baseline, R² {card.testR2}. The predictions above come
+        from a model refit on all data through {card.gridFitRange.slice(-7)} and
+        reflect {card.gridReferenceYear} demand levels. Weather from{" "}
+        {card.station}. Associations, not causal claims — the data has no events,
+        and holidays are a single flag.
       </p>
     </div>
   );
