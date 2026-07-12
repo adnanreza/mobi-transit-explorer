@@ -55,7 +55,7 @@ def build(con) -> str:
         "| --- | ---: | --- |",
         f"| Landed (extract) | {landed:,} | {m[('extract', 'files_landed')]} source files |",
         f"| Dropped: both station names blank | {m[('clean', 'rows_dropped_blank_stations')]:,} "
-        "| mostly cable-lock / non-dock events |",
+        "| 240,110 (99.4%) fully blank export rows; ~1,541 stationless trips (timestamp present, no station) |",
         f"| Dropped: unparseable timestamp | {m[('clean', 'rows_dropped_bad_timestamp')]:,} "
         "| includes literal `1900-01-00 0:00` never-returned sentinels |",
         f"| Dropped: exact duplicates | {m[('clean', 'rows_dropped_duplicates')]:,} "
@@ -89,7 +89,8 @@ def build(con) -> str:
         "",
         "## Station resolution",
         "",
-        f"- {total_stations} station IDs appear in nine years of trips; "
+        f"- {total_stations} station IDs appear in nine and a half years of trips "
+        f"(2017–{window_end[:4]}, as of {window_end[:7]}); "
         f"{with_coords} resolve to coordinates in the current GBFS feed. "
         "The remainder are retired stations kept in `dim_station` without geometry.",
         f"- {coord_cov:.1f}% of trips depart from a station with known coordinates.",

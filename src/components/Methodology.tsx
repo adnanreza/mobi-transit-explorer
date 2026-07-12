@@ -43,9 +43,9 @@ export function Methodology() {
         <PipelineDiagram />
       </Section>
 
-      <Section title="Nine years of drift">
+      <Section title="Nine and a half years of drift">
         <p>
-          The archive is nine years of quiet format entropy, and handling it is
+          The archive is nine and a half years (2017–2026, as of May 2026) of quiet format entropy, and handling it is
           most of the work. Across {meta.quality.filesProcessed} files there
           are 31 distinct column layouts — the membership column alone appears
           as <Code>Membership type</Code>, <Code>Membership Type</Code>,{" "}

@@ -6,9 +6,12 @@ describe("FlowsSection", () => {
   it("renders the implied rebalancing headline from data", () => {
     render(<FlowsSection />);
 
+    // The headline is split into text nodes; match the inferred count by regex
     expect(
       screen.getByText(
-        `${flows.networkDailyRebalancing.toLocaleString("en-CA")} bikes a day, moved by hand.`,
+        new RegExp(
+          `estimated ${flows.networkDailyRebalancing.toLocaleString("en-CA")} bikes a day`,
+        ),
       ),
     ).toBeInTheDocument();
   });

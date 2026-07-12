@@ -85,6 +85,16 @@ SELECT
     -- temperatures (~850k trips); real both-ends-0.0 readings are a few
     -- hundred per year, acceptable collateral for excluding the sentinel
     CASE WHEN departure_temp_c = 0 AND return_temp_c = 0
-         THEN 'temp_suspect_zero' END
+         THEN 'temp_suspect_zero' END,
+    -- Trips whose departure month is more than one calendar month away from
+    -- their source file's period; the 2017 annual workbook is exempt (its
+    -- source_period is '2017', not a month, so the check is skipped).
+    -- A Sept-2025 file carrying rows dated 2018/2020/2024 is the archetype.
+    CASE WHEN source_period <> '2017'
+          AND abs(date_diff('month',
+                make_date(CAST(left(source_period, 4) AS INTEGER),
+                          CAST(right(source_period, 2) AS INTEGER), 1),
+                date_trunc('month', departure_ts))) > 1
+         THEN 'misdated_source' END
   ], x -> x IS NOT NULL) AS quality_flags
 FROM resolved;

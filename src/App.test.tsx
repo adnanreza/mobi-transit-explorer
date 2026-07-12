@@ -22,7 +22,7 @@ describe("App", () => {
   it("renders the nav items", () => {
     render(<App />);
 
-    for (const item of ["Overview", "Nine years", "Forecast", "Flows", "Map", "Opportunities", "Methodology"]) {
+    for (const item of ["Overview", "Nine years", "Forecast", "Flows", "Map", "Signals", "Methodology"]) {
       expect(screen.getByRole("link", { name: item })).toBeInTheDocument();
     }
   });
@@ -36,7 +36,7 @@ describe("App", () => {
       ["Forecast", "#forecast"],
       ["Flows", "#flows"],
       ["Map", "#map"],
-      ["Opportunities", "#opportunities"],
+      ["Signals", "#opportunities"],
       ["Methodology", "#methodology"],
     ]) {
       expect(screen.getByRole("link", { name: label })).toHaveAttribute(
@@ -62,7 +62,7 @@ describe("App", () => {
   it("renders important section headings", () => {
     render(<App />);
 
-    for (const heading of ["Overview", "Nine years", "Forecast", "Flows", "Map", "Opportunities", "Methodology"]) {
+    for (const heading of ["Overview", "Nine years", "Forecast", "Flows", "Map", "Signals to validate", "Methodology"]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
   });

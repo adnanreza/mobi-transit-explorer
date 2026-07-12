@@ -49,7 +49,7 @@ describe("Explorer", () => {
     expect(
       await screen.findByRole("heading", { name: stationsAll[1].name }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Showing 2019")).toBeInTheDocument();
+    expect(screen.getByText("Showing 2019 trip volume · station details are trailing 12 months")).toBeInTheDocument();
     expect(
       screen.getByText("within 300 m of rapid transit"),
     ).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe("Explorer", () => {
 
     await chooseOption("Year", "2021");
 
-    expect(screen.getByText("Showing 2021")).toBeInTheDocument();
+    expect(screen.getByText("Showing 2021 trip volume · station details are trailing 12 months")).toBeInTheDocument();
     expect(window.location.search).toContain("year=2021");
   });
 

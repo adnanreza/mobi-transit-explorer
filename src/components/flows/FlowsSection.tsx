@@ -47,7 +47,7 @@ export function FlowsSection() {
     <div className="space-y-16">
       <div>
         <p className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
-          {flows.networkDailyRebalancing.toLocaleString("en-CA")} bikes a day,
+          An estimated {flows.networkDailyRebalancing.toLocaleString("en-CA")} bikes a day,
           moved by hand.
         </p>
         <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground">

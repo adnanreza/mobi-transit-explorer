@@ -9,7 +9,7 @@ describe("Methodology", () => {
     for (const heading of [
       "The data",
       "The pipeline",
-      "Nine years of drift",
+      "Nine and a half years of drift",
       "Data quality",
       "Scores and rules",
       "What this data cannot say",

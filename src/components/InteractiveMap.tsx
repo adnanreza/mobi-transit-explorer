@@ -33,7 +33,8 @@ function stationFeatures(year = "t12", maxTransitM: number | null = null): Featu
       trips: year === "t12" ? s.trailing12.trips : (s.tripsByYear[year] ?? 0),
     }))
     .filter((entry) => entry.trips > 0);
-  const sliceMax = Math.max(1, ...slice.map((entry) => entry.trips));
+  // Normalize radii against the stable module-level maxTrips (trailing-12 max
+  // across all stations) so bubble area is comparable when switching years.
   return {
     type: "FeatureCollection",
     features: slice.map(({ station: s, trips }) => ({
@@ -48,8 +49,10 @@ function stationFeatures(year = "t12", maxTransitM: number | null = null): Featu
             : `${trips.toLocaleString("en-CA")} trips in ${year}`,
         score: s.connector.score,
         leisure: s.leisureSharePct ?? 0,
-        // base radius in px at zoom 11; zoom interpolation scales it
-        r: 2 + 6 * Math.sqrt(trips / sliceMax),
+        // base radius in px at zoom 11; zoom interpolation scales it.
+        // Uses module-level maxTrips (not per-year max) so sizes are
+        // comparable across year selections.
+        r: 2 + 6 * Math.sqrt(trips / maxTrips),
       },
     })),
   };
