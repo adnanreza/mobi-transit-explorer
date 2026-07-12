@@ -9,14 +9,30 @@ import { lastCompleteYear, meta, stationsArtifact, stationsAll as stations } fro
 // the hero and overview paint-fast.
 const InteractiveMap = lazy(() => import("@/components/InteractiveMap"));
 
-function readUrlState(): { filters: FilterState; stationId: string | null } {
+// Earliest year present in the data (derived from the pipeline meta).
+const firstDataYear = Number(meta.sourceWindow.firstMonth.slice(0, 4));
+
+type ColorMode = "score" | "leisure";
+
+function readUrlState(): {
+  filters: FilterState;
+  stationId: string | null;
+  colorMode: ColorMode;
+} {
   const params = new URLSearchParams(window.location.search);
   const year = params.get("year");
+  const numYear = year ? Number(year) : NaN;
   const validYear =
-    year && (year === "t12" || (/^\d{4}$/.test(year) && Number(year) <= lastCompleteYear));
+    year &&
+    (year === "t12" ||
+      (/^\d{4}$/.test(year) &&
+        numYear >= firstDataYear &&
+        numYear <= lastCompleteYear));
   const distance = params.get("transit");
   const validDistance = ["150", "300", "500"].includes(distance ?? "");
   const station = params.get("station");
+  const color = params.get("color");
+  const validColor: ColorMode = color === "leisure" ? "leisure" : "score";
   return {
     filters: {
       year: validYear ? year : defaultFilters.year,
@@ -25,15 +41,21 @@ function readUrlState(): { filters: FilterState; stationId: string | null } {
         : defaultFilters.transitDistance,
     },
     stationId: station && stations.some((s) => s.id === station) ? station : null,
+    colorMode: validColor,
   };
 }
 
-function writeUrlState(filters: FilterState, stationId: string | null) {
+function writeUrlState(
+  filters: FilterState,
+  stationId: string | null,
+  colorMode: ColorMode,
+) {
   const params = new URLSearchParams();
   if (filters.year !== defaultFilters.year) params.set("year", filters.year);
   if (filters.transitDistance !== defaultFilters.transitDistance)
     params.set("transit", filters.transitDistance);
   if (stationId) params.set("station", stationId);
+  if (colorMode !== "score") params.set("color", colorMode);
   const query = params.toString();
   const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState(null, "", url);
@@ -45,11 +67,11 @@ export function Explorer() {
   const [selectedStationId, setSelectedStationId] = useState<string | null>(
     initial.stationId,
   );
-  const [colorMode, setColorMode] = useState<"score" | "leisure">("score");
+  const [colorMode, setColorMode] = useState<ColorMode>(initial.colorMode);
 
   useEffect(() => {
-    writeUrlState(filters, selectedStationId);
-  }, [filters, selectedStationId]);
+    writeUrlState(filters, selectedStationId, colorMode);
+  }, [filters, selectedStationId, colorMode]);
 
   // Clear the selection when the selected station leaves the active slice:
   // either it exceeds the transit-distance filter or has 0 trips in the

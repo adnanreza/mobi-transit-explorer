@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
-import { stationsAll, stationsArtifact } from "@/data";
+import { lastCompleteYear, meta, stationsAll, stationsArtifact } from "@/data";
 
 async function chooseOption(label: string, option: string) {
   const user = userEvent.setup();
@@ -80,5 +80,41 @@ describe("Explorer", () => {
     await user.click(screen.getByRole("button", { name: "Reset filters" }));
 
     expect(screen.getByText(/Trailing 12 months to/)).toBeInTheDocument();
+  });
+
+  it("out-of-range year in URL falls back to the default", async () => {
+    const firstDataYear = Number(meta.sourceWindow.firstMonth.slice(0, 4));
+
+    // Too old — before first data year
+    window.history.replaceState(null, "", `?year=${firstDataYear - 1}`);
+    const { unmount } = render(<Explorer />);
+    expect(screen.getByText(/Trailing 12 months to/)).toBeInTheDocument();
+    unmount();
+
+    // Too new — after lastCompleteYear
+    window.history.replaceState(null, "", `?year=${lastCompleteYear + 1}`);
+    render(<Explorer />);
+    expect(screen.getByText(/Trailing 12 months to/)).toBeInTheDocument();
+  });
+
+  it("colorMode round-trips through the URL", async () => {
+    const user = userEvent.setup();
+    render(<Explorer />);
+
+    // Default: no color param in URL
+    expect(window.location.search).not.toContain("color=");
+
+    // Switch to leisure
+    await user.click(screen.getByRole("button", { name: "Leisure share", pressed: false }));
+    expect(window.location.search).toContain("color=leisure");
+
+    // Reload state from that URL and confirm colorMode restores
+    const { unmount } = render(<Explorer />);
+    expect(screen.getAllByRole("button", { name: "Leisure share", pressed: true })).toHaveLength(2);
+    unmount();
+
+    // Switch back to score — param should disappear
+    await user.click(screen.getByRole("button", { name: "Transit score", pressed: false }));
+    expect(window.location.search).not.toContain("color=");
   });
 });

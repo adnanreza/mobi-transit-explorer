@@ -173,7 +173,7 @@ export function Methodology() {
           model refit on all data and reflect the last complete year's demand;
           the browser gets a ~5 KB precomputed grid, not a live model.{" "}
           <strong className="font-medium text-foreground">Disclosure:</strong>{" "}
-          approximately 178 training days — concentrated in 2020 — have no
+          approximately 178 days — 117 in 2020, the rest scattered — have no
           Environment Canada precipitation record and are excluded from model
           training; the model has not seen these weather conditions.
         </p>

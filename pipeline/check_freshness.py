@@ -19,6 +19,7 @@ Expected after SQL changes without a rebuild: exits 1 and lists the drifted file
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import sys
 import tempfile
@@ -28,6 +29,27 @@ import duckdb
 
 import common
 import publish
+
+_GENERATED_AT_SENTINEL = "__FRESHNESS_CHECK__"
+
+
+def _normalize_bytes(path: Path) -> bytes:
+    """Return comparable bytes for a JSON artifact.
+
+    If the JSON contains a top-level ``generatedAt`` key (a wall-clock date
+    that changes on every run), replace it with a fixed sentinel on both the
+    committed and freshly-generated side before comparing.  All other artifacts
+    are compared byte-for-byte unchanged.
+    """
+    raw = path.read_bytes()
+    try:
+        obj = json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
+    if isinstance(obj, dict) and "generatedAt" in obj:
+        obj["generatedAt"] = _GENERATED_AT_SENTINEL
+        return json.dumps(obj, ensure_ascii=False, sort_keys=True).encode()
+    return raw
 
 COMMITTED_DIR = common.REPO_ROOT / "src" / "data" / "generated"
 WAREHOUSE_DEFAULT = common.REPO_ROOT / "data-warehouse" / "mobi.duckdb"
@@ -77,7 +99,7 @@ def main() -> int:
             elif not generated.exists():
                 print(f"  MISSING in generated:  {name}")
                 drifted.append(name)
-            elif committed.read_bytes() != generated.read_bytes():
+            elif _normalize_bytes(committed) != _normalize_bytes(generated):
                 print(f"  DRIFT:                 {name}")
                 drifted.append(name)
             else:
