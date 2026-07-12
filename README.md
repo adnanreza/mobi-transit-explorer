@@ -42,9 +42,14 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
 # App only (uses committed aggregates)
 npm install && npm run dev
 
-# Full pipeline (downloads ~1 GB of public trip files)
+# Full pipeline (~1 GB of public trip files). First obtain the files into
+# data-raw/, either by:
+#   * manually downloading the monthly files from mobibikes.ca/en/system-data
+#     (the committed checksum manifest verifies them), or
+#   * running pipeline/download.py, an optional convenience that fetches those
+#     same public links for you.
 python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
-.venv/bin/python pipeline/download.py        # manifest-verified acquisition
+.venv/bin/python pipeline/download.py        # optional — manual download works equally
 .venv/bin/python pipeline/etl.py --stage all # DuckDB star schema
 .venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather (publish needs it)
 .venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
