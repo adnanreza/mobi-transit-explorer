@@ -105,7 +105,7 @@ export function WeatherModelBlock() {
         ({card.testRange}): mean error {card.testMae.toLocaleString("en-CA")}{" "}
         trips/day vs {card.baselineMae.toLocaleString("en-CA")} for a
         seasonal-naive baseline, R² {card.testR2}. The predictions above come
-        from a model refit on all data through {card.gridFitRange.slice(-7)} and
+        from a model refit on all data through {card.gridFitRange.split(" to ").pop()} and
         reflect {card.gridReferenceYear} demand levels. Weather from{" "}
         {card.station}. Predictions are only meaningful within each month's
         historically observed temperature range, and never fall below the fewest

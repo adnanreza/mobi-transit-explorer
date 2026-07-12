@@ -129,6 +129,12 @@ export type ForecastArtifact = {
     testR2: number;
     gridReferenceYear: number; // demand level the widget's grid reflects
     gridFitRange: string;
+    droppedDays: {
+      total: number;
+      trainingWindow: number; // days dropped in the 2017-2024 fitting window
+      holdoutWindow: number;  // days dropped in the 2025+ evaluation window
+      perYear: Record<string, number>;
+    };
   };
   tempBandsC: number[];
   rainLevelsMm: number[];

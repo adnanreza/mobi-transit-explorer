@@ -1,6 +1,6 @@
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
-import { meta } from "@/data";
+import { forecast, meta } from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
 
@@ -163,7 +163,7 @@ export function Methodology() {
           Canada daily observations for Vancouver Harbour (Open Government
           Licence – Canada), not the unreliable bike-sensor column. The weather
           chart classifies each day once by its ambient mean temperature and
-          averages that day's trips, so “days near 22° see about N trips” is
+          averages that day's trips, so "days near 22° see about N trips" is
           literally true. The widget is a gradient-boosted model (scikit-learn)
           over day of week, cyclical month, mean temperature, precipitation, and
           a BC-holiday flag, with rain constrained so more of it can never
@@ -173,9 +173,14 @@ export function Methodology() {
           model refit on all data and reflect the last complete year's demand;
           the browser gets a ~5 KB precomputed grid, not a live model.{" "}
           <strong className="font-medium text-foreground">Disclosure:</strong>{" "}
-          approximately 178 days — 117 in 2020, the rest scattered — have no
-          Environment Canada precipitation record and are excluded from model
-          training; the model has not seen these weather conditions.
+          the model omits{" "}
+          {formatNumber(forecast.modelCard.droppedDays.total)} days lacking
+          Environment Canada precipitation —{" "}
+          {formatNumber(forecast.modelCard.droppedDays.trainingWindow)} in the
+          2017–2024 fitting window (most in 2020), and{" "}
+          {formatNumber(forecast.modelCard.droppedDays.holdoutWindow)} in the
+          2025+ evaluation window; the model has not been fitted on or scored
+          against these conditions.
         </p>
       </Section>
 

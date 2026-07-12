@@ -122,23 +122,29 @@ def main() -> int:
 
     days = sorted(d for d in trips if d in weather)
 
-    # Log days dropped from training for missing weather coverage.
+    # Compute dropped-days breakdown: days in trips that lack an EC weather record.
     trip_days = set(trips.keys())
     weather_days = set(weather.keys())
     no_weather = sorted(d for d in trip_days if d not in weather_days)
     missing_precip = sorted(
         d for d in trip_days if d in weather_days and weather[d][1] != weather[d][1]
     )  # NaN precip (shouldn't occur after load_weather filters, but surface if it does)
-    dropped_total = len(no_weather) + len(missing_precip)
+    dropped_days_list = no_weather + missing_precip
+    dropped_total = len(dropped_days_list)
+    by_year: dict[int, int] = {}
+    for d in dropped_days_list:
+        by_year[d.year] = by_year.get(d.year, 0) + 1
+    # Split by the train/test boundary: training-window = before TEST_SPLIT
+    dropped_train = sum(1 for d in dropped_days_list if d < TEST_SPLIT)
+    dropped_holdout = sum(1 for d in dropped_days_list if d >= TEST_SPLIT)
     if dropped_total:
-        by_year: dict[int, int] = {}
-        for d in no_weather + missing_precip:
-            by_year[d.year] = by_year.get(d.year, 0) + 1
         year_breakdown = ", ".join(f"{yr}: {cnt}" for yr, cnt in sorted(by_year.items()))
         print(
-            f"Weather model: dropped {dropped_total} training days "
+            f"Weather model: dropped {dropped_total} days lacking EC weather "
             f"({len(no_weather)} no weather record, "
             f"{len(missing_precip)} missing precip). "
+            f"{dropped_train} training-window days (before {TEST_SPLIT}), "
+            f"{dropped_holdout} holdout/evaluation days. "
             f"Per year — {year_breakdown}.",
             file=sys.stderr,
         )
@@ -193,6 +199,15 @@ def main() -> int:
         "testR2": round(float(r2_score(y_test, pred_test)), 3),
         "gridReferenceYear": last_full_year,
         "gridFitRange": f"{days[0]} to {days[-1]}",
+        # Days dropped from the day pool for lacking an EC weather record, broken
+        # down by the train/test split so the model card can distinguish which
+        # window is affected. perYear counts are sorted ascending by year.
+        "droppedDays": {
+            "total": dropped_total,
+            "trainingWindow": dropped_train,
+            "holdoutWindow": dropped_holdout,
+            "perYear": {str(yr): cnt for yr, cnt in sorted(by_year.items())},
+        },
     }
 
     # Guardrails against confident out-of-distribution predictions:

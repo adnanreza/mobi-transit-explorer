@@ -5,6 +5,7 @@
 import {
   ebike,
   flows,
+  forecast,
   generatedOpportunities,
   hourly,
   meta,
@@ -163,6 +164,18 @@ describe("generated data contracts", () => {
       0,
     );
     expect(Math.abs(dep - ret) / dep).toBeLessThan(0.05);
+  });
+
+  it("forecast modelCard contains droppedDays breakdown with consistent counts", () => {
+    const dd = forecast.modelCard.droppedDays;
+    expect(dd.total).toBe(dd.trainingWindow + dd.holdoutWindow);
+    const perYearSum = Object.values(dd.perYear).reduce((a, b) => a + b, 0);
+    expect(perYearSum).toBe(dd.total);
+    // Training window is the bulk (2017-2024 has 164 days)
+    expect(dd.trainingWindow).toBeGreaterThan(dd.holdoutWindow);
+    // Total should be roughly 178 ± 20 (stable within a pipeline run)
+    expect(dd.total).toBeGreaterThan(100);
+    expect(dd.total).toBeLessThan(300);
   });
 
   it("total generated payload stays inside the size budget", () => {
