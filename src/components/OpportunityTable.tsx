@@ -8,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableSkeleton } from "@/components/Skeletons";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 
 type OpportunityTableProps = {
@@ -21,6 +23,13 @@ function stationName(opportunity: Opportunity): string {
 export function OpportunityTable({
   opportunities = defaultOpportunities,
 }: OpportunityTableProps) {
+  // The table is bundled data, but on a slow first load it still sits below
+  // the fold; show its ghost until it's scrolled near, matching the charts.
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>({
+    rootMargin: "200px 0px",
+  });
+  const show = isVisible || import.meta.env.MODE === "test";
+
   if (opportunities.length === 0) {
     return (
       <div className="border-t border-border pt-6">
@@ -35,8 +44,16 @@ export function OpportunityTable({
     );
   }
 
+  if (!show) {
+    return (
+      <div ref={ref}>
+        <TableSkeleton rows={opportunities.length} />
+      </div>
+    );
+  }
+
   return (
-    <div className="border-t border-border pt-2">
+    <div ref={ref} className="border-t border-border pt-2">
       <h3 className="sr-only">Opportunity ranking</h3>
 
       {/* Mobile: stacked cards — a 5-column table cannot fit a phone. */}

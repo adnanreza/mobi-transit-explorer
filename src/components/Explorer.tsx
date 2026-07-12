@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { defaultFilters, FilterPanel, type FilterState } from "@/components/FilterPanel";
+import { MapSkeleton } from "@/components/Skeletons";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { StationFinder } from "@/components/StationFinder";
 import { lastCompleteYear, meta, stationsAll as stations } from "@/data";
@@ -136,10 +137,11 @@ export function Explorer() {
           <Suspense
             fallback={
               <div
+                role="status"
                 aria-label="Loading map"
-                className="flex h-[560px] items-center justify-center rounded-xl border border-border text-sm text-muted-foreground"
+                className="h-[560px] overflow-hidden rounded-xl border border-border"
               >
-                Loading map…
+                <MapSkeleton />
               </div>
             }
           >

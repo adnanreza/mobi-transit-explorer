@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import type { Feature, FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { MapSkeleton } from "@/components/Skeletons";
 import { stationsArtifact } from "@/data";
 
 type InteractiveMapProps = {
@@ -128,6 +129,10 @@ export default function InteractiveMap({
       ],
       cooperativeGestures: true,
       attributionControl: { compact: true },
+      // Cap the WebGL backing store at 2× on retina phones (dpr 3): a 3× map
+      // canvas is the single largest surface on the page and needlessly
+      // pressures iOS Safari's memory, which it answers by dropping canvases.
+      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     });
     mapRef.current = map;
     map.addControl(
@@ -318,11 +323,20 @@ export default function InteractiveMap({
   }
 
   return (
-    <div
-      ref={containerRef}
-      role="application"
-      aria-label="Interactive map of Mobi stations and rapid transit in Vancouver"
-      className="h-[560px] overflow-hidden rounded-xl border border-border"
-    />
+    <div className="relative h-[560px]">
+      <div
+        ref={containerRef}
+        role="application"
+        aria-label="Interactive map of Mobi stations and rapid transit in Vancouver"
+        className="h-full overflow-hidden rounded-xl border border-border"
+      />
+      {/* Ghost map until MapLibre finishes its first paint, so a slow tile
+          fetch shows the map's shape rather than an empty panel. */}
+      {!loaded && (
+        <div className="absolute inset-0 overflow-hidden rounded-xl border border-border">
+          <MapSkeleton />
+        </div>
+      )}
+    </div>
   );
 }

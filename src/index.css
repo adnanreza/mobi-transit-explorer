@@ -100,6 +100,14 @@
       transition: none;
     }
   }
+
+  /* Skeleton loaders pulse to signal activity; that pulse is decorative, so
+     hold them still for viewers who ask for reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pulse {
+      animation: none;
+    }
+  }
 }
 
 /* MapLibre chrome, tuned to the design system */
