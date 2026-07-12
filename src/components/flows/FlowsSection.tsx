@@ -110,11 +110,17 @@ export function FlowsSection() {
             — a typical {dayType === "weekday" ? "weekday" : "weekend day"}, hour by hour
           </span>
         </p>
-        <div className="mt-4 h-64 min-w-0 sm:h-72">
+        <div
+          className="mt-4 h-64 min-w-0 sm:h-72"
+          role="img"
+          aria-label={
+            testMode
+              ? "Station flow chart"
+              : `${stationName} — average departures and returns per hour on a typical ${dayType === "weekday" ? "weekday" : "weekend day"}`
+          }
+        >
           {testMode ? (
             <div
-              role="img"
-              aria-label="Station flow chart"
               className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground"
             >
               Station flow chart

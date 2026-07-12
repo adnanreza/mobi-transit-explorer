@@ -12,7 +12,9 @@
 import { stationsArtifact } from "@/data";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { Explorer } from "@/components/Explorer";
+import { StationFinder } from "@/components/StationFinder";
 
 // ---------------------------------------------------------------------------
 // Pure logic: selectionFeatures filter-awareness
@@ -83,6 +85,41 @@ describe("selectionFeatures filter-awareness (pure logic)", () => {
     if (dist > 0) {
       expect(isInSlice(nearStation.id, "t12", dist - 1)).toBe(false);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// StationFinder: keyboard-accessible station selection
+// ---------------------------------------------------------------------------
+
+describe("StationFinder keyboard accessibility", () => {
+  it("renders a combobox labelled 'Find a station'", () => {
+    const onSelect = vi.fn();
+    render(<StationFinder onStationSelect={onSelect} />);
+    expect(screen.getByRole("combobox", { name: /Find a station/i })).toBeInTheDocument();
+  });
+
+  it("selecting a station via keyboard fires onStationSelect", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(<StationFinder onStationSelect={onSelect} />);
+
+    const first = stationsArtifact.stations.reduce((a, b) =>
+      a.name.localeCompare(b.name, "en-CA") <= 0 ? a : b,
+    );
+    await user.click(screen.getByRole("combobox", { name: /Find a station/i }));
+    await user.click(await screen.findByRole("option", { name: first.name }));
+
+    expect(onSelect).toHaveBeenCalledWith(first.id);
+  });
+
+  it("screen-reader hint about pointer-only map is present in the DOM", () => {
+    const { container } = render(<StationFinder onStationSelect={() => {}} />);
+    // sr-only span is visually hidden but present in the DOM
+    const srSpan = container.querySelector(".sr-only");
+    expect(srSpan).not.toBeNull();
+    expect(srSpan?.textContent).toMatch(/keyboard or screen reader/i);
+    expect(srSpan?.textContent).toMatch(/map is pointer-only/i);
   });
 });
 

@@ -348,12 +348,17 @@ export default function InteractiveMap({
     );
   }
 
+  const legendLabel =
+    colorMode === "score"
+      ? "Blue intensity = transit-connector score (0–100)"
+      : "Blue intensity = leisure share (%)";
+
   return (
     <div className="relative h-[560px]">
       <div
         ref={containerRef}
         role="application"
-        aria-label="Interactive map of Mobi stations and rapid transit in Vancouver"
+        aria-label="Interactive map of Mobi stations and rapid transit in Vancouver. Pointer-primary — use the station search above to select a station with keyboard or assistive technology."
         className="h-full overflow-hidden rounded-xl border border-border"
       />
       {/* Ghost map until MapLibre finishes its first paint, so a slow tile
@@ -361,6 +366,20 @@ export default function InteractiveMap({
       {!loaded && (
         <div className="absolute inset-0 overflow-hidden rounded-xl border border-border">
           <MapSkeleton />
+        </div>
+      )}
+      {/* Compact corner legend: dot size = trip volume, blue intensity = active colour mode */}
+      {loaded && (
+        <div
+          aria-label={`Map legend: dot size reflects trip volume. ${legendLabel}.`}
+          className="pointer-events-none absolute bottom-8 left-3 rounded-lg border border-border bg-background/90 px-3 py-2 backdrop-blur-sm"
+        >
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
+            <span className="font-medium text-foreground">●</span> Size — trip volume
+          </p>
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
+            <span className="font-medium text-foreground">◉</span> Blue — {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
+          </p>
         </div>
       )}
     </div>

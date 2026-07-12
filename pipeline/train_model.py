@@ -25,6 +25,7 @@ import common
 
 WEATHER_DIR = common.DATA_RAW / "weather"
 OUT = common.REPO_ROOT / "src" / "data" / "generated" / "forecast.json"
+WAREHOUSE = common.REPO_ROOT / "data-warehouse" / "mobi.duckdb"
 TEST_SPLIT = date(2025, 1, 1)
 # EC ambient means for Vancouver top out near 26C; a 30C band would be pure
 # extrapolation (and produced a byte-identical duplicate of the 26C column).
@@ -113,7 +114,7 @@ def featurize(day: date, temp: float, precip: float, holidays: set[date]) -> lis
 
 
 def main() -> int:
-    con = duckdb.connect(str(common.REPO_ROOT / "data-warehouse" / "mobi.duckdb"), read_only=True)
+    con = duckdb.connect(str(WAREHOUSE), read_only=True)
     weather = load_weather()
     trips = load_daily_trips(con)
     holidays: set[date] = set()

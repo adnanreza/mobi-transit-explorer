@@ -18,15 +18,23 @@ const sortedStations = [...stationsArtifact.stations].sort((a, b) =>
 
 // Keyboard- and screen-reader-first station selection: fitter for 262
 // stations than tab-cycling map dots, and it doubles as search for everyone.
+// This is the primary accessible path for map station selection — the map
+// canvas itself is pointer-primary and not keyboard-navigable.
 export function StationFinder({
   selectedStationId,
   onStationSelect,
 }: StationFinderProps) {
   return (
     <label className="block">
-      <span className="text-sm text-muted-foreground">Find a station</span>
+      <span className="text-sm text-muted-foreground">
+        Find a station
+        <span className="sr-only"> — use this to select a station with keyboard or screen reader; the map is pointer-only</span>
+      </span>
       <Select value={selectedStationId ?? ""} onValueChange={onStationSelect}>
-        <SelectTrigger aria-label="Find a station" className="mt-2 w-full">
+        <SelectTrigger
+          aria-label="Find a station"
+          className="mt-2 w-full"
+        >
           <SelectValue placeholder="All stations" />
         </SelectTrigger>
         <SelectContent className="max-h-72">
