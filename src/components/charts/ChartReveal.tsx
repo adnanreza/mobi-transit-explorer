@@ -1,14 +1,19 @@
 import type { ReactNode } from "react";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useViewportWindow } from "@/hooks/useViewportWindow";
+import { ChartSkeleton } from "@/components/Skeletons";
 import { cn } from "@/lib/utils";
 
-// Mounts its children as they approach the viewport, so Chart.js's draw
-// animation plays where the viewer can see it. threshold 0 + a generous
-// rootMargin makes mounting robust to fast mobile momentum scrolling and
-// short viewports (a strict visibility threshold could leave a chart blank
-// when it never crosses that fraction). Under reduced motion the hook flips
-// visible on mount and the global animation default is off. Test mode
-// renders immediately because the jsdom IntersectionObserver mock never fires.
+// Mounts a chart only while it's near the viewport and unmounts it once it
+// scrolls well clear, showing a ghost skeleton in its place. This does three
+// things at once: the draw animation plays where the viewer can see it; a slow
+// connection or slow device shows the chart's shape instead of a blank gap;
+// and — the reason this exists — iOS Safari can't display a blanked canvas,
+// because a fresh canvas is mounted every time the chart re-enters view
+// (Safari purges the backing store of off-screen canvases, and Chart.js never
+// learns it must repaint). See useViewportWindow for the full rationale.
+//
+// Test mode renders the chart immediately: the jsdom IntersectionObserver mock
+// never fires, so without this the tests would only ever see the skeleton.
 export function ChartReveal({
   children,
   className,
@@ -16,15 +21,12 @@ export function ChartReveal({
   children: ReactNode;
   className?: string;
 }) {
-  const { ref, isVisible } = useScrollReveal({
-    threshold: 0,
-    rootMargin: "300px 0px",
-  });
-  const show = isVisible || import.meta.env.MODE === "test";
+  const { ref, inView } = useViewportWindow();
+  const show = inView || import.meta.env.MODE === "test";
 
   return (
     <div ref={ref} className={cn("h-full w-full min-w-0", className)}>
-      {show ? children : null}
+      {show ? children : <ChartSkeleton />}
     </div>
   );
 }

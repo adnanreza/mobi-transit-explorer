@@ -22,6 +22,14 @@ ChartJS.defaults.font.size = 11;
 ChartJS.defaults.color = chartColors.label;
 ChartJS.defaults.borderColor = chartColors.grid;
 
+// Cap the canvas backing store at 2× regardless of the screen's real DPR.
+// iOS Safari enforces a total canvas-memory budget across the page; on a
+// dpr-3 iPhone, each canvas allocates width×height×9 bytes, and a page full
+// of Chart.js canvases plus MapLibre's WebGL surface can blow past the cap,
+// which Safari answers by dropping backing stores — the charts paint blank.
+// A 2× cap cuts each backing store ~56% (9→4) and stays visually crisp.
+ChartJS.defaults.devicePixelRatio = 2;
+
 ChartJS.defaults.plugins.legend.position = "bottom";
 ChartJS.defaults.plugins.legend.labels.boxWidth = 10;
 ChartJS.defaults.plugins.legend.labels.boxHeight = 10;
