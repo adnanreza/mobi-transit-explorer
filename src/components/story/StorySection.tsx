@@ -292,11 +292,13 @@ export function StorySection() {
               >
                 {content.headline}
               </h3>
-              <div className="mt-10 h-64 min-w-0 sm:h-80">
+              <div
+                className="mt-10 h-64 min-w-0 sm:h-80"
+                role="img"
+                aria-label={content.caption}
+              >
                 {testMode ? (
                   <div
-                    role="img"
-                    aria-label={`${chapter.id} chart`}
                     className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground"
                   >
                     {chapter.id} chart

@@ -144,13 +144,18 @@ def main() -> int:
         # ------------------------------------------------------------------ #
         print("\nRegenerating forecast.json …")
         tmp_forecast = tmp_dir / "forecast.json"
-        # train_model writes to OUT (the committed path); redirect via monkeypatching
+        # train_model writes to OUT (the committed path); redirect via monkeypatching.
+        # Also redirect WAREHOUSE so train_model.main() opens args.db rather than
+        # its own default constant (data-warehouse/mobi.duckdb).
         _orig_out = train_model.OUT
+        _orig_warehouse = train_model.WAREHOUSE
         train_model.OUT = tmp_forecast
+        train_model.WAREHOUSE = args.db
         try:
             train_model.main()
         finally:
             train_model.OUT = _orig_out
+            train_model.WAREHOUSE = _orig_warehouse
 
         committed_fc = COMMITTED_DIR / "forecast.json"
         if not committed_fc.exists():
