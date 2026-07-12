@@ -96,7 +96,7 @@ def build_artifacts(con) -> dict[str, object]:
     ]
 
     station_years: dict[str, dict[str, int]] = {}
-    for r in rows(con, "SELECT * FROM v_station_year"):
+    for r in rows(con, "SELECT * FROM v_station_year ORDER BY station_id, year"):
         station_years.setdefault(r["station_id"], {})[str(r["year"])] = r["trips"]
 
     name_by_id = {
@@ -124,7 +124,7 @@ def build_artifacts(con) -> dict[str, object]:
         JOIN dim_station s USING (station_id)
         JOIN v_connector c USING (station_id)
         WHERE s.lat IS NOT NULL AND s.is_active
-        ORDER BY t.trips DESC"""):
+        ORDER BY t.trips DESC, t.station_id"""):
         stations.append({
             "id": r["station_id"],
             "name": display_name(r["station_name"]),

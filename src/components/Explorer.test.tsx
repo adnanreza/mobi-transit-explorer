@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
-import { stationsAll } from "@/data";
+import { stationsAll, stationsArtifact } from "@/data";
 
 async function chooseOption(label: string, option: string) {
   const user = userEvent.setup();
@@ -39,15 +39,23 @@ describe("Explorer", () => {
   });
 
   it("restores state from the URL", async () => {
+    // Use a station that is within 300 m of transit AND has 2019 trips, so the
+    // selection is not cleared by the active filter when state is restored.
+    const inSlice = stationsArtifact.stations.find(
+      (s) => s.nearestTransit.distanceM <= 300 && (s.tripsByYear["2019"] ?? 0) > 0,
+    );
+    if (!inSlice) throw new Error("No fixture station within 300 m with 2019 trips");
+    const station = stationsAll.find((s) => s.id === inSlice.id)!;
+
     window.history.replaceState(
       null,
       "",
-      `?station=${stationsAll[1].id}&year=2019&transit=300`,
+      `?station=${station.id}&year=2019&transit=300`,
     );
     render(<Explorer />);
 
     expect(
-      await screen.findByRole("heading", { name: stationsAll[1].name }),
+      await screen.findByRole("heading", { name: station.name }),
     ).toBeInTheDocument();
     expect(screen.getByText("Showing 2019 trip volume · station details are trailing 12 months")).toBeInTheDocument();
     expect(

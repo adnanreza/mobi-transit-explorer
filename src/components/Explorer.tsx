@@ -3,7 +3,7 @@ import { defaultFilters, FilterPanel, type FilterState } from "@/components/Filt
 import { MapSkeleton } from "@/components/Skeletons";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { StationFinder } from "@/components/StationFinder";
-import { lastCompleteYear, meta, stationsAll as stations } from "@/data";
+import { lastCompleteYear, meta, stationsArtifact, stationsAll as stations } from "@/data";
 
 // MapLibre is the heaviest dependency in the app; loading it lazily keeps
 // the hero and overview paint-fast.
@@ -49,6 +49,23 @@ export function Explorer() {
 
   useEffect(() => {
     writeUrlState(filters, selectedStationId);
+  }, [filters, selectedStationId]);
+
+  // Clear the selection when the selected station leaves the active slice:
+  // either it exceeds the transit-distance filter or has 0 trips in the
+  // selected year. This prevents stale rings/lines from appearing on the map.
+  useEffect(() => {
+    if (!selectedStationId) return;
+    const raw = stationsArtifact.stations.find((s) => s.id === selectedStationId);
+    if (!raw) { setSelectedStationId(null); return; }
+    const maxTransitM = filters.transitDistance === "all" ? null : Number(filters.transitDistance);
+    if (maxTransitM !== null && raw.nearestTransit.distanceM > maxTransitM) {
+      setSelectedStationId(null);
+      return;
+    }
+    const trips =
+      filters.year === "t12" ? raw.trailing12.trips : (raw.tripsByYear[filters.year] ?? 0);
+    if (trips === 0) setSelectedStationId(null);
   }, [filters, selectedStationId]);
 
   const selectedStation = useMemo(

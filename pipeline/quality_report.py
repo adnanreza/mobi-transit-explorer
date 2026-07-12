@@ -41,6 +41,26 @@ def build(con) -> str:
         con, "SELECT max(source_period) FROM fact_trips WHERE source_period <> '2017'"
     )
 
+    # Derive the blank-vs-stationless breakdown from SQL (queried, not hard-coded,
+    # so it stays accurate after every rebuild). Of the rows dropped because BOTH
+    # station names are blank, "fully blank" = those where every trip field is also
+    # empty (spreadsheet padding); "stationless" = the remainder, which still carry
+    # real trip data (a timestamp, a bike) but no station.
+    dropped_blank = m[("clean", "rows_dropped_blank_stations")]
+    fully_blank = q1(
+        con,
+        """SELECT count(*) FROM raw_trips
+           WHERE nullif(trim(CAST(departure_station AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST(return_station AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST("departure" AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST("return" AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST(bike AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST(membership AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST(duration_s AS VARCHAR)), '') IS NULL
+             AND nullif(trim(CAST(distance_m AS VARCHAR)), '') IS NULL""",
+    )
+    stationless = dropped_blank - fully_blank
+
     lines = [
         "# Data Quality Report",
         "",
@@ -55,7 +75,8 @@ def build(con) -> str:
         "| --- | ---: | --- |",
         f"| Landed (extract) | {landed:,} | {m[('extract', 'files_landed')]} source files |",
         f"| Dropped: both station names blank | {m[('clean', 'rows_dropped_blank_stations')]:,} "
-        "| 240,110 (99.4%) fully blank export rows; ~1,541 stationless trips (timestamp present, no station) |",
+        f"| {fully_blank:,} ({100 * fully_blank / max(dropped_blank, 1):.1f}%) fully blank export rows; "
+        f"{stationless:,} stationless trips (timestamp present, no station) |",
         f"| Dropped: unparseable timestamp | {m[('clean', 'rows_dropped_bad_timestamp')]:,} "
         "| includes literal `1900-01-00 0:00` never-returned sentinels |",
         f"| Dropped: exact duplicates | {m[('clean', 'rows_dropped_duplicates')]:,} "
@@ -121,16 +142,21 @@ def build(con) -> str:
         lines += ["", "No unmapped labels."]
 
     last_source_month = window_end
+    # Mirror the EXACT exclusion logic of the `countable_trips` view in 50_publish.sql.
+    # Any change to that view's WHERE clause must be reflected here too.
     countable = q1(
         con,
         """SELECT count(*) FROM fact_trips f
            LEFT JOIN dim_membership m USING (membership_raw)
            WHERE coalesce(m.membership_group, 'Unknown') <> 'Operations'
-             AND f.trip_month <= '"""
+             AND f.trip_month BETWEEN '"""
+        + first_month
+        + """' AND '"""
         + last_source_month
         + """'
              AND NOT list_has_any(f.quality_flags,
-                   ['round_trip_false_start', 'zero_duration', 'negative_duration'])""",
+                   ['round_trip_false_start', 'zero_duration', 'negative_duration',
+                    'misdated_source'])""",
     )
     spillover_tail = q1(
         con, f"SELECT count(*) FROM fact_trips WHERE trip_month > '{last_source_month}'"
@@ -145,7 +171,8 @@ def build(con) -> str:
         "The tables in this report use this basis.",
         f"- **Dashboard countable trips: {countable:,}** — the published ridership "
         "basis: excludes `Operations` staff riding and trips flagged "
-        "`round_trip_false_start`, `zero_duration`, or `negative_duration`, and is "
+        "`round_trip_false_start`, `zero_duration`, `negative_duration`, or "
+        "`misdated_source`, and is "
         f"capped at the last complete source month ({last_source_month}). "
         f"{spillover_tail:,} spillover rows depart after that month and are held "
         "back until their month's file is published.",
