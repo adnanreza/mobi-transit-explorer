@@ -5,9 +5,12 @@ import { Progress } from "@/components/ui/progress";
 
 type StationDetailPanelProps = {
   station?: MobiStation | null;
+  /** "t12" or a four-digit year string; when set, shows a note if the
+   *  station had no recorded trips in that specific year. */
+  year?: string;
 };
 
-export function StationDetailPanel({ station }: StationDetailPanelProps) {
+export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
   if (!station) {
     return (
       <div className="flex h-full flex-col justify-center rounded-xl border border-border p-6">
@@ -22,6 +25,12 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
     );
   }
 
+  const generatedStation = stationsArtifact.stations.find((s) => s.id === station.id);
+  const hasNoTripsInYear =
+    year && year !== "t12" && generatedStation
+      ? (generatedStation.tripsByYear[year] ?? 0) === 0
+      : false;
+
   return (
     <div className="h-full rounded-xl border border-border p-6">
       <p className="text-xs font-medium uppercase tracking-wide text-primary">
@@ -31,6 +40,16 @@ export function StationDetailPanel({ station }: StationDetailPanelProps) {
         {station.name}
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{station.area}</p>
+
+      {hasNoTripsInYear && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          No recorded trips in {year}.
+        </p>
+      )}
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Trailing 12 months
+      </p>
 
       <div className="mt-6 space-y-2">
         <div className="flex items-baseline justify-between gap-3">

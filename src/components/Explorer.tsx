@@ -59,7 +59,7 @@ export function Explorer() {
   const scopeLabel =
     filters.year === "t12"
       ? `Trailing 12 months to ${meta.sourceWindow.lastMonth}`
-      : `Showing ${filters.year}`;
+      : `Showing ${filters.year} trip volume · station details are trailing 12 months`;
   const distanceLabel =
     filters.transitDistance === "all"
       ? "all stations"
@@ -157,7 +157,7 @@ export function Explorer() {
           </Suspense>
         </div>
         <div className="order-3 xl:order-none">
-          <StationDetailPanel station={selectedStation} />
+          <StationDetailPanel station={selectedStation} year={filters.year} />
         </div>
       </div>
     </div>

@@ -3,8 +3,9 @@
 --
 -- Analytic basis ("countable" trips):
 --   * membership group 'Operations' excluded (staff/maintenance riding)
---   * round_trip_false_start, zero_duration, negative_duration excluded from
---     ridership counts (aborted unlocks are events, not trips)
+--   * round_trip_false_start, zero_duration, negative_duration, misdated_source
+--     excluded from ridership counts (false starts / misdated rows are events,
+--     not valid trips for headline metrics)
 --   * trips after the last complete source month excluded (spillover tail)
 -- Duration/distance measures additionally exclude their own invalidating flags.
 
@@ -40,7 +41,8 @@ WHERE coalesce(m.membership_group, 'Unknown') <> 'Operations'
   AND f.trip_month BETWEEN (SELECT first_month FROM v_window)
                        AND (SELECT last_month FROM v_window)
   AND NOT list_has_any(f.quality_flags,
-        ['round_trip_false_start', 'zero_duration', 'negative_duration']);
+        ['round_trip_false_start', 'zero_duration', 'negative_duration',
+         'misdated_source']);
 
 -- Trailing 12 complete months, the basis for current station profiles.
 CREATE OR REPLACE VIEW v_t12_months AS

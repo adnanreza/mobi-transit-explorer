@@ -253,11 +253,11 @@ function SiteFooter() {
           ))}
         </div>
         <p className="mt-10 border-t border-border pt-6 text-xs leading-5 text-muted-foreground">
-          An independent project — not affiliated with, endorsed, or sponsored by
-          Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
-          Mobi trip data is used under the Mobi Data License Agreement for
-          non-commercial analysis; weather is based on Environment and Climate
-          Change Canada data.
+          An independent, non-commercial project — not affiliated with, endorsed by, or
+          approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
+          "Mobi" is a trademark of Vancouver Bike Share Inc., used here descriptively to
+          identify the public dataset being analyzed. Trip data is used under the Mobi Data
+          License Agreement; weather is based on Environment and Climate Change Canada data.
         </p>
       </div>
     </footer>

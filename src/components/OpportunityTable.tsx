@@ -125,8 +125,9 @@ export function OpportunityTable({
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Each finding comes from an explicit rule over the trailing twelve
-        months — thresholds and definitions are in the{" "}
+        Each signal comes from an explicit rule over the trailing twelve
+        months — these are patterns that warrant investigation, not validated
+        recommendations. Thresholds and definitions are in the{" "}
         <a href="#methodology" className="text-primary underline-offset-2 hover:underline">
           methodology
         </a>

@@ -92,7 +92,8 @@ def load_daily_trips(con) -> dict[date, int]:
             WHERE coalesce(m.membership_group, 'Unknown') <> 'Operations'
               AND trip_month <= '{last_month}'
               AND NOT list_has_any(quality_flags,
-                    ['round_trip_false_start', 'zero_duration', 'negative_duration'])
+                    ['round_trip_false_start', 'zero_duration', 'negative_duration',
+                     'misdated_source'])
             GROUP BY 1"""
     ).fetchall()
     return {r[0]: r[1] for r in rows}
@@ -120,6 +121,28 @@ def main() -> int:
         holidays |= bc_holidays(year)
 
     days = sorted(d for d in trips if d in weather)
+
+    # Log days dropped from training for missing weather coverage.
+    trip_days = set(trips.keys())
+    weather_days = set(weather.keys())
+    no_weather = sorted(d for d in trip_days if d not in weather_days)
+    missing_precip = sorted(
+        d for d in trip_days if d in weather_days and weather[d][1] != weather[d][1]
+    )  # NaN precip (shouldn't occur after load_weather filters, but surface if it does)
+    dropped_total = len(no_weather) + len(missing_precip)
+    if dropped_total:
+        by_year: dict[int, int] = {}
+        for d in no_weather + missing_precip:
+            by_year[d.year] = by_year.get(d.year, 0) + 1
+        year_breakdown = ", ".join(f"{yr}: {cnt}" for yr, cnt in sorted(by_year.items()))
+        print(
+            f"Weather model: dropped {dropped_total} training days "
+            f"({len(no_weather)} no weather record, "
+            f"{len(missing_precip)} missing precip). "
+            f"Per year — {year_breakdown}.",
+            file=sys.stderr,
+        )
+
     X = np.array([featurize(d, *weather[d], holidays) for d in days])
     y = np.array([trips[d] for d in days])
     train_mask = np.array([d < TEST_SPLIT for d in days])

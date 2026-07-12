@@ -20,7 +20,7 @@ const navItems = [
   { label: "Forecast", href: "#forecast" },
   { label: "Flows", href: "#flows" },
   { label: "Map", href: "#map" },
-  { label: "Opportunities", href: "#opportunities" },
+  { label: "Signals", href: "#opportunities" },
   { label: "Methodology", href: "#methodology" },
 ];
 
@@ -67,7 +67,7 @@ function App() {
         <PageSection id="overview" className="space-y-10">
           <SectionHeader
             title="Overview"
-            description="A fast read on nine years of public Mobi trips: volume, timing, bike mix, and where the network is busiest."
+            description="A fast read on nine and a half years of public Mobi trips (2017–2026, as of May 2026): volume, timing, bike mix, and where the network is busiest."
           />
           <OverviewCards />
           <RealMobiCharts />
@@ -78,7 +78,7 @@ function App() {
         <PageSection id="story" className="space-y-14">
           <SectionHeader
             title="Nine years"
-            description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike."
+            description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike. Data: 2017–2026, as of May 2026."
           />
           <StorySection />
         </PageSection>
@@ -117,8 +117,8 @@ function App() {
       <Reveal delay={200}>
         <PageSection id="opportunities" className="space-y-10">
           <SectionHeader
-            title="Opportunities"
-            description="Where the network shows pressure or unrealized transit connections, ranked from the trailing twelve months of trips."
+            title="Signals to validate"
+            description="Where the data shows pressure or unrealized transit connections — patterns worth investigating, ranked from the trailing twelve months of trips."
           />
           <OpportunityTable />
         </PageSection>
@@ -128,7 +128,7 @@ function App() {
         <PageSection id="methodology" className="space-y-10">
           <SectionHeader
             title="Methodology"
-            description="How nine years of messy public files become one dataset, what the connector score means, and what the data cannot say."
+            description="How nine and a half years of messy public files (2017–2026, as of May 2026) become one dataset, what the connector score means, and what the data cannot say."
           />
           <Methodology />
         </PageSection>
