@@ -38,6 +38,20 @@ def test_committed_forecast_artifact_invariants():
         assert field in card
     assert card["testMae"] < card["baselineMae"], "model must beat the naive baseline"
 
+    # droppedDays breakdown must be present and internally consistent.
+    dd = card["droppedDays"]
+    assert dd["total"] == dd["trainingWindow"] + dd["holdoutWindow"], (
+        "droppedDays total must equal trainingWindow + holdoutWindow"
+    )
+    assert sum(dd["perYear"].values()) == dd["total"], (
+        "droppedDays perYear counts must sum to total"
+    )
+    # Training-window split (before 2025-01-01 = TEST_SPLIT)
+    training_years = {yr for yr in dd["perYear"] if int(yr) < 2025}
+    holdout_years = {yr for yr in dd["perYear"] if int(yr) >= 2025}
+    assert sum(dd["perYear"][yr] for yr in training_years) == dd["trainingWindow"]
+    assert sum(dd["perYear"][yr] for yr in holdout_years) == dd["holdoutWindow"]
+
     grid = payload["grid"]
     assert len(grid) == 12
     n_temp = len(payload["tempBandsC"])

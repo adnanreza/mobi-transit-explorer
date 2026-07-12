@@ -16,6 +16,6 @@ The authoritative, always-current description lives in two generated places:
 3. **clean** — typing, five timestamp formats, hard drops (blank stations, unparseable timestamps, exact duplicates from cross-file spillover).
 4. **conform** — station IDs from name prefixes, canonical departure month, quality flags (flag, don't delete).
 5. **model** — Kimball star schema: `fact_trips`, `dim_station` (GBFS coordinates + haversine distance to rapid transit), `dim_date`, `dim_membership` (all 85 raw labels explicitly mapped).
-6. **publish** — `publish.py` and `geo_publish.py` emit ~40 KB (gzip) of typed JSON to `src/data/generated/`, enforced by a size budget; no per-trip data ships to the browser.
+6. **publish** — `publish.py` and `geo_publish.py` emit ~80 KB (gzip) of typed JSON to `src/data/generated/`, enforced by a size budget; no per-trip data ships to the browser.
 
 Raw data and the warehouse are never committed; the manifest and aggregates are. Commands: see `pipeline/README.md`.

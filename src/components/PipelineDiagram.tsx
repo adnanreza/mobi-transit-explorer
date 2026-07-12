@@ -31,7 +31,7 @@ const stages = [
   },
   {
     name: "Publish",
-    figure: "≈40 KB gzip",
+    figure: "≈80 KB gzip",
     detail: "typed JSON aggregates; no per-trip data ships",
   },
 ];
