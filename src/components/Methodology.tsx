@@ -82,8 +82,12 @@ export function Methodology() {
           {formatNumber(meta.quality.rowsFlagged)} trips carry quality flags —
           sub-two-minute false starts, impossible durations, sentinel
           temperatures — and each aggregate excludes only the flags that
-          invalidate it. The full accounting regenerates with every pipeline
-          run:{" "}
+          invalidate it.{" "}
+          <em>Caveat: the false-start exclusion (same-station return under 2 minutes)
+          is an unvalidated heuristic affecting approximately 6% of otherwise-countable
+          trips; some genuine very-short rides will be excluded alongside true false
+          starts.</em>{" "}
+          The full accounting regenerates with every pipeline run:{" "}
           <a
             className="text-primary underline-offset-2 hover:underline"
             href={REPORT_URL}
@@ -111,7 +115,10 @@ export function Methodology() {
           inference, not a measurement: Mobi removes its crews' rebalancing
           trips before publishing, which is precisely why rider-created
           imbalance must be undone invisibly. Trips with only one resolvable
-          end (~2% of recent months) count toward the end they have.
+          end (~2% of recent months) count toward the end they have.{" "}
+          <em>Caveat: the daily rebalancing figure is a conservative lower-bound
+          inference — partial rebalancing during the day resets the imbalance
+          clock before midnight, so the true number of bike movements is higher.</em>
         </p>
       </Section>
 
@@ -164,7 +171,11 @@ export function Methodology() {
           2017–2024, scored on unseen 2025-onward days, and it must beat a
           seasonal-naive baseline to ship. The predictions shown come from a
           model refit on all data and reflect the last complete year's demand;
-          the browser gets a ~5 KB precomputed grid, not a live model.
+          the browser gets a ~5 KB precomputed grid, not a live model.{" "}
+          <strong className="font-medium text-foreground">Disclosure:</strong>{" "}
+          approximately 178 training days — concentrated in 2020 — have no
+          Environment Canada precipitation record and are excluded from model
+          training; the model has not seen these weather conditions.
         </p>
       </Section>
 

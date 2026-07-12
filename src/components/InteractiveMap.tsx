@@ -69,9 +69,27 @@ function transitFeatures(): FeatureCollection {
   };
 }
 
-function selectionFeatures(stationId: string | null | undefined): FeatureCollection {
+/** Returns the ring + destination-line features for a selected station,
+ *  respecting the active filters. Returns empty when:
+ *  - the station is unknown,
+ *  - its nearest-transit distance exceeds maxTransitM (transit-distance filter),
+ *  - it has 0 trips in the selected year (year filter). */
+function selectionFeatures(
+  stationId: string | null | undefined,
+  year = "t12",
+  maxTransitM: number | null = null,
+): FeatureCollection {
+  const empty: FeatureCollection = { type: "FeatureCollection", features: [] };
   const station = stationsArtifact.stations.find((s) => s.id === stationId);
-  if (!station) return { type: "FeatureCollection", features: [] };
+  if (!station) return empty;
+
+  // Suppress when the station falls outside the active transit-distance filter.
+  if (maxTransitM !== null && station.nearestTransit.distanceM > maxTransitM) return empty;
+
+  // Suppress when the station has no trips in the selected year.
+  const trips = year === "t12" ? station.trailing12.trips : (station.tripsByYear[year] ?? 0);
+  if (trips === 0) return empty;
+
   const byId = new Map(stationsArtifact.stations.map((s) => [s.id, s]));
   const lines: Feature[] = station.trailing12.topDestinations
     .map((d) => byId.get(d.id))
@@ -155,7 +173,7 @@ export default function InteractiveMap({
       map.addSource("transit", { type: "geojson", data: transitFeatures() });
       map.addSource("selection", {
         type: "geojson",
-        data: selectionFeatures(selectedStationId),
+        data: selectionFeatures(selectedStationId, year, maxTransitM),
       });
 
       map.addLayer({
@@ -302,16 +320,21 @@ export default function InteractiveMap({
     const map = mapRef.current;
     if (!map || !loadedRef.current) return;
     const source = map.getSource("selection") as maplibregl.GeoJSONSource | undefined;
-    source?.setData(selectionFeatures(selectedStationId));
-    const station = stationsArtifact.stations.find((s) => s.id === selectedStationId);
-    if (station) {
-      map.easeTo({
-        center: [station.lon, station.lat],
-        zoom: Math.max(map.getZoom(), 13),
-        duration: 600,
-      });
+    source?.setData(selectionFeatures(selectedStationId, year, maxTransitM));
+    // Only pan to the station when it is still visible in the active slice.
+    const features = selectionFeatures(selectedStationId, year, maxTransitM);
+    const inSlice = features.features.length > 0;
+    if (inSlice) {
+      const station = stationsArtifact.stations.find((s) => s.id === selectedStationId);
+      if (station) {
+        map.easeTo({
+          center: [station.lon, station.lat],
+          zoom: Math.max(map.getZoom(), 13),
+          duration: 600,
+        });
+      }
     }
-  }, [selectedStationId]);
+  }, [selectedStationId, year, maxTransitM]);
 
   if (testMode) {
     return (

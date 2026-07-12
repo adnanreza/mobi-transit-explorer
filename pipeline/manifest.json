@@ -753,61 +753,61 @@
           "file": "weather/ec-888-2017.csv",
           "usable_days": 363,
           "sha256": "f9bca9a6abce621ccebc475e505225bce8f40dbeb8b2ef7cde3c5a7a49128b38",
-          "fetched_at": "2026-07-10T21:44:03+00:00"
+          "fetched_at": "2026-07-12T15:15:55+00:00"
         },
         "2018": {
           "file": "weather/ec-888-2018.csv",
           "usable_days": 360,
           "sha256": "53fd4958349facd4fd21adab48c1884be6b793ca5aa2da1f0afabb77744dc88f",
-          "fetched_at": "2026-07-10T21:44:03+00:00"
+          "fetched_at": "2026-07-12T15:15:56+00:00"
         },
         "2019": {
           "file": "weather/ec-888-2019.csv",
           "usable_days": 359,
           "sha256": "0d20f05bde6cd09f8a70c29ee0d523b407602d7fe05c54b000f29dced3527315",
-          "fetched_at": "2026-07-10T21:44:03+00:00"
+          "fetched_at": "2026-07-12T15:15:56+00:00"
         },
         "2020": {
           "file": "weather/ec-888-2020.csv",
           "usable_days": 249,
           "sha256": "eb80024fe9d9b669e47658b67da30a749631cc5246458cd0a5b825074ef90151",
-          "fetched_at": "2026-07-10T21:44:04+00:00"
+          "fetched_at": "2026-07-12T15:15:56+00:00"
         },
         "2021": {
           "file": "weather/ec-888-2021.csv",
           "usable_days": 345,
           "sha256": "cc699c68fe5fcc1e3216c08f3f9decdead6e33fc7c6e4175607583186f702daa",
-          "fetched_at": "2026-07-10T21:44:04+00:00"
+          "fetched_at": "2026-07-12T15:15:56+00:00"
         },
         "2022": {
           "file": "weather/ec-888-2022.csv",
           "usable_days": 360,
           "sha256": "a340073841ae3df6ee6729d630a74e9740c9eee679e13ba5f7bd0e53109eed65",
-          "fetched_at": "2026-07-10T21:44:04+00:00"
+          "fetched_at": "2026-07-12T15:15:57+00:00"
         },
         "2023": {
           "file": "weather/ec-888-2023.csv",
           "usable_days": 362,
           "sha256": "d12db0836d14aec259ede81b4bc721433c8ef14814dbe8a7a6e06770ad284d19",
-          "fetched_at": "2026-07-10T21:44:04+00:00"
+          "fetched_at": "2026-07-12T15:15:57+00:00"
         },
         "2024": {
           "file": "weather/ec-888-2024.csv",
           "usable_days": 360,
           "sha256": "0885e03693bff20f33ee200cb15ed12630a1824ed6612564afda7c79aa5865f5",
-          "fetched_at": "2026-07-10T21:44:05+00:00"
+          "fetched_at": "2026-07-12T15:15:57+00:00"
         },
         "2025": {
           "file": "weather/ec-888-2025.csv",
           "usable_days": 351,
           "sha256": "e513e811a5765873d3e03b3606306c92a31b13c5ce150305bc3cdf551ad4c668",
-          "fetched_at": "2026-07-10T21:44:05+00:00"
+          "fetched_at": "2026-07-12T15:15:57+00:00"
         },
         "2026": {
           "file": "weather/ec-888-2026.csv",
-          "usable_days": 190,
-          "sha256": "585c62a747e87d57a3cb37068d88e0b6aa9695de6c5d54064317ca7d18556544",
-          "fetched_at": "2026-07-10T21:44:05+00:00"
+          "usable_days": 192,
+          "sha256": "d80343255f23038621c5e84a0acfa33051047c22e9dd14bedce2ee3edb3bb927",
+          "fetched_at": "2026-07-12T15:15:58+00:00"
         }
       }
     }

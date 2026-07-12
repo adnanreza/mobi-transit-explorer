@@ -132,14 +132,14 @@ dest_ranked AS (
     departure_station_id AS station_id,
     return_station_id,
     count(*) AS trips,
-    row_number() OVER (PARTITION BY departure_station_id ORDER BY count(*) DESC) AS rnk
+    row_number() OVER (PARTITION BY departure_station_id ORDER BY count(*) DESC, return_station_id) AS rnk
   FROM t12
   WHERE return_station_id IS NOT NULL
   GROUP BY 1, 2
 ),
 dests AS (
   SELECT station_id,
-         list({'stationId': return_station_id, 'trips': trips} ORDER BY trips DESC) AS top_destinations,
+         list({'stationId': return_station_id, 'trips': trips} ORDER BY trips DESC, return_station_id) AS top_destinations,
          count(*) AS sampled
   FROM dest_ranked WHERE rnk <= 5 GROUP BY 1
 ),
