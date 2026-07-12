@@ -25,7 +25,7 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
  │ acquire → extract → clean → conform → model → publish│
  │ star schema: fact_trips + dim_station/date/membership│
  └──────────────────────┬──────────────────────────────┘
-                        ▼  ~40 KB gzipped JSON (committed)
+                        ▼  ~80 KB gzipped JSON (committed)
  ┌─────────────────────────────────────────────────────┐
  │ src/  (React + TypeScript + Vite, fully static)     │
  │ story charts · MapLibre map · explorer · methodology │
@@ -87,7 +87,7 @@ React · TypeScript · Vite · Tailwind CSS · shadcn/ui patterns · Chart.js ·
 
 ## Deployment
 
-Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com). Build: `npm run build`, output `dist`, Node 18+. No server-side configuration.
+Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com). Build: `npm run build`, output `dist`, Node 20.19+. No server-side configuration.
 
 ## License and credits
 

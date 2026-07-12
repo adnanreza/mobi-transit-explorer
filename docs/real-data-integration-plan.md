@@ -1,3 +1,9 @@
+> **Historical planning document — superseded.**
+> This file describes an early two-month MVP approach (April + May 2026 only) that
+> predates the shipped pipeline. The `npm run data:process` command described
+> here does not exist. The live project uses a Python + DuckDB pipeline covering
+> all Mobi data from 2017 to date; see `pipeline/` and `README.md`.
+
 # Real Mobi Data Integration
 
 ## Status
