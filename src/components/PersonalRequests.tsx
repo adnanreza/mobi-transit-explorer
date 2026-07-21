@@ -22,19 +22,20 @@ const REQUESTS = [
     title: "Bring the network south",
     body:
       "The map above ends at 30th & Ontario on the east side and East Blvd & 37th " +
-      "on the west. South of that line there are no docks at all — not at Langara " +
-      "College, where I teach, and not in the neighbourhoods below 41st, where I " +
-      "live. The southern third of the city is blank on the map.",
+      "on the west — two docks I know well, because my rides keep pointing past " +
+      "them: to Langara College, where I teach, nineteen blocks beyond the last " +
+      "dock, and on into South Vancouver. I live well inside the network, near " +
+      "10th & Granville. It's the destination end of the ride that falls off the map.",
     note: `Southernmost docks today: ${southernmost.join(" · ")}`,
   },
   {
     num: "02",
     title: "Send e-bikes with it",
     body:
-      "Vancouver rises as it runs south. Riding downtown is a coast; riding home " +
-      "is a climb, and after a full day's work that difference decides whether the " +
-      "bike gets used at all. If the network comes south, it should come with " +
-      "batteries.",
+      "Getting home from South Vancouver means riding up and over the city's " +
+      "central ridge — a hard ask at the end of a teaching day, and the kind of " +
+      "climb that decides whether the bike gets used at all. If the network comes " +
+      "south, it should come with batteries.",
     note: `${ebikePct}% of ${currentYear} trips are electric`,
   },
   {
@@ -77,7 +78,7 @@ export function PersonalRequests() {
       </ol>
       <p className="border-t border-border pt-6 text-sm text-muted-foreground">
         Unlike the signals above, these aren't rules over the data — they're one
-        rider's asks, from the bottom edge of the map.
+        rider's asks. Mine.
       </p>
     </div>
   );

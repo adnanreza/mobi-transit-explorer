@@ -2,14 +2,14 @@
 
 ## Context
 
-Two owner asks. First, a "Personal requests" section: the rider's counterpart to Signals — the owner rides this network daily, teaches at Langara College, and lives in South Vancouver, which the network doesn't reach. Second, a note on both the site and the GitHub README explaining how the project absorbs new data, now that June 2026 (spec 039) proved the flow live. The freshness story is a differentiator for both audiences: it's the difference between a one-off analysis and an operated data product.
+Two owner asks. First, a "Personal requests" section: the rider's counterpart to Signals — the owner rides this network daily from 10th & Granville (well inside the network) but teaches at Langara College, which the network doesn't reach. Second, a note on both the site and the GitHub README explaining how the project absorbs new data, now that June 2026 (spec 039) proved the flow live. The freshness story is a differentiator for both audiences: it's the difference between a one-off analysis and an operated data product.
 
 ## Changes
 
 **1. Personal requests section** (src/components/PersonalRequests.tsx, wired into src/App.tsx as `#requests` between Signals and Methodology; "Requests" added to the nav). Three asks in portfolio ruled-row style — numbered eyebrow, title + prose, right-aligned mono annotation:
 
-- *Bring the network south* — no docks south of 30th & Ontario / East Blvd & 37th; Langara College and the owner's neighbourhood are in the blank.
-- *Send e-bikes with it* — southbound Vancouver is uphill; the ride home decides usage.
+- *Bring the network south* — no docks south of 30th & Ontario / East Blvd & 37th; the owner uses those two end-of-the-line docks constantly because his rides point past them, to Langara College (nineteen blocks beyond the last dock) and South Vancouver. (Corrected mid-review: he lives near 10th & Granville, inside the network — the gap is the destination end of the commute, not home.)
+- *Send e-bikes with it* — the ride home from South Vancouver climbs the city's central ridge; the climb decides usage.
 - *Price e-bikes for commuters* — corporate annual passes cover 60-minute classic rides but meter e-bikes by the minute; a general or corporate e-bike tier (UBC precedent) is the ask.
 
 House discipline holds: every annotation derives from the artifacts, not copy — the two southernmost docks are computed from station coordinates (they are exactly the two the owner named), the e-bike share comes from `meta.totals.ebikeSharePctLatestYear` (41% of 2026), and the corporate share from the last complete year's `membershipMix` (22% of 2025). A closing line labels the section explicitly as one rider's asks, not rules over data — preserving the honesty that distinguishes Signals.
