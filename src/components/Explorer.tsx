@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { defaultFilters, FilterPanel, type FilterState } from "@/components/FilterPanel";
+import { MapErrorBoundary } from "@/components/MapErrorBoundary";
 import { MapSkeleton } from "@/components/Skeletons";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { StationFinder } from "@/components/StationFinder";
@@ -199,27 +200,29 @@ export function Explorer() {
           />
         </div>
         <div className="order-1 xl:order-none">
-          <Suspense
-            fallback={
-              <div
-                role="status"
-                aria-label="Loading map"
-                className="h-[560px] overflow-hidden rounded-lg border border-border"
-              >
-                <MapSkeleton />
-              </div>
-            }
-          >
-            <InteractiveMap
-              selectedStationId={selectedStationId}
-              onStationSelect={setSelectedStationId}
-              year={filters.year}
-              maxTransitM={
-                filters.transitDistance === "all" ? null : Number(filters.transitDistance)
+          <MapErrorBoundary>
+            <Suspense
+              fallback={
+                <div
+                  role="status"
+                  aria-label="Loading map"
+                  className="h-[560px] overflow-hidden rounded-lg border border-border"
+                >
+                  <MapSkeleton />
+                </div>
               }
-              colorMode={colorMode}
-            />
-          </Suspense>
+            >
+              <InteractiveMap
+                selectedStationId={selectedStationId}
+                onStationSelect={setSelectedStationId}
+                year={filters.year}
+                maxTransitM={
+                  filters.transitDistance === "all" ? null : Number(filters.transitDistance)
+                }
+                colorMode={colorMode}
+              />
+            </Suspense>
+          </MapErrorBoundary>
         </div>
         <div className="order-3 xl:order-none">
           <StationDetailPanel station={selectedStation} year={filters.year} />
