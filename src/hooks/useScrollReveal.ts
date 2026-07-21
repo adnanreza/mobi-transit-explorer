@@ -9,7 +9,12 @@ type UseScrollRevealOptions = {
 export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
   options?: UseScrollRevealOptions,
 ) {
-  const { threshold = 0.15, unobserve = true, rootMargin = "0px" } = options ?? {};
+  // threshold 0, not a ratio: a fractional threshold can never fire for an
+  // element taller than the viewport (its intersectionRatio maxes out at
+  // viewport/element height), which left whole sections stuck at opacity 0
+  // on phones. Any visible pixel now reveals — the animation is a garnish,
+  // never a gate on content.
+  const { threshold = 0, unobserve = true, rootMargin = "0px" } = options ?? {};
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -18,7 +23,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
     if (!el) return;
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) {
+    if (prefersReduced || !("IntersectionObserver" in window)) {
       setIsVisible(true);
       return;
     }

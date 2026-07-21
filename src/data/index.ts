@@ -55,6 +55,28 @@ export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),
 );
 
+// Window labels for prose, derived from the source window so monthly data
+// updates never leave stale copy behind ("as of May 2026" hardcoded in five
+// places was the lesson of the first live update).
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function monthYearLabel(month: string): string {
+  const name = MONTH_NAMES[Number(month.slice(5, 7)) - 1] ?? month;
+  return `${name} ${month.slice(0, 4)}`;
+}
+
+/** "2017–2026" */
+export const sourceYearRange = `${meta.sourceWindow.firstMonth.slice(0, 4)}–${meta.sourceWindow.lastMonth.slice(0, 4)}`;
+
+/** "June 2026" */
+export const asOfLabel = monthYearLabel(meta.sourceWindow.lastMonth);
+
+/** "2017–2026, as of June 2026" */
+export const windowLabel = `${sourceYearRange}, as of ${asOfLabel}`;
+
 // Station x/y use the shared real-geometry projection (viewBox units) so
 // every map layer stays geographically consistent.
 import { project } from "@/lib/projection";
@@ -87,10 +109,15 @@ function stationLabel(s: GeneratedStation): StationLabel {
 }
 
 function completeYearTrend(s: GeneratedStation): number[] {
-  return Object.entries(s.tripsByYear)
+  const complete = Object.entries(s.tripsByYear)
     .filter(([year]) => Number(year) <= lastCompleteYear)
     .sort(([a], [b]) => Number(a) - Number(b))
     .map(([, trips]) => trips);
+  if (complete.length > 0) return complete;
+  // A station born in the current year has no complete years yet (first hit:
+  // Callister Park - Fan Fest, opened June 2026). Fall back to the partial
+  // year so the trend is never empty; the panel hides charts under 2 points.
+  return Object.values(s.tripsByYear);
 }
 
 const tripCounts = stationsArtifact.stations

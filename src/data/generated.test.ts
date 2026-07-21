@@ -27,7 +27,7 @@ describe("generated data contracts", () => {
     expect(meta.totals.trips).toBeGreaterThan(5_000_000);
     expect(meta.totals.activeStations).toBeGreaterThan(200);
     expect(meta.sourceWindow.firstMonth).toBe("2017-01");
-    expect(meta.sourceWindow.lastMonth >= "2026-05").toBe(true);
+    expect(meta.sourceWindow.lastMonth >= "2026-06").toBe(true);
     expect(meta.quality.rowsKept).toBeLessThan(meta.quality.rowsLanded);
   });
 

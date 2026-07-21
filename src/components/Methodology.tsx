@@ -1,6 +1,6 @@
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
-import { forecast, meta } from "@/data";
+import { forecast, meta, windowLabel } from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
 
@@ -45,7 +45,7 @@ export function Methodology() {
 
       <Section title="Nine and a half years of drift">
         <p>
-          The archive is nine and a half years (2017–2026, as of May 2026) of quiet format entropy, and handling it is
+          The archive is nine and a half years ({windowLabel}) of quiet format entropy, and handling it is
           most of the work. Across {meta.quality.filesProcessed} files there
           are 31 distinct column layouts — the membership column alone appears
           as <Code>Membership type</Code>, <Code>Membership Type</Code>,{" "}

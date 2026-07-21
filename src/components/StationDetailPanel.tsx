@@ -71,15 +71,18 @@ export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
         <Stat label="Trip volume" value={station.tripVolume} />
       </dl>
 
-      <div className="mt-6 border-t border-border pt-6">
-        <p className="text-sm text-muted-foreground">Trips per year since first seen</p>
-        <div className="mt-2">
-          <MiniTrendChart
-            ariaLabel="Yearly trip trend chart"
-            data={station.trend}
-          />
+      {/* A trend needs two points; stations born this year don't have them yet. */}
+      {station.trend.length >= 2 && (
+        <div className="mt-6 border-t border-border pt-6">
+          <p className="text-sm text-muted-foreground">Trips per year since first seen</p>
+          <div className="mt-2">
+            <MiniTrendChart
+              ariaLabel="Yearly trip trend chart"
+              data={station.trend}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-6 border-t border-border pt-6">
         <p className="text-sm text-muted-foreground">Top destinations</p>
