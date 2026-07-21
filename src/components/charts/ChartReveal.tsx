@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { useViewportWindow } from "@/hooks/useViewportWindow";
+import { useTheme } from "@/lib/theme";
 import { ChartSkeleton } from "@/components/Skeletons";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,11 @@ import { cn } from "@/lib/utils";
 // (Safari purges the backing store of off-screen canvases, and Chart.js never
 // learns it must repaint). See useViewportWindow for the full rationale.
 //
+// Keying the children on the theme remounts the chart when the theme flips,
+// so Chart.js re-reads the global defaults (tick, grid, tooltip tones) that
+// chartTheme.ts swaps per theme. The entrance animation doubles as the
+// transition.
+//
 // Test mode renders the chart immediately: the jsdom IntersectionObserver mock
 // never fires, so without this the tests would only ever see the skeleton.
 export function ChartReveal({
@@ -22,11 +28,12 @@ export function ChartReveal({
   className?: string;
 }) {
   const { ref, inView } = useViewportWindow();
+  const theme = useTheme();
   const show = inView || import.meta.env.MODE === "test";
 
   return (
     <div ref={ref} className={cn("h-full w-full min-w-0", className)}>
-      {show ? children : <ChartSkeleton />}
+      {show ? <Fragment key={theme}>{children}</Fragment> : <ChartSkeleton />}
     </div>
   );
 }

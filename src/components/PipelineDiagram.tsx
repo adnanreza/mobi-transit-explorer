@@ -38,7 +38,7 @@ const stages = [
 
 export function PipelineDiagram() {
   return (
-    <ol className="grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-5">
+    <ol className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
       {stages.map((stage, index) => (
         <li key={stage.name} className="bg-background p-4">
           <p className="text-xs text-muted-foreground">

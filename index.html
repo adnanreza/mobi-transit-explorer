@@ -18,6 +18,22 @@
     <link rel="canonical" href="https://mobi-transit-explorer.adnanreza.com" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Mobi Transit Explorer</title>
+    <script>
+      // Set the theme class before first paint so a stored dark preference
+      // never flashes light. Kept inline and dependency-free on purpose.
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {
+          /* no storage access — default to light */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -13,7 +13,7 @@ type StationDetailPanelProps = {
 export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
   if (!station) {
     return (
-      <div className="flex h-full flex-col justify-center rounded-xl border border-border p-6">
+      <div className="flex h-full flex-col justify-center rounded-lg border border-border p-6">
         <h3 className="text-lg font-medium tracking-tight text-foreground">
           Select a station
         </h3>
@@ -32,11 +32,9 @@ export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
       : false;
 
   return (
-    <div className="h-full rounded-xl border border-border p-6">
-      <p className="text-xs font-medium uppercase tracking-wide text-primary">
-        {station.label}
-      </p>
-      <h3 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
+    <div className="h-full rounded-lg border border-border p-6">
+      <p className="eyebrow">{station.label}</p>
+      <h3 className="mt-3 text-xl font-medium tracking-tight text-foreground">
         {station.name}
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{station.area}</p>
@@ -79,7 +77,6 @@ export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
           <MiniTrendChart
             ariaLabel="Yearly trip trend chart"
             data={station.trend}
-            color="#008fd3"
           />
         </div>
       </div>

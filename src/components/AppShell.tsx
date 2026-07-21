@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
+import { setTheme, useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -86,7 +87,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
     <main className={cn("min-h-screen bg-background", className)}>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-background"
       >
         Skip to content
       </a>
@@ -96,7 +97,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
       >
         <div className="container flex h-14 items-center justify-between gap-3">
           <div className="flex min-w-0 items-baseline gap-3">
-            <h1 className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground">
+            <h1 className="whitespace-nowrap text-[15px] font-medium tracking-[-0.01em] text-foreground">
               Mobi Transit Explorer
             </h1>
             <p className="hidden truncate text-sm text-muted-foreground lg:block">
@@ -104,47 +105,51 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
             </p>
           </div>
 
-          {/* Desktop / tablet: inline nav */}
-          <nav
-            aria-label="Primary navigation"
-            className="hidden items-center gap-5 md:flex"
-          >
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                aria-current={activeHref === item.href ? "page" : undefined}
-                onClick={() => {
-                  suppressUntil.current = Date.now() + 700;
-                  setActiveHref(item.href);
-                }}
-                className={cn(
-                  "whitespace-nowrap rounded-sm py-1 text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
-                  activeHref === item.href
-                    ? "font-medium text-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
+          <div className="flex items-center gap-1 md:gap-4">
+            {/* Desktop / tablet: inline nav */}
+            <nav
+              aria-label="Primary navigation"
+              className="hidden items-center gap-5 md:flex"
+            >
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  aria-current={activeHref === item.href ? "page" : undefined}
+                  onClick={() => {
+                    suppressUntil.current = Date.now() + 700;
+                    setActiveHref(item.href);
+                  }}
+                  className={cn(
+                    "whitespace-nowrap rounded-sm py-1 text-[15px] transition-colors hover:text-foreground",
+                    activeHref === item.href
+                      ? "text-foreground underline decoration-1 underline-offset-8"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
 
-          {/* Mobile: hamburger button */}
-          <button
-            type="button"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-            onClick={() => setMenuOpen((open) => !open)}
-            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring md:hidden"
-          >
-            {menuOpen ? (
-              <X className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <Menu className="h-5 w-5" aria-hidden="true" />
-            )}
-          </button>
+            <ThemeToggle />
+
+            {/* Mobile: hamburger button */}
+            <button
+              type="button"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="-mr-2 flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted md:hidden"
+            >
+              {menuOpen ? (
+                <X className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile: dropdown panel */}
@@ -152,7 +157,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
           <nav
             id="mobile-nav"
             aria-label="Primary navigation"
-            className="absolute inset-x-0 top-full border-b border-border bg-background shadow-sm md:hidden"
+            className="absolute inset-x-0 top-full border-b border-border bg-background md:hidden"
           >
             <div className="container flex flex-col py-2">
               {navItems.map((item) => (
@@ -166,7 +171,7 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
                     setMenuOpen(false);
                   }}
                   className={cn(
-                    "rounded-lg px-2 py-3 text-base transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                    "rounded-md px-2 py-3 text-base transition-colors hover:bg-muted",
                     activeHref === item.href
                       ? "font-medium text-foreground"
                       : "text-muted-foreground",
@@ -186,6 +191,30 @@ export function AppShell({ children, navItems, className }: AppShellProps) {
 
       <SiteFooter />
     </main>
+  );
+}
+
+// Matches the portfolio's nav toggle: one icon button at the far right of
+// the header. The `dark` class on <html> is the source of truth (set before
+// first paint by the inline script in index.html); this just flips it.
+function ThemeToggle() {
+  const theme = useTheme();
+  const dark = theme === "dark";
+
+  return (
+    <button
+      type="button"
+      aria-label="Dark theme"
+      aria-pressed={dark}
+      onClick={() => setTheme(dark ? "light" : "dark")}
+      className="flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9"
+    >
+      {dark ? (
+        <Sun className="h-4 w-4" aria-hidden="true" />
+      ) : (
+        <Moon className="h-4 w-4" aria-hidden="true" />
+      )}
+    </button>
   );
 }
 
@@ -222,7 +251,7 @@ function SiteFooter() {
       <div className="container py-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <p className="text-sm font-semibold tracking-tight text-foreground">
+            <p className="text-sm font-medium tracking-tight text-foreground">
               Mobi Transit Explorer
             </p>
             <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
@@ -232,9 +261,7 @@ function SiteFooter() {
           </div>
           {FOOTER_COLUMNS.map((col) => (
             <nav key={col.heading} aria-label={col.heading}>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {col.heading}
-              </p>
+              <p className="eyebrow">{col.heading}</p>
               <ul className="mt-3 space-y-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
@@ -242,7 +269,7 @@ function SiteFooter() {
                       href={link.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                      className="text-sm text-foreground underline decoration-muted-2 decoration-1 underline-offset-4 transition-colors hover:decoration-foreground"
                     >
                       {link.label}
                     </a>

@@ -27,8 +27,8 @@ export function OverviewCards({ metrics = overviewMetrics }: OverviewCardsProps)
     >
       {metrics.map((metric) => (
         <div key={metric.id}>
-          <dt className="text-sm text-muted-foreground">{metric.label}</dt>
-          <dd className="mt-2 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
+          <dt className="eyebrow">{metric.label}</dt>
+          <dd className="mt-3 text-4xl font-medium tracking-[-0.02em] text-foreground tabular-nums sm:text-5xl">
             <CountUpValue value={metric.value} />
           </dd>
           <p className="mt-3 max-w-[26ch] text-sm leading-6 text-muted-foreground">

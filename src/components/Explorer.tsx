@@ -128,8 +128,8 @@ export function Explorer() {
               onClick={() => setColorMode(mode)}
               className={
                 colorMode === mode
-                  ? "rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground"
-                  : "rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  ? "px-3 py-1.5 text-sm text-foreground underline decoration-1 underline-offset-8"
+                  : "px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               }
             >
               {label}
@@ -152,7 +152,7 @@ export function Explorer() {
             seawall endpoints, long meandering rides) — definition in the{" "}
           </>
         )}
-        <a href="#methodology" className="text-primary underline-offset-2 hover:underline">
+        <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">
           methodology
         </a>
         . Dot size is trip volume either way.
@@ -178,7 +178,7 @@ export function Explorer() {
               <div
                 role="status"
                 aria-label="Loading map"
-                className="h-[560px] overflow-hidden rounded-xl border border-border"
+                className="h-[560px] overflow-hidden rounded-lg border border-border"
               >
                 <MapSkeleton />
               </div>

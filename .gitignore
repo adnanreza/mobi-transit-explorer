@@ -41,3 +41,4 @@ Thumbs.db
 .npm/
 .pnpm-store/
 .yarn/
+.playwright-mcp/
