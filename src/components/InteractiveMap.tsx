@@ -4,20 +4,29 @@ import type { Feature, FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MapSkeleton } from "@/components/Skeletons";
 import { useTheme, type Theme } from "@/lib/theme";
-import { stationsArtifact } from "@/data";
+import { DOCKED_TRANSIT_RADIUS_M, stationsArtifact, transitCoverage } from "@/data";
+
+type ColorMode = "score" | "leisure" | "coverage";
 
 type InteractiveMapProps = {
   selectedStationId?: string | null;
   onStationSelect?: (stationId: string) => void;
   year?: string; // "t12" or a four-digit year
   maxTransitM?: number | null;
-  colorMode?: "score" | "leisure";
+  colorMode?: ColorMode;
 };
 
-const OPACITY_EXPRESSIONS: Record<"score" | "leisure", unknown> = {
+// In coverage mode the Mobi dots dim to context; the transit marks carry the
+// story instead.
+const OPACITY_EXPRESSIONS: Record<ColorMode, unknown> = {
   score: ["+", 0.3, ["*", 0.007, ["get", "score"]]],
   leisure: ["+", 0.15, ["*", 0.0085, ["get", "leisure"]]],
+  coverage: 0.12,
 };
+
+const coveredByName = new Map(
+  transitCoverage.map((t) => [t.name, t.nearestDockM <= DOCKED_TRANSIT_RADIUS_M ? 1 : 0]),
+);
 
 // Basemap and mark colors per theme (spec 038): OpenFreeMap serves a dark
 // sibling of positron, and the marks use the portfolio accent/ink with a
@@ -78,7 +87,11 @@ function transitFeatures(): FeatureCollection {
     features: stationsArtifact.transit.map((t) => ({
       type: "Feature",
       geometry: { type: "Point", coordinates: [t.lon, t.lat] },
-      properties: { name: t.name, line: t.line },
+      properties: {
+        name: t.name,
+        line: t.line,
+        covered: coveredByName.get(t.name) ?? 0,
+      },
     })),
   };
 }
@@ -327,17 +340,48 @@ export default function InteractiveMap({
     source?.setData(stationFeatures(year, maxTransitM));
   }, [year, maxTransitM, loaded]);
 
-  // Recolor without re-creating data: blue intensity = connector score or
-  // leisure share, depending on the mode.
+  // Recolor without re-creating data. Score/leisure modulate the Mobi dots;
+  // coverage dims them and re-marks the transit stops instead: filled when a
+  // dock sits within walking range, accent-ringed when the nearest dock is
+  // over a kilometre away (labels for those show at every zoom).
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
+    const colors = MAP_COLORS[theme];
+    const coverage = colorMode === "coverage";
+    const isCovered = ["==", ["get", "covered"], 1];
     map.setPaintProperty(
       "stations",
       "circle-opacity",
       OPACITY_EXPRESSIONS[colorMode] as never,
     );
-  }, [colorMode, loaded]);
+    map.setPaintProperty(
+      "transit-dots",
+      "circle-color",
+      (coverage ? ["case", isCovered, colors.ink, "transparent"] : colors.ink) as never,
+    );
+    map.setPaintProperty(
+      "transit-dots",
+      "circle-stroke-color",
+      (coverage ? ["case", isCovered, colors.halo, colors.accent] : colors.halo) as never,
+    );
+    map.setPaintProperty(
+      "transit-dots",
+      "circle-stroke-width",
+      (coverage ? ["case", isCovered, 1.5, 2.5] : 1.5) as never,
+    );
+    map.setPaintProperty(
+      "transit-dots",
+      "circle-radius",
+      (coverage
+        ? ["interpolate", ["linear"], ["zoom"],
+            10, ["case", isCovered, 3, 6],
+            15, ["case", isCovered, 6, 11]]
+        : ["interpolate", ["linear"], ["zoom"], 10, 3, 15, 6]) as never,
+    );
+    map.setFilter("transit-labels", (coverage ? ["!", isCovered] : null) as never);
+    map.setLayerZoomRange("transit-labels", coverage ? 0 : 12, 24);
+  }, [colorMode, loaded, theme]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -374,7 +418,9 @@ export default function InteractiveMap({
   const legendLabel =
     colorMode === "score"
       ? "Blue intensity = transit-connector score (0–100)"
-      : "Blue intensity = leisure share (%)";
+      : colorMode === "leisure"
+        ? "Blue intensity = leisure share (%)"
+        : "Transit stations: filled = Mobi dock within 500 m, blue ring = no dock within 1 km";
 
   return (
     <div className="relative h-[560px]">
@@ -397,12 +443,25 @@ export default function InteractiveMap({
           aria-label={`Map legend: dot size reflects trip volume. ${legendLabel}.`}
           className="pointer-events-none absolute bottom-8 left-3 rounded-lg border border-border bg-background/90 px-3 py-2 backdrop-blur-sm"
         >
-          <p className="text-[10px] leading-relaxed text-muted-foreground">
-            <span className="font-medium text-foreground">●</span> Size — trip volume
-          </p>
-          <p className="text-[10px] leading-relaxed text-muted-foreground">
-            <span className="font-medium text-foreground">◉</span> Blue — {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
-          </p>
+          {colorMode === "coverage" ? (
+            <>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                <span className="font-medium text-foreground">●</span> Station — dock within 500 m
+              </p>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                <span className="font-medium text-primary">◌</span> Station — no dock within 1 km
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                <span className="font-medium text-foreground">●</span> Size — trip volume
+              </p>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                <span className="font-medium text-foreground">◉</span> Blue — {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

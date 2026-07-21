@@ -1,4 +1,10 @@
-import { lastCompleteYear, meta, stationsArtifact, yearly } from "@/data";
+import {
+  lastCompleteYear,
+  meta,
+  stationsArtifact,
+  transitCoverage,
+  yearly,
+} from "@/data";
 
 // The rider's counterpart to the Signals section: three asks that are
 // personal, not rule-derived — and labelled that way. The annotations still
@@ -15,6 +21,8 @@ const corporatePct = Math.round((100 * (lastCompleteMix["Corporate"] ?? 0)) / mi
 
 const ebikePct = Math.round(meta.totals.ebikeSharePctLatestYear ?? 0);
 const currentYear = meta.sourceWindow.lastMonth.slice(0, 4);
+
+const unmetTransit = transitCoverage.filter((t) => t.nearestDockM > 1000);
 
 const REQUESTS = [
   {
@@ -47,6 +55,18 @@ const REQUESTS = [
       "corporate e-bike tier like UBC's — would let regulars pay for the battery " +
       "once instead of every ride.",
     note: `Corporate passes carried ${corporatePct}% of ${lastCompleteYear} trips`,
+  },
+  {
+    num: "04",
+    title: "Meet the train everywhere",
+    body:
+      "The out-there one: a dock at every SkyTrain station in Vancouver proper. " +
+      "Today the split is stark — a station either has a dock within about 200 m " +
+      "of the fare gates or none within a kilometre. Nanaimo, 29th Avenue, " +
+      "Joyce–Collingwood, Renfrew, Rupert, and the Canada Line's whole southern " +
+      "leg are transfers Mobi never meets. The Coverage view on the map above " +
+      "draws the gap.",
+    note: `${unmetTransit.length} of ${transitCoverage.length} rapid-transit stations lack a dock within 1 km`,
   },
 ];
 

@@ -133,7 +133,7 @@ function App() {
         <PageSection id="requests" className="space-y-10">
           <SectionHeader
             title="Personal requests"
-            description="Everything above is what the data says. This is what a rider asks — three requests from someone whose commute falls off the bottom edge of the map."
+            description="Everything above is what the data says. This is what a rider asks — four requests from someone whose commute falls off the bottom edge of the map."
           />
           <PersonalRequests />
         </PageSection>
