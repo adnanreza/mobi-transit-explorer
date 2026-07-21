@@ -381,6 +381,13 @@ export default function InteractiveMap({
     );
     map.setFilter("transit-labels", (coverage ? ["!", isCovered] : null) as never);
     map.setLayerZoomRange("transit-labels", coverage ? 0 : 12, 24);
+    // Tie the ringed stations' names to the highlight so ring + label read
+    // as one mark.
+    map.setPaintProperty(
+      "transit-labels",
+      "text-color",
+      coverage ? colors.accent : colors.label,
+    );
   }, [colorMode, loaded, theme]);
 
   useEffect(() => {
@@ -417,10 +424,10 @@ export default function InteractiveMap({
 
   const legendLabel =
     colorMode === "score"
-      ? "Blue intensity = transit-connector score (0–100)"
+      ? "Blue intensity = transit-connector score (0–100); small dark dots are SkyTrain and Canada Line stations"
       : colorMode === "leisure"
-        ? "Blue intensity = leisure share (%)"
-        : "Transit stations: filled = Mobi dock within 500 m, blue ring = no dock within 1 km";
+        ? "Blue intensity = leisure share (%); small dark dots are SkyTrain and Canada Line stations"
+        : "Transit stations: filled dot = has a Mobi dock within 500 m; blue ring = missing, no dock within 1 km";
 
   return (
     <div className="relative h-[560px]">
@@ -445,11 +452,19 @@ export default function InteractiveMap({
         >
           {colorMode === "coverage" ? (
             <>
-              <p className="text-[10px] leading-relaxed text-muted-foreground">
-                <span className="font-medium text-foreground">●</span> Station — dock within 500 m
+              <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2 w-2 shrink-0 rounded-full bg-foreground"
+                />
+                SkyTrain / Canada Line stop with a Mobi dock
               </p>
-              <p className="text-[10px] leading-relaxed text-muted-foreground">
-                <span className="font-medium text-primary">◌</span> Station — no dock within 1 km
+              <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-foreground">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full border-2 border-primary"
+                />
+                Missing — no Mobi dock within 1 km
               </p>
             </>
           ) : (
@@ -460,6 +475,18 @@ export default function InteractiveMap({
               <p className="text-[10px] leading-relaxed text-muted-foreground">
                 <span className="font-medium text-foreground">◉</span> Blue — {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
               </p>
+              <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground"
+                />
+                Dark dot — SkyTrain / Canada Line station
+              </p>
+              {selectedStationId ? (
+                <p className="text-[10px] leading-relaxed text-muted-foreground">
+                  Ring + lines — selected station and its top destinations
+                </p>
+              ) : null}
             </>
           )}
         </div>
