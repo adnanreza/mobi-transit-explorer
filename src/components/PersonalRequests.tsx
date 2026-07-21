@@ -40,10 +40,11 @@ const REQUESTS = [
     num: "02",
     title: "Send e-bikes with it",
     body:
-      "Getting home from South Vancouver means riding up and over the city's " +
-      "central ridge — a hard ask at the end of a teaching day, and the kind of " +
-      "climb that decides whether the bike gets used at all. If the network comes " +
-      "south, it should come with batteries.",
+      "The ride to work is the problem: from 10th & Granville it's up and over " +
+      "the city's central ridge to 49th, and nobody wants to open a day of " +
+      "lectures sweaty. Coming home is the easy direction. It's the morning " +
+      "climb that decides whether the bike gets used — and it's exactly what " +
+      "a battery erases. If the network comes south, it should come with e-bikes.",
     note: `${ebikePct}% of ${currentYear} trips are electric`,
   },
   {
