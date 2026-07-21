@@ -188,7 +188,7 @@ def main() -> int:
     year_index = last_full_year - 2017
 
     card = {
-        "station": "Vancouver Harbour CS — based on Environment and Climate Change Canada data",
+        "station": "Vancouver Harbour CS, based on Environment and Climate Change Canada data",
         "features": FEATURES,
         "constraint": "precipitation is monotonic non-increasing",
         "trainRange": f"{days[0]} to {TEST_SPLIT - timedelta(days=1)}",

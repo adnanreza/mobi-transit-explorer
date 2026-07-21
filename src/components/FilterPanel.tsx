@@ -103,7 +103,7 @@ export function FilterPanel({
         ))}
       </div>
       <p className="mt-4 text-xs leading-5 text-muted-foreground">
-        Year view sizes stations by that year's departures — watch the network
+        Year view sizes stations by that year's departures. Watch the network
         grow outward from downtown. Distance measures each station to its
         nearest rapid-transit entrance.
       </p>

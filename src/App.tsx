@@ -42,8 +42,8 @@ function App() {
           by bike share.
         </h2>
         <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground motion-safe:animate-fade-up motion-safe:[animation-delay:120ms] sm:text-xl sm:leading-9">
-          {totalTrips} Mobi trips — {millionKm} million kilometres of riding —
-          from every monthly trip file Mobi has published, cleaned and mapped
+          {totalTrips} Mobi trips and {millionKm} million kilometres of riding,
+          from every monthly trip file Mobi has published. Cleaned and mapped
           against Vancouver's transit network.
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-8 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
@@ -83,7 +83,7 @@ function App() {
         <PageSection id="story" className="space-y-14">
           <SectionHeader
             title="Nine years"
-            description={`What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike. Data: ${windowLabel}.`}
+            description={`What changed between the first full year and today: growth, seasons, a pandemic, and a new kind of bike. Data: ${windowLabel}.`}
           />
           <StorySection />
         </PageSection>
@@ -123,7 +123,7 @@ function App() {
         <PageSection id="opportunities" className="space-y-10">
           <SectionHeader
             title="Signals to validate"
-            description="Where the data shows pressure or unrealized transit connections — patterns worth investigating, ranked from the trailing twelve months of trips."
+            description="Where the data shows pressure or unrealized transit connections. Patterns worth investigating, ranked from the trailing twelve months of trips."
           />
           <OpportunityTable />
         </PageSection>
@@ -133,7 +133,7 @@ function App() {
         <PageSection id="requests" className="space-y-10">
           <SectionHeader
             title="Personal requests"
-            description="Everything above is what the data says. This is what a rider asks — four requests from someone whose commute falls off the bottom edge of the map."
+            description="Everything above is what the data says. This is what a rider asks: four requests from someone whose commute falls off the bottom edge of the map."
           />
           <PersonalRequests />
         </PageSection>

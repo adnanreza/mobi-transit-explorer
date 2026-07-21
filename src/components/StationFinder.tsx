@@ -28,7 +28,7 @@ export function StationFinder({
     <label className="block">
       <span className="eyebrow">
         Find a station
-        <span className="sr-only"> — use this to select a station with keyboard or screen reader; the map is pointer-only</span>
+        <span className="sr-only">. Use this to select a station with keyboard or screen reader; the map is pointer-only.</span>
       </span>
       <Select value={selectedStationId ?? ""} onValueChange={onStationSelect}>
         <SelectTrigger

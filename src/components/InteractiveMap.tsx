@@ -443,7 +443,7 @@ export default function InteractiveMap({
       <div
         ref={containerRef}
         role="application"
-        aria-label="Interactive map of Mobi stations and rapid transit in Vancouver. Pointer-primary — use the station search above to select a station with keyboard or assistive technology."
+        aria-label="Interactive map of Mobi stations and rapid transit in Vancouver. Pointer-primary. Use the station search above to select a station with keyboard or assistive technology."
         className="h-full overflow-hidden rounded-lg border border-border"
       />
       {/* Ghost map until MapLibre finishes its first paint, so a slow tile
@@ -473,27 +473,27 @@ export default function InteractiveMap({
                   aria-hidden="true"
                   className="inline-block h-2.5 w-2.5 shrink-0 rounded-full border-2 border-primary"
                 />
-                Missing — no Mobi dock within 1 km
+                Missing: no Mobi dock within 1 km
               </p>
             </>
           ) : (
             <>
               <p className="text-[10px] leading-relaxed text-muted-foreground">
-                <span className="font-medium text-foreground">●</span> Size — trip volume
+                <span className="font-medium text-foreground">●</span> Size: trip volume
               </p>
               <p className="text-[10px] leading-relaxed text-muted-foreground">
-                <span className="font-medium text-foreground">◉</span> Blue — {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
+                <span className="font-medium text-foreground">◉</span> Blue: {colorMode === "score" ? "transit score (0–100)" : "leisure share (%)"}
               </p>
               <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-muted-foreground">
                 <span
                   aria-hidden="true"
                   className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-foreground"
                 />
-                Dark dot — SkyTrain / Canada Line station
+                Dark dot: SkyTrain / Canada Line station
               </p>
               {selectedStationId ? (
                 <p className="text-[10px] leading-relaxed text-muted-foreground">
-                  Ring + lines — selected station and its top destinations
+                  Ring + lines: selected station and its top destinations
                 </p>
               ) : null}
             </>

@@ -155,9 +155,9 @@ export function Explorer() {
       {colorMode === "coverage" ? (
         <p className="text-xs leading-5 text-muted-foreground">
           This view flips the lens: rapid-transit stations are marked by{" "}
-          <strong className="font-medium text-foreground">Mobi access</strong> —
-          filled when a dock sits within {DOCKED_TRANSIT_RADIUS_M} m of the
-          station, ringed in blue when the nearest dock is more than a
+          <strong className="font-medium text-foreground">Mobi access</strong>.
+          A station is filled when a dock sits within {DOCKED_TRANSIT_RADIUS_M} m
+          of it, and ringed in blue when the nearest dock is more than a
           kilometre away. In Vancouver proper that split is stark:{" "}
           {uncoveredTransit.length} of {transitCoverage.length} stations have
           no dock within a kilometre, and every other station has one within
@@ -175,7 +175,7 @@ export function Explorer() {
             <>
               Blue intensity shows the share of each station's trips classified
               as <strong className="font-medium text-foreground">leisure</strong> by a documented heuristic (round trips,
-              seawall endpoints, long meandering rides) — definition in the{" "}
+              seawall endpoints, long meandering rides). The definition is in the{" "}
             </>
           )}
           <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">

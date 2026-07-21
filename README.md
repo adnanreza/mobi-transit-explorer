@@ -2,15 +2,15 @@
 
 **Live: [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com)**
 
-Nine years of Vancouver bike share — 8+ million Mobi trips — cleaned, modeled, and told as an interactive data story.
+Nine years of Vancouver bike share, 8+ million Mobi trips, cleaned, modeled, and told as an interactive data story.
 
-I've lived in Vancouver since 2015 and have never owned a car here — Mobi, walking, and TransLink are how I actually move through this city, zero regrets. This project turns every monthly trip file Mobi has published (2017 to date) into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
+I've lived in Vancouver since 2015 and have never owned a car here. Mobi, walking, and TransLink are how I actually move through this city, zero regrets. This project turns every monthly trip file Mobi has published (2017 to date) into a case study of both the network and the craft of handling messy public data. Built by [Adnan Reza](https://adnanreza.com) ([LinkedIn](https://www.linkedin.com/in/adnanreza/)).
 
 ## What it shows
 
-- **Nine years of change** — growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
-- **A zoomable map of the real network** — 262 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
-- **Operational findings that cite their evidence** — dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
+- **Nine years of change**: growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
+- **A zoomable map of the real network**: 262 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
+- **Operational findings that cite their evidence**: dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
 ## How it's built
 
@@ -32,9 +32,9 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
  └─────────────────────────────────────────────────────┘
 ```
 
-- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). Over 9.1M raw rows in, 8.9M trips kept — every drop and flag accounted for, with exact current counts in the generated [data-quality report](docs/data-quality-report.md).
-- **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars — the host serves static files.
-- **The hard part, on purpose:** nine years of format drift — 31 column layouts, five timestamp formats, three file containers, broken Unicode in a Squamish-language station name — each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
+- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). Over 9.1M raw rows in, 8.9M trips kept. Every drop and flag is accounted for, with exact current counts in the generated [data-quality report](docs/data-quality-report.md).
+- **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars. The host serves static files.
+- **The hard part, on purpose:** nine years of format drift: 31 column layouts, five timestamp formats, three file containers, and broken Unicode in a Squamish-language station name, each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
 
 ## Reproduce it
 
@@ -49,7 +49,7 @@ npm install && npm run dev
 #   * running pipeline/download.py, an optional convenience that fetches those
 #     same public links for you.
 python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
-.venv/bin/python pipeline/download.py        # optional — manual download works equally
+.venv/bin/python pipeline/download.py        # optional; manual download works equally
 .venv/bin/python pipeline/etl.py --stage all # DuckDB star schema
 .venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather (publish needs it)
 .venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
@@ -66,11 +66,11 @@ Absorbing a new Mobi release is a run, not a rebuild:
 
 1. `scrape_manifest.py` spots the new Drive file on Mobi's page and adds its period to the checksum manifest.
 2. `download.py` fetches it and pins sha256 + size; `inventory.py` audits the whole archive for gaps and mismatches.
-3. `etl.py --stage all` rebuilds the warehouse. If the file's header doesn't match a known layout, the pipeline **stops loudly** (`UnknownColumns`) until the drift is mapped in `pipeline/mappings/column_eras.json` — nothing is guessed.
+3. `etl.py --stage all` rebuilds the warehouse. If the file's header doesn't match a known layout, the pipeline **stops loudly** (`UnknownColumns`) until the drift is mapped in `pipeline/mappings/column_eras.json`. Nothing is guessed.
 4. `publish.py` + `train_model.py` + `quality_report.py` regenerate every artifact, and `make check-artifacts` byte-compares the committed output against a fresh run before anything ships.
 5. The site's window copy ("as of …", year ranges, the footer freshness line) derives from `meta.sourceWindow`, so prose updates itself.
 
-**Case study — June 2026, the first live month** ([spec 039](docs/features/039-june-2026-data.md)): auto-detected from Mobi's page, zero header drift, one brand-new station (Callister Park – Fan Fest, opened for FIFA) that exercised a new-station edge case the data-contract tests caught, and one latent pipeline bug fixed. Drive link to production in a single run.
+**Case study, June 2026, the first live month** ([spec 039](docs/features/039-june-2026-data.md)): auto-detected from Mobi's page, zero header drift, one brand-new station (Callister Park – Fan Fest, opened for FIFA) that exercised a new-station edge case the data-contract tests caught, and one latent pipeline bug fixed. Drive link to production in a single run.
 
 ## Tests
 
@@ -84,7 +84,7 @@ npm run build
 ## Data notes (the honest part)
 
 - Timestamps are hour-rounded at source for rider privacy; April 2019 alone has minutes.
-- Monthly files repeat neighbouring months' trips — deduplicated; a trip's month is its departure month.
+- Monthly files repeat neighbouring months' trips. These are deduplicated; a trip's month is its departure month.
 - The trip files' temperature is a bike-mounted sensor (0° sentinels, values Vancouver has never reached); weather analysis uses Environment Canada ambient data instead.
 - Retired stations keep their trips but have no public coordinates.
 - Full accounting: [docs/data-quality-report.md](docs/data-quality-report.md).
@@ -105,7 +105,7 @@ Cloudflare Pages serving `dist/` at [mobi-transit-explorer.adnanreza.com](https:
 
 **Code** is MIT-licensed (see `LICENSE`). **The MIT license does not extend to data**: the generated files under `src/data/generated/` and `docs/data-quality-report.md` are analysis outputs derived from Vancouver Bike Share Inc. (Mobi) system data, published here solely as source material for this independent, non-commercial analysis under the [Mobi Data License Agreement](https://www.mobibikes.ca/en/system-data); they may not be redistributed for commercial purposes or treated as MIT-licensed. Raw trip data is never committed.
 
-On acquisition: `pipeline/download.py` mirrors the same publicly linked trip files that appear on VBS's system-data page — the same files a person clicks to download manually. Manually downloading files into `data-raw/` is an equally supported path (the checksum manifest verifies either). Questions about the agreement go to info@mobibikes.ca.
+On acquisition: `pipeline/download.py` mirrors the same publicly linked trip files that appear on VBS's system-data page: the same files a person clicks to download manually. Manually downloading files into `data-raw/` is an equally supported path (the checksum manifest verifies either). Questions about the agreement go to info@mobibikes.ca.
 
 **Disclaimer:** This is an independent, non-commercial project. It is not affiliated with, endorsed by, or approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver. "Mobi" and "Mobi by Rogers" are trademarks of Vancouver Bike Share Inc., used here descriptively to identify the public dataset being analyzed.
 

@@ -215,13 +215,13 @@ function opportunityReason(o: GeneratedOpportunity): string {
   const e = o.evidence;
   switch (o.rule) {
     case "dock-capacity-pressure":
-      return `${e.tripsPerDockDay} departures per dock per day over the last 12 months vs a network median of ${e.networkMedian} — ${Number(e.trips).toLocaleString("en-CA")} trips across ${e.capacity} docks.`;
+      return `${e.tripsPerDockDay} departures per dock per day over the last 12 months vs a network median of ${e.networkMedian}. That is ${Number(e.trips).toLocaleString("en-CA")} trips across ${e.capacity} docks.`;
     case "ebike-gap":
       return `Commute share of ${e.commuteSharePct}% is in the network's top quartile, but e-bike share is only ${e.ebikeSharePct}% (bottom quartile is ${e.ebikeP25}%).`;
     case "transit-connector-gap":
       return `${e.nearestTransitM} m from ${e.nearestTransit} with ${Number(e.trips).toLocaleString("en-CA")} trips in 12 months, yet a connector score of ${e.connectorScore}.`;
     case "seasonal-underuse":
-      return `${e.weekendSharePct}% of ${Number(e.trips).toLocaleString("en-CA")} trips happen on weekends — leisure-pattern demand worth monitoring for seasonality.`;
+      return `${e.weekendSharePct}% of ${Number(e.trips).toLocaleString("en-CA")} trips happen on weekends: leisure-pattern demand worth monitoring for seasonality.`;
   }
 }
 
