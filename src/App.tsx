@@ -12,7 +12,7 @@ import { StorySection } from "@/components/story/StorySection";
 import { WeatherModelBlock } from "@/components/story/WeatherModelBlock";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
-import { meta } from "@/data";
+import { meta, sourceYearRange, windowLabel } from "@/data";
 
 const navItems = [
   { label: "Overview", href: "#overview" },
@@ -32,7 +32,7 @@ function App() {
     <AppShell navItems={navItems}>
       <PageSection spacing="hero" className="mx-auto max-w-4xl">
         <p className="eyebrow motion-safe:animate-fade-up">
-          Mobi bike share · Vancouver · 2017–2026
+          Mobi bike share · Vancouver · {sourceYearRange}
         </p>
         <h2 className="mt-5 text-[clamp(2.5rem,7vw,6rem)] font-medium leading-[0.95] tracking-[-0.024em] text-foreground motion-safe:animate-fade-up">
           Nine years of Vancouver,
@@ -70,7 +70,7 @@ function App() {
         <PageSection id="overview" className="space-y-10">
           <SectionHeader
             title="Overview"
-            description="A fast read on nine and a half years of public Mobi trips (2017–2026, as of May 2026): volume, timing, bike mix, and where the network is busiest."
+            description={`A fast read on nine and a half years of public Mobi trips (${windowLabel}): volume, timing, bike mix, and where the network is busiest.`}
           />
           <OverviewCards />
           <RealMobiCharts />
@@ -81,7 +81,7 @@ function App() {
         <PageSection id="story" className="space-y-14">
           <SectionHeader
             title="Nine years"
-            description="What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike. Data: 2017–2026, as of May 2026."
+            description={`What changed between the first full year and today — growth, seasons, a pandemic, and a new kind of bike. Data: ${windowLabel}.`}
           />
           <StorySection />
         </PageSection>
@@ -131,7 +131,7 @@ function App() {
         <PageSection id="methodology" className="space-y-10">
           <SectionHeader
             title="Methodology"
-            description="How nine and a half years of messy public files (2017–2026, as of May 2026) become one dataset, what the connector score means, and what the data cannot say."
+            description={`How nine and a half years of messy public files (${windowLabel}) become one dataset, what the connector score means, and what the data cannot say.`}
           />
           <Methodology />
         </PageSection>

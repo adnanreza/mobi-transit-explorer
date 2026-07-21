@@ -714,36 +714,43 @@
       "sha256": "ed2623f77a63a40f71976842abe0acfbf99981ec7e813ad70148354ff88ff7c2",
       "bytes": 20607216,
       "downloaded_at": "2026-07-09T23:03:32+00:00"
+    },
+    "2026-06": {
+      "drive_id": "138WOueWybVMe1eY6IkrJF0R9vroKo2Ak",
+      "format": "csv",
+      "sha256": "dd177e01793f17ed14350cbc11145edf8e80e2e67578bb0a261dfb3dcf6ab9c2",
+      "bytes": 23310309,
+      "downloaded_at": "2026-07-21T22:15:28+00:00"
     }
   },
   "reference": {
     "gbfs_station_information": {
       "url": "https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/station_information.json",
       "file": "gbfs/station_information.json",
-      "sha256": "9d0fac9249b95defa7fa75d54f8079e0e395f372888e44f3d6f4c48f880d3382",
-      "bytes": 90184,
-      "fetched_at": "2026-07-09T23:49:13+00:00"
+      "sha256": "9f4831ab9ecc8f6931c36d26af1735ddf4bde9ae1d4a5f8b237364366f152b21",
+      "bytes": 88847,
+      "fetched_at": "2026-07-21T22:15:29+00:00"
     },
     "cov_rapid_transit_stations": {
       "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/rapid-transit-stations/exports/geojson",
       "file": "geo/rapid-transit-stations.geojson",
       "sha256": "faf8d1a5dc7a5b899f94c75789cf2bd80dcfe65364ddd1a45eb91d7c65d83e5e",
       "bytes": 5385,
-      "fetched_at": "2026-07-09T23:49:14+00:00"
+      "fetched_at": "2026-07-21T22:15:30+00:00"
     },
     "cov_shoreline": {
       "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/shoreline-2002/exports/geojson",
       "file": "geo/shoreline-2002.geojson",
       "sha256": "9f6888ec0395654bdf6b41a367af0de859e50b28b51b8aa520709ca3f1abc1e5",
       "bytes": 1179841,
-      "fetched_at": "2026-07-09T23:49:15+00:00"
+      "fetched_at": "2026-07-21T22:15:30+00:00"
     },
     "cov_local_areas": {
       "url": "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/local-area-boundary/exports/geojson",
       "file": "geo/local-area-boundary.geojson",
       "sha256": "c04f12db7b0b53ddad444753e78884b4757564a1bc6672f24745ec3642789fba",
       "bytes": 52441,
-      "fetched_at": "2026-07-09T23:49:16+00:00"
+      "fetched_at": "2026-07-21T22:15:31+00:00"
     },
     "ec_weather": {
       "station_id": 888,
@@ -753,61 +760,61 @@
           "file": "weather/ec-888-2017.csv",
           "usable_days": 363,
           "sha256": "f9bca9a6abce621ccebc475e505225bce8f40dbeb8b2ef7cde3c5a7a49128b38",
-          "fetched_at": "2026-07-12T15:15:55+00:00"
+          "fetched_at": "2026-07-21T22:20:32+00:00"
         },
         "2018": {
           "file": "weather/ec-888-2018.csv",
           "usable_days": 360,
           "sha256": "53fd4958349facd4fd21adab48c1884be6b793ca5aa2da1f0afabb77744dc88f",
-          "fetched_at": "2026-07-12T15:15:56+00:00"
+          "fetched_at": "2026-07-21T22:20:32+00:00"
         },
         "2019": {
           "file": "weather/ec-888-2019.csv",
           "usable_days": 359,
           "sha256": "0d20f05bde6cd09f8a70c29ee0d523b407602d7fe05c54b000f29dced3527315",
-          "fetched_at": "2026-07-12T15:15:56+00:00"
+          "fetched_at": "2026-07-21T22:20:32+00:00"
         },
         "2020": {
           "file": "weather/ec-888-2020.csv",
           "usable_days": 249,
           "sha256": "eb80024fe9d9b669e47658b67da30a749631cc5246458cd0a5b825074ef90151",
-          "fetched_at": "2026-07-12T15:15:56+00:00"
+          "fetched_at": "2026-07-21T22:20:33+00:00"
         },
         "2021": {
           "file": "weather/ec-888-2021.csv",
           "usable_days": 345,
           "sha256": "cc699c68fe5fcc1e3216c08f3f9decdead6e33fc7c6e4175607583186f702daa",
-          "fetched_at": "2026-07-12T15:15:56+00:00"
+          "fetched_at": "2026-07-21T22:20:33+00:00"
         },
         "2022": {
           "file": "weather/ec-888-2022.csv",
           "usable_days": 360,
           "sha256": "a340073841ae3df6ee6729d630a74e9740c9eee679e13ba5f7bd0e53109eed65",
-          "fetched_at": "2026-07-12T15:15:57+00:00"
+          "fetched_at": "2026-07-21T22:20:33+00:00"
         },
         "2023": {
           "file": "weather/ec-888-2023.csv",
           "usable_days": 362,
           "sha256": "d12db0836d14aec259ede81b4bc721433c8ef14814dbe8a7a6e06770ad284d19",
-          "fetched_at": "2026-07-12T15:15:57+00:00"
+          "fetched_at": "2026-07-21T22:20:33+00:00"
         },
         "2024": {
           "file": "weather/ec-888-2024.csv",
           "usable_days": 360,
           "sha256": "0885e03693bff20f33ee200cb15ed12630a1824ed6612564afda7c79aa5865f5",
-          "fetched_at": "2026-07-12T15:15:57+00:00"
+          "fetched_at": "2026-07-21T22:20:34+00:00"
         },
         "2025": {
           "file": "weather/ec-888-2025.csv",
           "usable_days": 351,
           "sha256": "e513e811a5765873d3e03b3606306c92a31b13c5ce150305bc3cdf551ad4c668",
-          "fetched_at": "2026-07-12T15:15:57+00:00"
+          "fetched_at": "2026-07-21T22:20:34+00:00"
         },
         "2026": {
           "file": "weather/ec-888-2026.csv",
-          "usable_days": 192,
-          "sha256": "d80343255f23038621c5e84a0acfa33051047c22e9dd14bedce2ee3edb3bb927",
-          "fetched_at": "2026-07-12T15:15:58+00:00"
+          "usable_days": 201,
+          "sha256": "6dd072fd53d9c9e891db514c9c10f13f34780ef1553ceedf0d1b32716d118f5c",
+          "fetched_at": "2026-07-21T22:20:34+00:00"
         }
       }
     }

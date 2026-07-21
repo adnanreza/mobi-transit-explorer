@@ -103,7 +103,12 @@ def write_report(records: list[dict], issues: list[str], manifest: dict) -> None
     ]
     lines += ["", "## Reference snapshots", ""]
     for key, ref in manifest.get("reference", {}).items():
-        lines.append(f"- `{ref['file']}` ({ref['bytes']:,} bytes, fetched {ref['fetched_at']})")
+        if "file" in ref:
+            lines.append(f"- `{ref['file']}` ({ref['bytes']:,} bytes, fetched {ref['fetched_at']})")
+        else:
+            # Non-file references (e.g. ec_weather records a station + year range).
+            detail = ", ".join(f"{k}={v}" for k, v in sorted(ref.items()))
+            lines.append(f"- `{key}` ({detail})")
     if issues:
         lines += ["", "## Issues", ""] + [f"- {issue}" for issue in issues]
     (common.DATA_RAW / "inventory.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
