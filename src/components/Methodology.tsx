@@ -43,6 +43,30 @@ export function Methodology() {
         <PipelineDiagram />
       </Section>
 
+      <Section title="When a new month lands">
+        <p>
+          Mobi posts a new trip file roughly monthly, and absorbing it is a
+          run, not a rebuild. A manifest scraper spots the new file on Mobi's
+          page and pins its checksum; the header map either recognizes the
+          layout or stops the pipeline until a human maps the drift; every
+          number on this page regenerates from the warehouse; and a release
+          gate byte-compares the committed artifacts against fresh output
+          before anything ships. June 2026 — the first month to arrive after
+          this site launched — went from Mobi's Drive link to production in a
+          single run: no header drift, one brand-new station (Callister Park
+          – Fan Fest, opened for FIFA), and the dates in the copy above
+          updated themselves because they derive from the data window. The
+          run-by-run history lives in{" "}
+          <a
+            className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground"
+            href={REPO_URL}
+          >
+            the repo
+          </a>
+          .
+        </p>
+      </Section>
+
       <Section title="Nine and a half years of drift">
         <p>
           The archive is nine and a half years ({windowLabel}) of quiet format entropy, and handling it is

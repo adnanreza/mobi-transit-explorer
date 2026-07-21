@@ -6,6 +6,7 @@ import { Methodology } from "@/components/Methodology";
 import { OpportunityTable } from "@/components/OpportunityTable";
 import { OverviewCards } from "@/components/OverviewCards";
 import { PageSection } from "@/components/PageSection";
+import { PersonalRequests } from "@/components/PersonalRequests";
 import { RealMobiCharts } from "@/components/RealMobiCharts";
 import { Reveal } from "@/components/Reveal";
 import { StorySection } from "@/components/story/StorySection";
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Flows", href: "#flows" },
   { label: "Map", href: "#map" },
   { label: "Signals", href: "#opportunities" },
+  { label: "Requests", href: "#requests" },
   { label: "Methodology", href: "#methodology" },
 ];
 
@@ -124,6 +126,16 @@ function App() {
             description="Where the data shows pressure or unrealized transit connections — patterns worth investigating, ranked from the trailing twelve months of trips."
           />
           <OpportunityTable />
+        </PageSection>
+      </Reveal>
+
+      <Reveal delay={200}>
+        <PageSection id="requests" className="space-y-10">
+          <SectionHeader
+            title="Personal requests"
+            description="Everything above is what the data says. This is what a rider asks — three requests from someone who lives at the bottom edge of the map."
+          />
+          <PersonalRequests />
         </PageSection>
       </Reveal>
 
