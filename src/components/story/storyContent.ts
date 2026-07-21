@@ -67,7 +67,8 @@ export function seasonsChapter(
     headline: "Every year has the same shape.",
     caption:
       `Across ${complete.length} complete years, July carries ${ratio}× the trips of December. ` +
-      "The wave never changes — only its height does.",
+      "The wave never changes — only its height does. " +
+      `The blue line is ${lastFull}; the grey lines are every year before it.`,
   };
 }
 
@@ -84,7 +85,8 @@ export function pandemicChapter(years: YearlyRow[] = yearly): Chapter {
       `${formatNumber(y2020.trips)} in 2020` +
       (recovery
         ? `, then passed the old peak in ${recovery.year} with ${formatNumber(recovery.trips)}.`
-        : "."),
+        : ".") +
+      " The blue stretch of the line marks June 2019 through June 2022.",
   };
 }
 
@@ -125,7 +127,8 @@ export function weatherChapter(rows: WeatherRow[] = weather): Chapter {
       `${peak.tripsPerDay.toLocaleString("en-CA")} trips — roughly ` +
       `${Math.round(peak.tripsPerDay / cold.tripsPerDay)}× a near-freezing day. ` +
       "Temperature travels with season and daylight, so this is association, not " +
-      "cause — but the rain city rides anyway, in ambient weather from Environment Canada.",
+      "cause — but the rain city rides anyway, in ambient weather from Environment " +
+      "Canada. The blue bar is the busiest band.",
   };
 }
 
@@ -152,7 +155,8 @@ export function purposeChapter(
       `commute share one fleet. E-bikes serve both harder: median trips are longer ` +
       `(${electric.medianDistanceKm} km vs ${classic.medianDistanceKm} km), faster ` +
       `(${electric.medianSpeedKmh} vs ${classic.medianSpeedKmh} km/h), and straighter ` +
-      `(detour ${electric.medianDetour}× vs ${classic.medianDetour}×).`,
+      `(detour ${electric.medianDetour}× vs ${classic.medianDetour}×). ` +
+      "Blue bars mark the majority-leisure stations.",
   };
 }
 
