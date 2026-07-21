@@ -347,6 +347,15 @@ export default function InteractiveMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
+    // Theme flips rebuild the map, and this effect fires in the same commit
+    // with `loaded` still stale-true while mapRef already points at the new,
+    // style-still-loading instance — painting then throws ("Style is not
+    // done loading") and blanks the app. The layers only exist once the new
+    // style's load handler has run, so their presence is the real gate; the
+    // effect re-runs via `loaded` after that.
+    if (!map.getLayer("stations") || !map.getLayer("transit-dots") || !map.getLayer("transit-labels")) {
+      return;
+    }
     const colors = MAP_COLORS[theme];
     const coverage = colorMode === "coverage";
     const isCovered = ["==", ["get", "covered"], 1];
