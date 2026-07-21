@@ -16,6 +16,7 @@ import {
   stations,
   stationsAll,
   stationsArtifact,
+  transitCoverage,
   transitNodes,
   weather,
   yearly,
@@ -104,6 +105,20 @@ describe("generated data contracts", () => {
     for (const o of opportunities) {
       expect(o.reason.length).toBeGreaterThan(20);
     }
+  });
+
+  it("transit coverage split matches the copy that cites it", () => {
+    // The Coverage view and Personal Requests claim a binary split: every
+    // rapid-transit station either has a dock within ~250 m or none within
+    // 1 km. If Mobi ever adds a dock in the middle ground, this fails and
+    // the prose gets reviewed.
+    expect(transitCoverage).toHaveLength(20);
+    for (const t of transitCoverage) {
+      expect(t.nearestDockM <= 250 || t.nearestDockM > 1000).toBe(true);
+    }
+    const uncovered = transitCoverage.filter((t) => t.nearestDockM > 1000);
+    expect(uncovered.length).toBeGreaterThan(0);
+    expect(uncovered.map((t) => t.name)).toContain("Joyce - Collingwood");
   });
 
   it("adapters produce the shapes the components render", () => {

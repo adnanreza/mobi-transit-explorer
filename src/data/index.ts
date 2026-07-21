@@ -85,6 +85,46 @@ function slug(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+// --- transit coverage: nearest Mobi dock per rapid-transit station.
+// Drives the map's Coverage view and the Personal Requests annotation; the
+// split in the data is stark (every station is either ≤~210 m from a dock or
+// ≥1 km), so a 500 m walking threshold is uncontroversial.
+
+export const DOCKED_TRANSIT_RADIUS_M = 500;
+
+function haversineM(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const p1 = (lat1 * Math.PI) / 180;
+  const p2 = (lat2 * Math.PI) / 180;
+  const dp = ((lat2 - lat1) * Math.PI) / 180;
+  const dl = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+export type TransitCoverageRow = {
+  name: string;
+  line: string;
+  nearestDockM: number;
+};
+
+export const transitCoverage: TransitCoverageRow[] = (() => {
+  const seen = new Set<string>();
+  const rows: TransitCoverageRow[] = [];
+  for (const t of stationsArtifact.transit) {
+    if (seen.has(t.name)) continue;
+    seen.add(t.name);
+    let best = Infinity;
+    for (const s of stationsArtifact.stations) {
+      const d = haversineM(t.lat, t.lon, s.lat, s.lon);
+      if (d < best) best = d;
+    }
+    rows.push({ name: t.name, line: t.line, nearestDockM: Math.round(best) });
+  }
+  return rows.sort((a, b) => b.nearestDockM - a.nearestDockM);
+})();
+
 // --- transit nodes
 
 export const transitNodes: TransitNode[] = stationsArtifact.transit.map((t) => ({

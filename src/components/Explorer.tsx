@@ -3,7 +3,14 @@ import { defaultFilters, FilterPanel, type FilterState } from "@/components/Filt
 import { MapSkeleton } from "@/components/Skeletons";
 import { StationDetailPanel } from "@/components/StationDetailPanel";
 import { StationFinder } from "@/components/StationFinder";
-import { lastCompleteYear, meta, stationsArtifact, stationsAll as stations } from "@/data";
+import {
+  DOCKED_TRANSIT_RADIUS_M,
+  lastCompleteYear,
+  meta,
+  stationsArtifact,
+  stationsAll as stations,
+  transitCoverage,
+} from "@/data";
 
 // MapLibre is the heaviest dependency in the app; loading it lazily keeps
 // the hero and overview paint-fast.
@@ -12,7 +19,11 @@ const InteractiveMap = lazy(() => import("@/components/InteractiveMap"));
 // Earliest year present in the data (derived from the pipeline meta).
 const firstDataYear = Number(meta.sourceWindow.firstMonth.slice(0, 4));
 
-type ColorMode = "score" | "leisure";
+type ColorMode = "score" | "leisure" | "coverage";
+
+const uncoveredTransit = transitCoverage.filter(
+  (t) => t.nearestDockM > DOCKED_TRANSIT_RADIUS_M,
+);
 
 function readUrlState(): {
   filters: FilterState;
@@ -32,7 +43,8 @@ function readUrlState(): {
   const validDistance = ["150", "300", "500"].includes(distance ?? "");
   const station = params.get("station");
   const color = params.get("color");
-  const validColor: ColorMode = color === "leisure" ? "leisure" : "score";
+  const validColor: ColorMode =
+    color === "leisure" ? "leisure" : color === "coverage" ? "coverage" : "score";
   return {
     filters: {
       year: validYear ? year : defaultFilters.year,
@@ -119,6 +131,7 @@ export function Explorer() {
             [
               ["score", "Transit score"],
               ["leisure", "Leisure share"],
+              ["coverage", "Coverage"],
             ] as const
           ).map(([mode, label]) => (
             <button
@@ -138,25 +151,38 @@ export function Explorer() {
         </div>
       </div>
 
-      <p className="text-xs leading-5 text-muted-foreground">
-        {colorMode === "score" ? (
-          <>
-            Blue intensity shows each station's <strong className="font-medium text-foreground">transit connector score</strong> (0–100):
-            distance to rapid transit, trip volume, commute pattern, e-bike
-            share, and destination diversity, weighted as defined in the{" "}
-          </>
-        ) : (
-          <>
-            Blue intensity shows the share of each station's trips classified
-            as <strong className="font-medium text-foreground">leisure</strong> by a documented heuristic (round trips,
-            seawall endpoints, long meandering rides) — definition in the{" "}
-          </>
-        )}
-        <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">
-          methodology
-        </a>
-        . Dot size is trip volume either way.
-      </p>
+      {colorMode === "coverage" ? (
+        <p className="text-xs leading-5 text-muted-foreground">
+          This view flips the lens: rapid-transit stations are marked by{" "}
+          <strong className="font-medium text-foreground">Mobi access</strong> —
+          filled when a dock sits within {DOCKED_TRANSIT_RADIUS_M} m of the
+          station, ringed in blue when the nearest dock is more than a
+          kilometre away. In Vancouver proper that split is stark:{" "}
+          {uncoveredTransit.length} of {transitCoverage.length} stations have
+          no dock within a kilometre, and every other station has one within
+          ~200 m. Mobi dots dim to context; their size is still trip volume.
+        </p>
+      ) : (
+        <p className="text-xs leading-5 text-muted-foreground">
+          {colorMode === "score" ? (
+            <>
+              Blue intensity shows each station's <strong className="font-medium text-foreground">transit connector score</strong> (0–100):
+              distance to rapid transit, trip volume, commute pattern, e-bike
+              share, and destination diversity, weighted as defined in the{" "}
+            </>
+          ) : (
+            <>
+              Blue intensity shows the share of each station's trips classified
+              as <strong className="font-medium text-foreground">leisure</strong> by a documented heuristic (round trips,
+              seawall endpoints, long meandering rides) — definition in the{" "}
+            </>
+          )}
+          <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">
+            methodology
+          </a>
+          . Dot size is trip volume either way.
+        </p>
+      )}
 
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         {/* On mobile the map leads; controls and detail follow. On xl the

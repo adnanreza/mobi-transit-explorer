@@ -97,6 +97,20 @@ describe("Explorer", () => {
     expect(screen.getByText(/Trailing 12 months to/)).toBeInTheDocument();
   });
 
+  it("coverage mode round-trips through the URL and swaps the explainer", async () => {
+    const user = userEvent.setup();
+    render(<Explorer />);
+
+    await user.click(screen.getByRole("button", { name: "Coverage", pressed: false }));
+    expect(window.location.search).toContain("color=coverage");
+    expect(screen.getByText(/marked by/)).toBeInTheDocument();
+    expect(screen.getByText("Mobi access")).toBeInTheDocument();
+
+    const { unmount } = render(<Explorer />);
+    expect(screen.getAllByRole("button", { name: "Coverage", pressed: true })).toHaveLength(2);
+    unmount();
+  });
+
   it("colorMode round-trips through the URL", async () => {
     const user = userEvent.setup();
     render(<Explorer />);
