@@ -17,7 +17,7 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
 **Two halves, deliberately separated:**
 
 ```
- Mobi trip files (102, 2017→today)     Mobi GBFS · CoV Open Data
+ Mobi trip files (monthly, 2017→today)  Mobi GBFS · CoV Open Data
         │                                      │
         ▼                                      ▼
  ┌─────────────────────────────────────────────────────┐
@@ -32,7 +32,7 @@ I've lived in Vancouver since 2015 and have never owned a car here — Mobi, wal
  └─────────────────────────────────────────────────────┘
 ```
 
-- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). 8,961,723 raw rows in; 8,717,352 trips kept; every drop and flag accounted for in the generated [data-quality report](docs/data-quality-report.md).
+- **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). Over 9.1M raw rows in, 8.9M trips kept — every drop and flag accounted for, with exact current counts in the generated [data-quality report](docs/data-quality-report.md).
 - **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars — the host serves static files.
 - **The hard part, on purpose:** nine years of format drift — 31 column layouts, five timestamp formats, three file containers, broken Unicode in a Squamish-language station name — each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
 
@@ -58,7 +58,19 @@ python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
 .venv/bin/python pipeline/train_model.py     # ridership model -> forecast.json
 ```
 
-Committed: the source manifest (with checksums for all 102 files) and the small generated aggregates. Never committed: raw trip data or the warehouse.
+Committed: the source manifest (with a checksum for every monthly file) and the small generated aggregates. Never committed: raw trip data or the warehouse.
+
+## When a new month lands
+
+Absorbing a new Mobi release is a run, not a rebuild:
+
+1. `scrape_manifest.py` spots the new Drive file on Mobi's page and adds its period to the checksum manifest.
+2. `download.py` fetches it and pins sha256 + size; `inventory.py` audits the whole archive for gaps and mismatches.
+3. `etl.py --stage all` rebuilds the warehouse. If the file's header doesn't match a known layout, the pipeline **stops loudly** (`UnknownColumns`) until the drift is mapped in `pipeline/mappings/column_eras.json` — nothing is guessed.
+4. `publish.py` + `train_model.py` + `quality_report.py` regenerate every artifact, and `make check-artifacts` byte-compares the committed output against a fresh run before anything ships.
+5. The site's window copy ("as of …", year ranges, the footer freshness line) derives from `meta.sourceWindow`, so prose updates itself.
+
+**Case study — June 2026, the first live month** ([spec 039](docs/features/039-june-2026-data.md)): auto-detected from Mobi's page, zero header drift, one brand-new station (Callister Park – Fan Fest, opened for FIFA) that exercised a new-station edge case the data-contract tests caught, and one latent pipeline bug fixed. Drive link to production in a single run.
 
 ## Tests
 

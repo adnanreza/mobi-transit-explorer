@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, Moon, Sun, X } from "lucide-react";
+import { asOfLabel } from "@/data";
 import { setTheme, useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -279,7 +280,10 @@ function SiteFooter() {
             </nav>
           ))}
         </div>
-        <p className="mt-10 border-t border-border pt-6 text-xs leading-5 text-muted-foreground">
+        <p className="mt-10 border-t border-border pt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+          Data through {asOfLabel} · regenerated with each monthly Mobi release
+        </p>
+        <p className="mt-6 text-xs leading-5 text-muted-foreground">
           An independent, non-commercial project — not affiliated with, endorsed by, or
           approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
           "Mobi" is a trademark of Vancouver Bike Share Inc., used here descriptively to
