@@ -89,14 +89,14 @@ export function Methodology() {
           starts.</em>{" "}
           The full accounting regenerates with every pipeline run:{" "}
           <a
-            className="text-primary underline-offset-2 hover:underline"
+            className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground"
             href={REPORT_URL}
           >
             the data-quality report
           </a>{" "}
           is committed alongside{" "}
           <a
-            className="text-primary underline-offset-2 hover:underline"
+            className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground"
             href={REPO_URL}
           >
             the code
@@ -209,8 +209,8 @@ export function Methodology() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="text-lg font-medium tracking-tight text-foreground">{title}</h3>
-      <div className="mt-3 text-base leading-7 text-muted-foreground">{children}</div>
+      <h3 className="eyebrow">{title}</h3>
+      <div className="mt-4 text-base leading-7 text-muted-foreground">{children}</div>
     </section>
   );
 }

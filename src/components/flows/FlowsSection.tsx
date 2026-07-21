@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
-import { chartColors } from "@/components/charts/chartTheme";
+import { useChartColors, type ChartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { StationFinder } from "@/components/StationFinder";
 import { flows, stationsArtifact } from "@/data";
@@ -17,22 +17,25 @@ import { cn } from "@/lib/utils";
 const HOUR_LABELS = Array.from({ length: 24 }, (_, hour) => `${hour}:00`);
 const DEFAULT_STATION = morningImporters(flows, 1)[0]?.id ?? "0021";
 
-const chartOptions: ChartOptions<"line"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: true } },
-  scales: {
-    x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 9 } },
-    y: {
-      beginAtZero: true,
-      grid: { color: chartColors.grid },
-      title: { display: true, text: "bikes per hour (avg)" },
+function chartOptions(c: ChartColors): ChartOptions<"line"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: true } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 9 } },
+      y: {
+        beginAtZero: true,
+        grid: { color: c.grid },
+        title: { display: true, text: "bikes per hour (avg)" },
+      },
     },
-  },
-};
+  };
+}
 
 export function FlowsSection() {
   const testMode = import.meta.env.MODE === "test";
+  const chartColors = useChartColors();
   const [stationId, setStationId] = useState<string>(DEFAULT_STATION);
   const [dayType, setDayType] = useState<DayType>("weekday");
 
@@ -46,7 +49,7 @@ export function FlowsSection() {
   return (
     <div className="space-y-16">
       <div>
-        <p className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
+        <p className="max-w-3xl text-3xl font-medium leading-tight tracking-[-0.02em] text-foreground sm:text-5xl">
           An estimated {flows.networkDailyRebalancing.toLocaleString("en-CA")} bikes a day,
           moved by hand.
         </p>
@@ -91,9 +94,9 @@ export function FlowsSection() {
                 aria-pressed={dayType === option}
                 onClick={() => setDayType(option)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm transition-colors",
+                  "px-3 py-1.5 text-sm transition-colors",
                   dayType === option
-                    ? "bg-secondary font-medium text-foreground"
+                    ? "text-foreground underline decoration-1 underline-offset-8"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -155,7 +158,7 @@ export function FlowsSection() {
                     },
                   ],
                 }}
-                options={chartOptions}
+                options={chartOptions(chartColors)}
               />
             </ChartReveal>
           )}
@@ -193,8 +196,8 @@ function RankedList({
   const max = Math.max(...rows.map((row) => row.bikesPerDay), 1);
   return (
     <div>
-      <h3 className="text-lg font-medium tracking-tight text-foreground">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{caption}</p>
+      <h3 className="eyebrow">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">{caption}</p>
       <ol className="mt-4 space-y-3">
         {rows.map((row) => (
           <li key={row.id} className="flex items-center gap-3">

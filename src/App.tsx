@@ -31,7 +31,10 @@ function App() {
   return (
     <AppShell navItems={navItems}>
       <PageSection spacing="hero" className="mx-auto max-w-4xl">
-        <h2 className="text-5xl font-semibold leading-[1.05] tracking-tight text-foreground motion-safe:animate-fade-up sm:text-6xl lg:text-7xl">
+        <p className="eyebrow motion-safe:animate-fade-up">
+          Mobi bike share · Vancouver · 2017–2026
+        </p>
+        <h2 className="mt-5 text-[clamp(2.5rem,7vw,6rem)] font-medium leading-[0.95] tracking-[-0.024em] text-foreground motion-safe:animate-fade-up">
           Nine years of Vancouver,
           <br />
           by bike share.
@@ -41,8 +44,8 @@ function App() {
           from every monthly trip file Mobi has published, cleaned and mapped
           against Vancouver's transit network.
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-4 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
-          <Button asChild size="lg" className="group">
+        <div className="mt-10 flex flex-wrap items-center gap-8 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
+          <Button asChild variant="cta" className="group">
             <a href="#map">
               See the map
               <Bike
@@ -51,7 +54,7 @@ function App() {
               />
             </a>
           </Button>
-          <Button asChild variant="ghost" size="lg" className="group">
+          <Button asChild variant="cta" className="group">
             <a href="#methodology">
               How the data works
               <Database

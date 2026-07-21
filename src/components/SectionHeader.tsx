@@ -7,6 +7,9 @@ type SectionHeaderProps = {
   className?: string;
 };
 
+// Portfolio section-header pattern: the section name is a mono uppercase
+// eyebrow (it stays the h2/h3 so nav targets and the outline read the same),
+// and the description carries the visual weight as an ink lead-in.
 export function SectionHeader({
   title,
   description,
@@ -16,12 +19,10 @@ export function SectionHeader({
   const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
-    <div className={cn("space-y-4", className)}>
-      <Heading className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-        {title}
-      </Heading>
+    <div className={cn("space-y-5", className)}>
+      <Heading className="eyebrow">{title}</Heading>
       {description ? (
-        <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+        <p className="max-w-2xl text-xl leading-snug tracking-[-0.018em] text-foreground sm:text-2xl">
           {description}
         </p>
       ) : null}

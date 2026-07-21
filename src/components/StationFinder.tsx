@@ -26,7 +26,7 @@ export function StationFinder({
 }: StationFinderProps) {
   return (
     <label className="block">
-      <span className="text-sm text-muted-foreground">
+      <span className="eyebrow">
         Find a station
         <span className="sr-only"> — use this to select a station with keyboard or screen reader; the map is pointer-only</span>
       </span>

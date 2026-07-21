@@ -22,7 +22,3 @@ ChartJS.register(
   PointElement,
   Tooltip,
 );
-
-export const chartFont = {
-  family: "Inter, ui-sans-serif, system-ui, sans-serif",
-};

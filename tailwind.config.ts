@@ -6,9 +6,13 @@ const config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1.5rem",
+        sm: "2rem",
+        xl: "3.5rem",
+      },
       screens: {
-        "2xl": "1280px",
+        "2xl": "1240px",
       },
     },
     extend: {
@@ -30,6 +34,10 @@ const config = {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
+        // Portfolio hairline system: muted-2 underlines links, rule-2 is the
+        // secondary (fainter) rule tone.
+        "muted-2": "hsl(var(--muted-2))",
+        "rule-2": "hsl(var(--rule-2))",
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
@@ -39,13 +47,36 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        sans: [
+          '"Inter Tight Variable"',
+          '"Inter Tight"',
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          '"JetBrains Mono Variable"',
+          '"JetBrains Mono"',
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "monospace",
+        ],
+      },
+      fontSize: {
+        // Portfolio reading size: prose sits at 17px, not 16.
+        base: ["1.0625rem", { lineHeight: "1.6" }],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      boxShadow: {
-        soft: "0 24px 80px -48px rgba(15, 23, 42, 0.35)",
       },
       keyframes: {
         "fade-up": {
@@ -56,7 +87,7 @@ const config = {
       animation: {
         // `both` holds opacity-0 through animation-delay, which is what makes
         // a pure-CSS stagger possible
-        "fade-up": "fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        "fade-up": "fade-up 650ms cubic-bezier(0.22, 0.61, 0.36, 1) both",
       },
     },
   },

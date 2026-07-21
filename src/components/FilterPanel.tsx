@@ -58,7 +58,7 @@ export function FilterPanel({
   return (
     <div>
       <div className="flex items-center justify-between border-b border-border pb-3">
-        <h3 className="text-sm font-medium text-foreground">Filters</h3>
+        <h3 className="eyebrow">Filters</h3>
         <Button
           type="button"
           variant="ghost"

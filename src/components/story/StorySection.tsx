@@ -1,6 +1,6 @@
 import { Bar, Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
-import { chartColors } from "@/components/charts/chartTheme";
+import { useChartColors, type ChartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
 import { lastCompleteYear, monthly, seasonality, stationsArtifact, weather, yearly } from "@/data";
@@ -20,28 +20,33 @@ const MONTH_LABELS = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-const quietLine: ChartOptions<"line"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false } },
-  scales: {
-    x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-    y: {
-      beginAtZero: true,
-      grid: { color: chartColors.grid },
-      ticks: { callback: (v: string | number) => Number(v).toLocaleString("en-CA") },
-    },
-  },
-};
+// Data and options are built per render from the active chart palette so the
+// story recolors when the theme flips (ChartReveal remounts each canvas).
 
-function growthData(): ChartData<"line"> {
+function quietLine(c: ChartColors): ChartOptions<"line"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+      y: {
+        beginAtZero: true,
+        grid: { color: c.grid },
+        ticks: { callback: (v: string | number) => Number(v).toLocaleString("en-CA") },
+      },
+    },
+  };
+}
+
+function growthData(c: ChartColors): ChartData<"line"> {
   return {
     labels: monthly.map((m) => m.month),
     datasets: [
       {
         data: monthly.map((m) => m.trips),
-        borderColor: chartColors.blue,
-        backgroundColor: chartColors.blueSoft,
+        borderColor: c.blue,
+        backgroundColor: c.blueSoft,
         borderWidth: 1.5,
         pointRadius: 0,
         tension: 0.3,
@@ -51,7 +56,7 @@ function growthData(): ChartData<"line"> {
   };
 }
 
-function seasonsData(): ChartData<"line"> {
+function seasonsData(c: ChartColors): ChartData<"line"> {
   const complete = seasonality.filter(
     (r) => r.year <= lastCompleteYear && r.tripsByMonth.every((m) => m !== null && m > 0),
   );
@@ -60,7 +65,7 @@ function seasonsData(): ChartData<"line"> {
     datasets: complete.map((r) => ({
       label: String(r.year),
       data: r.tripsByMonth,
-      borderColor: r.year === lastCompleteYear ? chartColors.blue : chartColors.gray,
+      borderColor: r.year === lastCompleteYear ? c.blue : c.gray,
       borderWidth: r.year === lastCompleteYear ? 2 : 1,
       pointRadius: 0,
       tension: 0.35,
@@ -68,21 +73,21 @@ function seasonsData(): ChartData<"line"> {
   };
 }
 
-function pandemicData(): ChartData<"line"> {
+function pandemicData(c: ChartColors): ChartData<"line"> {
   const inWindow = (month: string) => month >= "2019-06" && month <= "2022-06";
   return {
     labels: monthly.map((m) => m.month),
     datasets: [
       {
         data: monthly.map((m) => m.trips),
-        borderColor: chartColors.gray,
+        borderColor: c.gray,
         borderWidth: 1,
         pointRadius: 0,
         tension: 0.3,
       },
       {
         data: monthly.map((m) => (inWindow(m.month) ? m.trips : null)),
-        borderColor: chartColors.blue,
+        borderColor: c.blue,
         borderWidth: 2,
         pointRadius: 0,
         tension: 0.3,
@@ -91,15 +96,15 @@ function pandemicData(): ChartData<"line"> {
   };
 }
 
-function ebikeData(): ChartData<"line"> {
+function ebikeData(c: ChartColors): ChartData<"line"> {
   const withFlag = monthly.filter((m) => m.ebikeTrips !== null && m.ebikeTrips > 0);
   return {
     labels: withFlag.map((m) => m.month),
     datasets: [
       {
         data: withFlag.map((m) => Math.round((1000 * (m.ebikeTrips ?? 0)) / m.trips) / 10),
-        borderColor: chartColors.blue,
-        backgroundColor: chartColors.blueSoft,
+        borderColor: c.blue,
+        backgroundColor: c.blueSoft,
         borderWidth: 1.5,
         pointRadius: 0,
         tension: 0.3,
@@ -109,7 +114,7 @@ function ebikeData(): ChartData<"line"> {
   };
 }
 
-function weatherData(): ChartData<"bar"> {
+function weatherData(c: ChartColors): ChartData<"bar"> {
   // True per-day averages, one row per EC ambient temperature band.
   const peak = weather.reduce((a, b) => (b.tripsPerDay > a.tripsPerDay ? b : a));
   return {
@@ -118,7 +123,7 @@ function weatherData(): ChartData<"bar"> {
       {
         data: weather.map((w) => w.tripsPerDay),
         backgroundColor: weather.map((w) =>
-          w.tempBandC === peak.tempBandC ? chartColors.blue : chartColors.gray,
+          w.tempBandC === peak.tempBandC ? c.blue : c.gray,
         ),
         borderRadius: 3,
       },
@@ -126,7 +131,7 @@ function weatherData(): ChartData<"bar"> {
   };
 }
 
-function purposeData(): ChartData<"bar"> {
+function purposeData(c: ChartColors): ChartData<"bar"> {
   // Every classified station, sorted by leisure share: the cliff between the
   // seawall stations and the rest IS the chart.
   const sorted = stationsArtifact.stations
@@ -138,7 +143,7 @@ function purposeData(): ChartData<"bar"> {
       {
         data: sorted.map((s) => s.leisureSharePct ?? 0),
         backgroundColor: sorted.map((s) =>
-          (s.leisureSharePct ?? 0) >= 50 ? chartColors.blue : chartColors.gray,
+          (s.leisureSharePct ?? 0) >= 50 ? c.blue : c.gray,
         ),
         borderRadius: 1,
         barPercentage: 1,
@@ -148,44 +153,50 @@ function purposeData(): ChartData<"bar"> {
   };
 }
 
-const purposeOptions: ChartOptions<"bar"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false } },
-  scales: {
-    x: { display: false },
-    y: {
-      beginAtZero: true,
-      max: 100,
-      grid: { color: chartColors.grid },
-      ticks: { callback: (v: string | number) => `${v}%` },
+function purposeOptions(c: ChartColors): ChartOptions<"bar"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { display: false },
+      y: {
+        beginAtZero: true,
+        max: 100,
+        grid: { color: c.grid },
+        ticks: { callback: (v: string | number) => `${v}%` },
+      },
     },
-  },
-};
+  };
+}
 
-const percentLine: ChartOptions<"line"> = {
-  ...quietLine,
-  scales: {
-    ...quietLine.scales,
-    y: {
-      beginAtZero: true,
-      grid: { color: chartColors.grid },
-      ticks: { callback: (v: string | number) => `${v}%` },
+function percentLine(c: ChartColors): ChartOptions<"line"> {
+  return {
+    ...quietLine(c),
+    scales: {
+      ...quietLine(c).scales,
+      y: {
+        beginAtZero: true,
+        grid: { color: c.grid },
+        ticks: { callback: (v: string | number) => `${v}%` },
+      },
     },
-  },
-};
+  };
+}
 
 // Share of each pass type over the years — Corporate highlighted, the rest
 // in the gray ramp. Legend shown because five lines need naming.
-const MEMBERSHIP_GROUPS: { key: string; color: string; width: number }[] = [
-  { key: "Corporate", color: chartColors.blue, width: 2 },
-  { key: "365 Annual", color: chartColors.ink, width: 1.5 },
-  { key: "Casual", color: chartColors.grayStrong, width: 1.5 },
-  { key: "Monthly", color: chartColors.gray, width: 1.5 },
-  { key: "Community", color: "#e2e8f0", width: 1.5 },
-];
+function membershipGroups(c: ChartColors): { key: string; color: string; width: number }[] {
+  return [
+    { key: "Corporate", color: c.blue, width: 2 },
+    { key: "365 Annual", color: c.ink, width: 1.5 },
+    { key: "Casual", color: c.grayStrong, width: 1.5 },
+    { key: "Monthly", color: c.gray, width: 1.5 },
+    { key: "Community", color: c.faint, width: 1.5 },
+  ];
+}
 
-function membershipData(): ChartData<"line"> {
+function membershipData(c: ChartColors): ChartData<"line"> {
   const years = yearly.filter((y) => y.year <= lastCompleteYear);
   const share = (row: (typeof years)[number], group: string) => {
     const total = Object.values(row.membershipMix).reduce((a, b) => a + b, 0) || 1;
@@ -193,7 +204,7 @@ function membershipData(): ChartData<"line"> {
   };
   return {
     labels: years.map((y) => String(y.year)),
-    datasets: MEMBERSHIP_GROUPS.map((g) => ({
+    datasets: membershipGroups(c).map((g) => ({
       label: g.key,
       data: years.map((y) => share(y, g.key)),
       borderColor: g.color,
@@ -205,13 +216,16 @@ function membershipData(): ChartData<"line"> {
   };
 }
 
-const membershipOptions: ChartOptions<"line"> = {
-  ...percentLine,
-  plugins: { legend: { display: true } },
-};
+function membershipOptions(c: ChartColors): ChartOptions<"line"> {
+  return {
+    ...percentLine(c),
+    plugins: { legend: { display: true } },
+  };
+}
 
 export function StorySection() {
   const testMode = import.meta.env.MODE === "test";
+  const colors = useChartColors();
   const byId = {
     growth: growthChapter(),
     seasons: seasonsChapter(),
@@ -227,33 +241,33 @@ export function StorySection() {
     : {
         growth: (
           <ChartReveal>
-            <Line data={growthData()} options={quietLine} />
+            <Line data={growthData(colors)} options={quietLine(colors)} />
           </ChartReveal>
         ),
         seasons: (
           <ChartReveal>
-            <Line data={seasonsData()} options={quietLine} />
+            <Line data={seasonsData(colors)} options={quietLine(colors)} />
           </ChartReveal>
         ),
         pandemic: (
           <ChartReveal>
-            <Line data={pandemicData()} options={quietLine} />
+            <Line data={pandemicData(colors)} options={quietLine(colors)} />
           </ChartReveal>
         ),
         ebikes: (
           <ChartReveal>
-            <Line data={ebikeData()} options={percentLine} />
+            <Line data={ebikeData(colors)} options={percentLine(colors)} />
           </ChartReveal>
         ),
         purpose: (
           <ChartReveal>
-            <Bar data={purposeData()} options={purposeOptions} />
+            <Bar data={purposeData(colors)} options={purposeOptions(colors)} />
           </ChartReveal>
         ),
         weather: (
           <ChartReveal>
           <Bar
-            data={weatherData()}
+            data={weatherData(colors)}
             options={{
               responsive: true,
               maintainAspectRatio: false,
@@ -262,7 +276,7 @@ export function StorySection() {
                 x: { grid: { display: false } },
                 y: {
                   title: { display: true, text: "trips per day" },
-                  grid: { color: chartColors.grid },
+                  grid: { color: colors.grid },
                   ticks: {
                     callback: (v: string | number) => Number(v).toLocaleString("en-CA"),
                   },
@@ -274,7 +288,7 @@ export function StorySection() {
         ),
         membership: (
           <ChartReveal>
-            <Line data={membershipData()} options={membershipOptions} />
+            <Line data={membershipData(colors)} options={membershipOptions(colors)} />
           </ChartReveal>
         ),
       };
@@ -288,7 +302,7 @@ export function StorySection() {
             <article aria-labelledby={`story-${chapter.id}`}>
               <h3
                 id={`story-${chapter.id}`}
-                className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl"
+                className="max-w-3xl text-3xl font-medium leading-tight tracking-[-0.02em] text-foreground sm:text-5xl"
               >
                 {content.headline}
               </h3>

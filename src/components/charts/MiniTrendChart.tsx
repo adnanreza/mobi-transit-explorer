@@ -1,5 +1,5 @@
 import { Bar, Line } from "react-chartjs-2";
-import "@/components/charts/chartSetup";
+import { useChartColors } from "@/components/charts/chartTheme";
 
 type MiniTrendChartProps = {
   data: number[];
@@ -13,9 +13,14 @@ export function MiniTrendChart({
   data,
   labels,
   type = "line",
-  color = "#008fd3",
+  color,
   ariaLabel,
 }: MiniTrendChartProps) {
+  // Defaults to the theme accent; axes and tooltips are hidden here, so a
+  // dataset-color update on re-render is enough — no remount needed.
+  const themeColor = useChartColors().blue;
+  const resolvedColor = color ?? themeColor;
+
   if (import.meta.env.MODE === "test") {
     return <canvas className="h-7 w-24" role="img" aria-label={ariaLabel} />;
   }
@@ -25,8 +30,8 @@ export function MiniTrendChart({
     datasets: [
       {
         data,
-        borderColor: color,
-        backgroundColor: withAlpha(color, type === "bar" ? 0.28 : 0.16),
+        borderColor: resolvedColor,
+        backgroundColor: withAlpha(resolvedColor, type === "bar" ? 0.28 : 0.16),
         borderWidth: 2,
         borderRadius: 4,
         fill: type === "line",

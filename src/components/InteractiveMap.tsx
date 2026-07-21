@@ -3,6 +3,7 @@ import maplibregl from "maplibre-gl";
 import type { Feature, FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { MapSkeleton } from "@/components/Skeletons";
+import { useTheme, type Theme } from "@/lib/theme";
 import { stationsArtifact } from "@/data";
 
 type InteractiveMapProps = {
@@ -18,8 +19,21 @@ const OPACITY_EXPRESSIONS: Record<"score" | "leisure", unknown> = {
   leisure: ["+", 0.15, ["*", 0.0085, ["get", "leisure"]]],
 };
 
-const MOBI_BLUE = "#008fd3";
-const INK = "#0f172a";
+// Basemap and mark colors per theme (spec 038): OpenFreeMap serves a dark
+// sibling of positron, and the marks use the portfolio accent/ink with a
+// paper-toned halo so dots read against either basemap.
+const MAP_STYLES: Record<Theme, string> = {
+  light: "https://tiles.openfreemap.org/styles/positron",
+  dark: "https://tiles.openfreemap.org/styles/dark",
+};
+
+const MAP_COLORS: Record<
+  Theme,
+  { accent: string; ink: string; halo: string; label: string }
+> = {
+  light: { accent: "#196ea9", ink: "#090e11", halo: "#f7f9fb", label: "#636a6f" },
+  dark: { accent: "#5fa5de", ink: "#ededed", halo: "#0b0b0b", label: "#959595" },
+};
 
 const maxTrips = Math.max(
   ...stationsArtifact.stations.map((s) => s.trailing12.trips),
@@ -131,17 +145,22 @@ export default function InteractiveMap({
   const [loaded, setLoaded] = useState(false);
   const onSelectRef = useRef(onStationSelect);
   onSelectRef.current = onStationSelect;
+  const theme = useTheme();
+  // A theme flip rebuilds the map with the other basemap; carry the camera
+  // across so the viewer doesn't lose their place.
+  const cameraRef = useRef<{ center: maplibregl.LngLatLike; zoom: number } | null>(null);
 
   const testMode = import.meta.env.MODE === "test";
 
   useEffect(() => {
     if (testMode || !containerRef.current) return;
 
+    const colors = MAP_COLORS[theme];
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: "https://tiles.openfreemap.org/styles/positron",
-      center: [-123.125, 49.269],
-      zoom: 11.4,
+      style: MAP_STYLES[theme],
+      center: cameraRef.current?.center ?? [-123.125, 49.269],
+      zoom: cameraRef.current?.zoom ?? 11.4,
       minZoom: 9.5,
       maxZoom: 17.5,
       maxBounds: [
@@ -156,6 +175,9 @@ export default function InteractiveMap({
       pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     });
     mapRef.current = map;
+    map.on("moveend", () => {
+      cameraRef.current = { center: map.getCenter(), zoom: map.getZoom() };
+    });
     map.addControl(
       new maplibregl.NavigationControl({ showCompass: false }),
       "top-right",
@@ -182,7 +204,7 @@ export default function InteractiveMap({
         source: "selection",
         filter: ["==", ["geometry-type"], "LineString"],
         paint: {
-          "line-color": MOBI_BLUE,
+          "line-color": colors.accent,
           "line-width": 1.5,
           "line-opacity": 0.55,
         },
@@ -194,8 +216,8 @@ export default function InteractiveMap({
         source: "transit",
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 3, 15, 6],
-          "circle-color": INK,
-          "circle-stroke-color": "#ffffff",
+          "circle-color": colors.ink,
+          "circle-stroke-color": colors.halo,
           "circle-stroke-width": 1.5,
         },
       });
@@ -213,8 +235,8 @@ export default function InteractiveMap({
           "text-anchor": "top",
         },
         paint: {
-          "text-color": "#475569",
-          "text-halo-color": "#ffffff",
+          "text-color": colors.label,
+          "text-halo-color": colors.halo,
           "text-halo-width": 1.2,
         },
       });
@@ -230,9 +252,9 @@ export default function InteractiveMap({
             13, ["*", 1.6, ["get", "r"]],
             16, ["*", 3.2, ["get", "r"]],
           ],
-          "circle-color": MOBI_BLUE,
+          "circle-color": colors.accent,
           "circle-opacity": ["+", 0.3, ["*", 0.007, ["get", "score"]]],
-          "circle-stroke-color": "#ffffff",
+          "circle-stroke-color": colors.halo,
           "circle-stroke-width": 1,
         },
       });
@@ -250,7 +272,7 @@ export default function InteractiveMap({
             16, ["+", 6, ["*", 3.2, ["get", "r"]]],
           ],
           "circle-color": "transparent",
-          "circle-stroke-color": INK,
+          "circle-stroke-color": colors.ink,
           "circle-stroke-width": 2,
         },
       });
@@ -291,10 +313,11 @@ export default function InteractiveMap({
       mapRef.current = null;
       map.remove();
     };
-    // The map initializes exactly once; selection updates flow through the
-    // effect below via the "selection" source.
+    // The map initializes once per theme (the basemap style is a constructor
+    // concern); selection updates flow through the effect below via the
+    // "selection" source, and the camera survives in cameraRef.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testMode]);
+  }, [testMode, theme]);
 
   // Filter changes re-render the station slice without touching the camera.
   useEffect(() => {
@@ -341,7 +364,7 @@ export default function InteractiveMap({
       <div
         role="img"
         aria-label="Interactive map of Mobi stations"
-        className="flex h-[560px] items-center justify-center rounded-xl border border-border text-sm text-muted-foreground"
+        className="flex h-[560px] items-center justify-center rounded-lg border border-border text-sm text-muted-foreground"
       >
         Interactive map of Mobi stations
       </div>
@@ -359,12 +382,12 @@ export default function InteractiveMap({
         ref={containerRef}
         role="application"
         aria-label="Interactive map of Mobi stations and rapid transit in Vancouver. Pointer-primary — use the station search above to select a station with keyboard or assistive technology."
-        className="h-full overflow-hidden rounded-xl border border-border"
+        className="h-full overflow-hidden rounded-lg border border-border"
       />
       {/* Ghost map until MapLibre finishes its first paint, so a slow tile
           fetch shows the map's shape rather than an empty panel. */}
       {!loaded && (
-        <div className="absolute inset-0 overflow-hidden rounded-xl border border-border">
+        <div className="absolute inset-0 overflow-hidden rounded-lg border border-border">
           <MapSkeleton />
         </div>
       )}

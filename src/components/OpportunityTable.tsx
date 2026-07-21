@@ -61,7 +61,7 @@ export function OpportunityTable({
         {opportunities.map((opportunity) => (
           <li
             key={opportunity.rank}
-            className="rounded-xl border border-border p-4"
+            className="rounded-lg border border-border p-4"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-muted-foreground tabular-nums">
@@ -128,7 +128,7 @@ export function OpportunityTable({
         Each signal comes from an explicit rule over the trailing twelve
         months — these are patterns that warrant investigation, not validated
         recommendations. Thresholds and definitions are in the{" "}
-        <a href="#methodology" className="text-primary underline-offset-2 hover:underline">
+        <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">
           methodology
         </a>
         .

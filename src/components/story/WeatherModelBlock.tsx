@@ -86,7 +86,7 @@ export function WeatherModelBlock() {
         </p>
       ) : (
         <>
-          <p className="mt-8 text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
+          <p className="mt-8 text-4xl font-medium tracking-[-0.02em] text-foreground tabular-nums sm:text-5xl">
             ≈ {trips.toLocaleString("en-CA")}{" "}
             <span className="text-xl font-normal text-muted-foreground sm:text-2xl">
               trips on a day like this
@@ -129,7 +129,7 @@ function Picker({
 }) {
   return (
     <label className="block">
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="eyebrow">{label}</span>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger aria-label={label} className="mt-2 w-full">
           <SelectValue />

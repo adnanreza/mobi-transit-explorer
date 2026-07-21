@@ -1,7 +1,7 @@
 import { Bar, Line } from "react-chartjs-2";
 import type { ChartOptions, TooltipItem } from "chart.js";
 import { hourly, lastCompleteYear, stationsArtifact } from "@/data";
-import { chartColors } from "@/components/charts/chartTheme";
+import { useChartColors, type ChartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
 
@@ -30,6 +30,7 @@ const weekendPerDay = (latestHourly?.weekend ?? []).map((v) => Math.round(v / we
 
 export function RealMobiCharts() {
   const testMode = import.meta.env.MODE === "test";
+  const chartColors = useChartColors();
 
   return (
     <Reveal stagger className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
@@ -67,7 +68,7 @@ export function RealMobiCharts() {
                 },
               ],
             }}
-            options={lineOptions("Departures", true)}
+            options={lineOptions("Departures", true, chartColors)}
           />
           </ChartReveal>
         )}
@@ -95,7 +96,7 @@ export function RealMobiCharts() {
                 },
               ],
             }}
-            options={barOptions("Departures")}
+            options={barOptions("Departures", chartColors)}
           />
           </ChartReveal>
         )}
@@ -127,7 +128,7 @@ function ChartBlock({
 }) {
   return (
     <figure className="min-w-0">
-      <h3 className="text-lg font-medium tracking-tight text-foreground">{title}</h3>
+      <h3 className="eyebrow">{title}</h3>
       <div className="mt-4 h-64 min-w-0" role="img" aria-label={caption}>{children}</div>
       <figcaption className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
         {caption}
@@ -136,7 +137,7 @@ function ChartBlock({
   );
 }
 
-function barOptions(label: string): ChartOptions<"bar"> {
+function barOptions(label: string, chartColors: ChartColors): ChartOptions<"bar"> {
   return {
     indexAxis: "y" as const,
     responsive: true,
@@ -160,7 +161,11 @@ function barOptions(label: string): ChartOptions<"bar"> {
   };
 }
 
-function lineOptions(label: string, showLegend: boolean): ChartOptions<"line"> {
+function lineOptions(
+  label: string,
+  showLegend: boolean,
+  chartColors: ChartColors,
+): ChartOptions<"line"> {
   return {
     responsive: true,
     maintainAspectRatio: false,
