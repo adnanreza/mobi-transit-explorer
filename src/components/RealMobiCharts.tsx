@@ -36,7 +36,7 @@ export function RealMobiCharts() {
     <Reveal stagger className="grid gap-x-12 gap-y-16 lg:grid-cols-2">
       <ChartBlock
         title={`Departures per day by hour, ${lastCompleteYear}`}
-        caption="Average departures on a weekday vs a weekend day. Weekdays peak twice — the morning and evening commute; weekends build to one long afternoon. Timestamps are hour-rounded at source."
+        caption="Average departures on a weekday vs a weekend day. Weekdays peak twice, at the morning and evening commutes. Weekends build to one long afternoon. Timestamps are hour-rounded at source."
       >
         {testMode ? (
           <ChartPlaceholder label="Hourly departures chart" />
@@ -76,7 +76,7 @@ export function RealMobiCharts() {
 
       <ChartBlock
         title="Busiest stations, trailing 12 months"
-        caption={`${topStations[0]?.name ?? ""} leads the network — the seawall, not the office towers, drives peak demand.`}
+        caption={`${topStations[0]?.name ?? ""} leads the network. The seawall, not the office towers, drives peak demand.`}
       >
         {testMode ? (
           <ChartPlaceholder label="Top stations chart" />

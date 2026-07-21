@@ -56,8 +56,8 @@ export function FlowsSection() {
         <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground">
           Riders don't return bikes where they found them. Offices soak up
           bikes every weekday morning; homes and beaches drain them back out
-          by night. The imbalance riders create is work Mobi's crews must undo
-          — the number above is the average daily redistribution the trip
+          by night. The imbalance riders create is work Mobi's crews must
+          undo. The number above is the average daily redistribution the trip
           data implies. Mobi removes its own crew trips before publishing, so
           this is inference, and it's labelled that way in the methodology.
         </p>
@@ -66,13 +66,13 @@ export function FlowsSection() {
       <div className="grid min-w-0 gap-x-12 gap-y-10 border-t border-border pt-10 md:grid-cols-2 [&>*]:min-w-0">
         <RankedList
           title="Filling up on weekday mornings"
-          caption="Net bikes gained, 7:00–11:00, per weekday — the commute's landing zones."
+          caption="Net bikes gained, 7:00–11:00, per weekday: the commute's landing zones."
           rows={importers}
           unit="gained/morning"
         />
         <RankedList
           title="Draining on weekday evenings"
-          caption="Net bikes shed, 16:00–20:00, per weekday — where the ride home starts."
+          caption="Net bikes shed, 16:00–20:00, per weekday: where the ride home starts."
           rows={exporters}
           unit="shed/evening"
         />
@@ -109,8 +109,8 @@ export function FlowsSection() {
         <p className="mt-6 text-base font-medium tracking-tight text-foreground">
           {stationName}
           <span className="font-normal text-muted-foreground">
-            {" "}
-            — a typical {dayType === "weekday" ? "weekday" : "weekend day"}, hour by hour
+            {": "}
+            a typical {dayType === "weekday" ? "weekday" : "weekend day"}, hour by hour
           </span>
         </p>
         <div
@@ -119,7 +119,7 @@ export function FlowsSection() {
           aria-label={
             testMode
               ? "Station flow chart"
-              : `${stationName} — average departures and returns per hour on a typical ${dayType === "weekday" ? "weekday" : "weekend day"}`
+              : `${stationName}: average departures and returns per hour on a typical ${dayType === "weekday" ? "weekday" : "weekend day"}`
           }
         >
           {testMode ? (

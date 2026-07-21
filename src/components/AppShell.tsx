@@ -224,7 +224,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
     heading: "Built by",
     links: [
       { label: "adnanreza.com", href: "https://adnanreza.com" },
-      { label: "GitHub — source", href: "https://github.com/adnanreza/mobi-transit-explorer" },
+      { label: "Source on GitHub", href: "https://github.com/adnanreza/mobi-transit-explorer" },
       { label: "LinkedIn", href: "https://www.linkedin.com/in/adnanreza/" },
     ],
   },
@@ -284,7 +284,7 @@ function SiteFooter() {
           Data through {asOfLabel} · regenerated with each monthly Mobi release
         </p>
         <p className="mt-6 text-xs leading-5 text-muted-foreground">
-          An independent, non-commercial project — not affiliated with, endorsed by, or
+          An independent, non-commercial project. It is not affiliated with, endorsed by, or
           approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
           "Mobi" is a trademark of Vancouver Bike Share Inc., used here descriptively to
           identify the public dataset being analyzed. Trip data is used under the Mobi Data

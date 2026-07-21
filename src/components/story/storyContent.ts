@@ -44,7 +44,7 @@ export function growthChapter(
       `${first.year} closed with ${formatNumber(first.trips)} rider trips; ` +
       `${peak.year} peaked at ${formatNumber(peak.trips)}. ` +
       (latest.trips < peak.trips
-        ? `${latest.year} eased back to ${formatNumber(latest.trips)} — growth in this network has never been a straight line.`
+        ? `${latest.year} eased back to ${formatNumber(latest.trips)}. Growth in this network has never been a straight line.`
         : `${latest.year} is the new high-water mark.`),
   };
 }
@@ -67,7 +67,7 @@ export function seasonsChapter(
     headline: "Every year has the same shape.",
     caption:
       `Across ${complete.length} complete years, July carries ${ratio}× the trips of December. ` +
-      "The wave never changes — only its height does. " +
+      "The wave never changes. Only its height does. " +
       `The blue line is ${lastFull}; the grey lines are every year before it.`,
   };
 }
@@ -109,8 +109,8 @@ export function ebikeChapter(
     headline: "The fastest change the network has seen.",
     caption:
       `E-bikes first appear in the data in ${label}. By ${lastFull} they carried ` +
-      `${Math.round(share)}% of all trips — a behavioural shift that took the ` +
-      "classic fleet nine years to build happened to e-bikes in three.",
+      `${Math.round(share)}% of all trips. A shift that took the classic fleet ` +
+      "nine years happened to e-bikes in three.",
   };
 }
 
@@ -124,11 +124,11 @@ export function weatherChapter(rows: WeatherRow[] = weather): Chapter {
     headline: `Vancouver rides at ${peak.tempBandC}°.`,
     caption:
       `Days averaging ${peak.tempBandC}–${peak.tempBandC + 2}°C see about ` +
-      `${peak.tripsPerDay.toLocaleString("en-CA")} trips — roughly ` +
+      `${peak.tripsPerDay.toLocaleString("en-CA")} trips, roughly ` +
       `${Math.round(peak.tripsPerDay / cold.tripsPerDay)}× a near-freezing day. ` +
       "Temperature travels with season and daylight, so this is association, not " +
-      "cause — but the rain city rides anyway, in ambient weather from Environment " +
-      "Canada. The blue bar is the busiest band.",
+      "cause. The rain city rides anyway. Temperatures are ambient readings from " +
+      "Environment Canada. The blue bar is the busiest band.",
   };
 }
 
@@ -149,7 +149,7 @@ export function purposeChapter(
     headline: "Two networks in one.",
     caption:
       `By a documented heuristic, about ${Math.round(artifact.purpose.leisureSharePct)}% ` +
-      `of the last year's rides are leisure — but they are not evenly spread: ` +
+      `of the last year's rides are leisure, but they are not evenly spread: ` +
       `${most.name} runs ${Math.round(most.leisureSharePct ?? 0)}% leisure while ` +
       `${least.name} runs ${Math.round(least.leisureSharePct ?? 0)}%. The seawall and the ` +
       `commute share one fleet. E-bikes serve both harder: median trips are longer ` +
@@ -181,9 +181,9 @@ export function membershipChapter(
     caption:
       `Corporate and institutional passes went from ${firstCorp}% of rides in ` +
       `${first.year} to ${latestCorp}% by ${latest.year}, while casual day-pass ` +
-      "use held flat. My own passes followed that arc — day passes when I lived " +
-      "near UBC, an annual once I settled in East Van, a Langara corporate pass " +
-      "now. Even from Burnaby, outside Mobi's service area, I rode it as the last " +
+      "use held flat. My own passes followed that arc: day passes when I lived " +
+      "near UBC, an annual once I settled in East Van, and a Langara corporate " +
+      "pass now. Even from Burnaby, outside Mobi's service area, I rode it as the last " +
       "mile of a SkyTrain trip, finishing from VCC-Clark or Commercial-Broadway. " +
       "A bike ending a transit trip is the whole idea.",
   };

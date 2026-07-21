@@ -12,9 +12,9 @@ export function Methodology() {
   return (
     <Reveal stagger className="max-w-3xl space-y-14">
       <p className="text-lg leading-8 text-foreground">
-        I moved to Vancouver in August 2015 and have never owned a car here —
-        transit, bike share, and walking, with zero regrets and some fun along
-        the way. Mobi arrived the summer after I did, so its entire public
+        I moved to Vancouver in August 2015 and have never owned a car here.
+        I get around by transit, bike share, and walking, with zero regrets
+        and some fun along the way. Mobi arrived the summer after I did, so its entire public
         record overlaps my own years moving through this city. That's why nine
         years of trip files aren't an abstract dataset to me, and why this
         section is the honest account of how they become the numbers above.
@@ -24,7 +24,7 @@ export function Methodology() {
         <p>
           Mobi by Rogers publishes a trip file for every month of operation:
           one workbook covering 2017, then monthly files from January 2018
-          onward — {meta.quality.filesProcessed} files under the Mobi Data
+          onward: {meta.quality.filesProcessed} files under the Mobi Data
           License Agreement. Timestamps are rounded to the nearest hour for
           rider privacy, accounts are anonymized, and Mobi's own rebalancing
           trips are removed before publication. I add two open sources:
@@ -36,7 +36,7 @@ export function Methodology() {
 
       <Section title="The pipeline">
         <p className="mb-6">
-          A staged Python + DuckDB pipeline runs locally — the site you're
+          A staged Python + DuckDB pipeline runs locally. The site you're
           reading is static files. Each stage is re-runnable and counts its
           rows in and out:
         </p>
@@ -51,8 +51,8 @@ export function Methodology() {
           layout or stops the pipeline until a human maps the drift; every
           number on this page regenerates from the warehouse; and a release
           gate byte-compares the committed artifacts against fresh output
-          before anything ships. June 2026 — the first month to arrive after
-          this site launched — went from Mobi's Drive link to production in a
+          before anything ships. June 2026, the first month to arrive after
+          this site launched, went from Mobi's Drive link to production in a
           single run: no header drift, one brand-new station (Callister Park
           – Fan Fest, opened for FIFA), and the dates in the copy above
           updated themselves because they derive from the data window. The
@@ -71,7 +71,7 @@ export function Methodology() {
         <p>
           The archive is nine and a half years ({windowLabel}) of quiet format entropy, and handling it is
           most of the work. Across {meta.quality.filesProcessed} files there
-          are 31 distinct column layouts — the membership column alone appears
+          are 31 distinct column layouts. The membership column alone appears
           as <Code>Membership type</Code>, <Code>Membership Type</Code>,{" "}
           <Code>Formula</Code>, and the typo <Code>Memebership type</Code>.
           Timestamps come in five shapes, from Excel serial numbers to April
@@ -80,16 +80,16 @@ export function Methodology() {
           name šxʷƛ̓ənəq Xwtl'e7énḵ Square into invalid UTF-8. The trip files'
           temperature column comes from a bike-mounted sensor that reads high in
           sun, emits 0° sentinels, and reports values Vancouver has never seen
-          (up to 45°C), so it is not used for weather — the weather chapter uses
+          (up to 45°C), so it is not used for weather. The weather chapter uses
           Environment Canada ambient readings instead. In May and June
           2025 station names lost their numeric IDs entirely (resolved through
           a name-to-ID crosswalk built from the prefixed months and the GBFS
           feed) while most membership labels went blank (kept and reported as
-          Unknown — {formatNumber(meta.quality.unknownMembershipTrips)} real
+          Unknown; {formatNumber(meta.quality.unknownMembershipTrips)} real
           trips ride under that label). A few hundred distances arrive as
           negative integer-wraparound values near −4,294 km and are flagged
           out of distance totals. Every one of these is handled by an
-          explicit, tested rule — never a silent guess. An unrecognized header
+          explicit, tested rule, never a silent guess. An unrecognized header
           stops the pipeline until a human maps it.
         </p>
       </Section>
@@ -103,9 +103,9 @@ export function Methodology() {
           timestamps (including literal <Code>1900-01-00</Code> never-returned
           sentinels), and {formatNumber(meta.quality.droppedDuplicates)} exact
           duplicates from files that repeat their neighbours' trips. Another{" "}
-          {formatNumber(meta.quality.rowsFlagged)} trips carry quality flags —
-          sub-two-minute false starts, impossible durations, sentinel
-          temperatures — and each aggregate excludes only the flags that
+          {formatNumber(meta.quality.rowsFlagged)} trips carry quality flags:
+          sub-two-minute false starts, impossible durations, and sentinel
+          temperatures. Each aggregate excludes only the flags that
           invalidate it.{" "}
           <em>Caveat: the false-start exclusion (same-station return under 2 minutes)
           is an unvalidated heuristic affecting approximately 6% of otherwise-countable
@@ -131,9 +131,8 @@ export function Methodology() {
 
       <Section title="Flows and implied rebalancing">
         <p>
-          Every trip has two ends, so each station's hourly inflow and outflow
-          — and its daily net imbalance — falls straight out of the fact
-          table. The "bikes moved by hand" number is the average daily sum of
+          Every trip has two ends, so each station's hourly inflow, outflow,
+          and daily net imbalance fall straight out of the fact table. The "bikes moved by hand" number is the average daily sum of
           absolute station imbalances across the network, divided by two
           (a moved bike leaves one station and lands at another). It is an
           inference, not a measurement: Mobi removes its crews' rebalancing
@@ -141,7 +140,7 @@ export function Methodology() {
           imbalance must be undone invisibly. Trips with only one resolvable
           end (~2% of recent months) count toward the end they have.{" "}
           <em>Caveat: the daily rebalancing figure is a conservative lower-bound
-          inference — partial rebalancing during the day resets the imbalance
+          inference. Partial rebalancing during the day resets the imbalance
           clock before midnight, so the true number of bike movements is higher.</em>
         </p>
       </Section>
@@ -152,12 +151,12 @@ export function Methodology() {
           months: distance to rapid transit (30%, decaying to zero at 800 m),
           trip volume (25%, log-scaled), weekday commute-hour share (20%),
           e-bike share (10%), and destination diversity (15%). Opportunity
-          findings are explicit rules over the same window — dock-capacity
+          findings are explicit rules over the same window: dock-capacity
           pressure against the network median, commute-heavy stations with
-          bottom-quartile e-bike share, busy stations near transit that still
-          score low — and every row cites the numbers that triggered it. One
+          bottom-quartile e-bike share, and busy stations near transit that
+          still score low. Every row cites the numbers that triggered it. One
           honest limit: dock-capacity findings read departures against current
-          dock counts. That is a pressure signal, not proof of stockouts — the
+          dock counts. That is a pressure signal, not proof of stockouts. The
           public data has no availability or historical-capacity record.
         </p>
       </Section>
@@ -166,17 +165,17 @@ export function Methodology() {
         <p>
           "Two networks in one" rests on two derived measures. The detour
           factor divides a trip's odometer distance by the straight-line
-          distance between its two stations' real coordinates — a proxy for
-          how indirect the ride was, only computed where both ends resolve and
-          the ratio is sane (1–5×, ends ≥300 m apart). The leisure label is a
+          distance between its two stations' real coordinates. It is a proxy
+          for how indirect the ride was, computed only where both ends resolve
+          and the ratio is sane (1–5×, ends ≥300 m apart). The leisure label is a
           documented heuristic, not ground truth: points for a same-station
           round trip (+3), a seawall-adjacent endpoint (+2), rides over 40
           minutes (+2, over 20 +1), weekends (+1), midday departures (+1), and
           detours above 1.8× (+1); four points classifies a ride as leisure.
           The weights are visible in the published artifact and deliberately
-          crude — the point is the contrast they reveal, not per-trip truth.
-          One reported difference — e-bikes' higher median speed (13.3 vs 11.1
-          km/h) — is odometer distance over total rental time, stopovers
+          crude. The point is the contrast they reveal, not per-trip truth.
+          One reported difference, e-bikes' higher median speed (13.3 vs 11.1
+          km/h), is odometer distance over total rental time with stopovers
           included, not a controlled pace measurement.
         </p>
       </Section>
@@ -191,15 +190,15 @@ export function Methodology() {
           literally true. The widget is a gradient-boosted model (scikit-learn)
           over day of week, cyclical month, mean temperature, precipitation, and
           a BC-holiday flag, with rain constrained so more of it can never
-          predict more trips. It is evaluated by a time split — trained on
-          2017–2024, scored on unseen 2025-onward days, and it must beat a
-          seasonal-naive baseline to ship. The predictions shown come from a
+          predict more trips. It is evaluated by a time split: trained on
+          2017–2024, scored on unseen 2025-onward days, and required to beat
+          a seasonal-naive baseline before it ships. The predictions shown come from a
           model refit on all data and reflect the last complete year's demand;
           the browser gets a ~5 KB precomputed grid, not a live model.{" "}
           <strong className="font-medium text-foreground">Disclosure:</strong>{" "}
           the model omits{" "}
           {formatNumber(forecast.modelCard.droppedDays.total)} days lacking
-          Environment Canada precipitation —{" "}
+          Environment Canada precipitation:{" "}
           {formatNumber(forecast.modelCard.droppedDays.trainingWindow)} in the
           2017–2024 fitting window (most in 2020), and{" "}
           {formatNumber(forecast.modelCard.droppedDays.holdoutWindow)} in the
@@ -214,7 +213,7 @@ export function Methodology() {
             Hour-rounded timestamps mean time-of-day analysis carries ±30
             minutes of blur (April 2019, oddly, has minutes).
           </li>
-          <li>No demographics, no routes — distances are per-bike odometer readings.</li>
+          <li>No demographics and no routes. Distances are per-bike odometer readings.</li>
           <li>
             Retired stations keep their trips but have no public coordinates,
             so geographic views cover {formatNumber(meta.totals.activeStations)}{" "}

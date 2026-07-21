@@ -82,7 +82,7 @@ export function WeatherModelBlock() {
       {outOfRange ? (
         <p className="mt-8 max-w-xl text-2xl font-medium leading-snug tracking-tight text-foreground sm:text-3xl">
           No {monthName} on record has averaged {selectedTempC}°C
-          <span className="text-muted-foreground"> — outside the observed range, so the model won't guess.</span>
+          <span className="text-muted-foreground">. That's outside the observed range, so the model won't guess.</span>
         </p>
       ) : (
         <>
@@ -100,16 +100,16 @@ export function WeatherModelBlock() {
 
       <p className="mt-6 max-w-2xl text-xs leading-5 text-muted-foreground">
         Model card: {card.features.length} features; {card.constraint}. Evaluated
-        by a time split — trained on {card.nTrain.toLocaleString("en-CA")} days
+        by a time split: trained on {card.nTrain.toLocaleString("en-CA")} days
         through 2024, tested on {card.nTest.toLocaleString("en-CA")} unseen days
-        ({card.testRange}): mean error {card.testMae.toLocaleString("en-CA")}{" "}
+        ({card.testRange}). Mean error {card.testMae.toLocaleString("en-CA")}{" "}
         trips/day vs {card.baselineMae.toLocaleString("en-CA")} for a
         seasonal-naive baseline, R² {card.testR2}. The predictions above come
         from a model refit on all data through {card.gridFitRange.split(" to ").pop()} and
         reflect {card.gridReferenceYear} demand levels. Weather from{" "}
         {card.station}. Predictions are only meaningful within each month's
         historically observed temperature range, and never fall below the fewest
-        trips ever seen in a day. Associations, not causal claims — the data has
+        trips ever seen in a day. Associations, not causal claims: the data has
         no events, and holidays are a single flag.
       </p>
     </div>

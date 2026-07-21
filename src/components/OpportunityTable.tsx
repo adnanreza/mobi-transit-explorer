@@ -126,7 +126,7 @@ export function OpportunityTable({
 
       <p className="mt-4 text-xs text-muted-foreground">
         Each signal comes from an explicit rule over the trailing twelve
-        months — these are patterns that warrant investigation, not validated
+        months. These are patterns that warrant investigation, not validated
         recommendations. Thresholds and definitions are in the{" "}
         <a href="#methodology" className="text-primary underline decoration-1 underline-offset-2 transition-colors hover:text-accent-foreground">
           methodology

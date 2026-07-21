@@ -25,7 +25,7 @@ export class MapErrorBoundary extends Component<
             The map hit an error.
           </p>
           <p className="max-w-xs text-sm text-muted-foreground">
-            Reload the page to restore it — the rest of the site is unaffected.
+            Reload the page to restore it. The rest of the site is unaffected.
           </p>
         </div>
       );
