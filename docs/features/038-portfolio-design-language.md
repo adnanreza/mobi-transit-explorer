@@ -88,13 +88,14 @@ No copy edits, no section restructuring, no scrollspy/nav behavior changes, no c
 ## Verification
 
 - Full suite green after the re-skin: 90 Vitest tests (20 files), `tsc --noEmit`, and production build all pass. No test asserted on classes, so none needed updating.
-- Playwright checks against the production build (`vite preview`): light and dark verified at 1440, 375, and 320 wide with zero horizontal overflow; hero, overview + charts, map, and the opportunities section screenshot-reviewed in both themes.
+- Cross-engine Playwright sweep against the production build (`vite preview`): chromium, webkit, and firefox at 320/360/375/390/414/768/1024/1440, light and dark — 48 combinations, 0 failures. Each pass asserted zero horizontal overflow, correct theme class from `prefers-color-scheme` on a first visit, both variable fonts active (`document.fonts.check`), charts mounted while their section is in view (the spec-037 windowing unmounts them once scrolled clear — expected), the MapLibre canvas present, and no console or page errors. The 320px column also ran under `prefers-reduced-motion: reduce`.
+- Interactive checks via the Playwright browser: mobile hamburger menu (dark), Radix select dropdown open + option selection in the forecast section (March at 22°C correctly shows the out-of-range guard), flows and footer screenshot-reviewed in dark at desktop width.
 - Theme toggle: flips instantly, persists across reload (the pre-hydration script applied `dark` before first paint on a stored-dark hard reload), charts remount with the dark palette, and the basemap swaps to OpenFreeMap `dark`. Scroll position measured identical before/after a toggle at the map section.
 - Map chrome in dark needed three specificity bumps in src/index.css: maplibre's lazy-loaded stylesheet ties `.dark .maplibregl-ctrl-attrib` on the compact attribution pill (`.maplibregl-compact`, `.maplibregl-compact-show`, and the base `.maplibregl-ctrl.maplibregl-ctrl-attrib` variants), confirmed fixed by computed-style checks. Zoom controls and icons theme via `bg: --card` + `filter: invert(1)`.
 - Contrast spot-checks: `#636a6f` on `#f7f9fb` ≈ 5.4:1 and `#959595` on `#0b0b0b` ≈ 7.4:1 (AA for the 11px eyebrows); accent link `#196ea9` on paper ≈ 4.9:1, `#5fa5de` on `#0b0b0b` ≈ 7:1.
 - Reduced-motion handling is unchanged (reveals, pulses, smooth scroll all still gated).
 - Font payload at runtime: latin variable woff2 only — Inter Tight 44.9 KB + JetBrains Mono 40.4 KB ≈ 85 KB, under the ~160 KB budget (other subsets load only via unicode-range if needed).
-- Remaining for the owner: on-device pass in both themes, side by side with adnanreza.com, and a cross-engine (webkit/firefox) sweep if desired before deploy.
+- Remaining for the owner: on-device pass in both themes, side by side with adnanreza.com, before deploy.
 
 ## Lifecycle
 
