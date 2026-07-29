@@ -235,6 +235,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
       { label: "Mobi GBFS feed", href: "https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/gbfs.json" },
       { label: "City of Vancouver Open Data", href: "https://opendata.vancouver.ca" },
       { label: "Environment & Climate Change Canada", href: "https://climate.weather.gc.ca" },
+      { label: "BC ENV Air Data Archive", href: "https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409" },
     ],
   },
   {

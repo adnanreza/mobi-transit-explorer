@@ -30,6 +30,25 @@ Wildfire smoke overlaps the whole trip archive: August 2017, August 2018, Septem
 - Sanity anchors: August 2017 and September 2020 must register as smoke days under the dual-station rule; if they do not, the threshold is wrong and the spec revisits it before anything ships.
 - Chapter reviewed against the encoding-legibility rule; both themes at 375 and 1440.
 
+## Implementation notes (2026-07-29)
+
+**Results.** 35 smoke days since 2017 under the dual-station rule. Day for day against clear days in the same month and year, the median smoke day ran 5.8% above its month's clear days and the mean 0.4% below: typical smoke barely moves riding. The exception is sustained severe smoke. September 2020's 8 smoke days ran 18.4% below, and the dirtiest day on record (2020-09-14, 161 ug/m3) saw 1,261 trips, a 42% drop. Both sanity anchors registered (Aug 2017: 9 smoke days; Sept 2020: 8).
+
+**Model gate result: PM2.5 rejected.** On an identical 3,233-day pool (522 holdout days), base MAE 549 / R2 0.755 versus base+pm25 MAE 552 / R2 0.757; committed card 553 / 0.753. Adding PM2.5 worsened MAE, so FEATURES is unchanged and the site's copy states the outcome without numbers (the numbers live here).
+
+**Independent review (three Fable agents, one per dimension), adjudicated:**
+- Data integrity: sound. Row accounting, checksums, no cross-file duplicates, timezone alignment, and artifact values all verified independently. Their one severity-2 (coverage.lastDay "stale" at 2026-06-30) was a misread: coverage describes the PM2.5-and-trips joined window, and trips end 2026-06.
+- Statistical honesty: raised a severity-1 claiming the 0.4% should be 12.9%. Author verification showed both numbers are real but different statistics: 0.4% is the mean of per-day within-month drops (the design's unit of analysis); 12.9% is a pooled cross-month ratio that re-weights by month volume, which the within-month design exists to prevent (their own check confirmed the Sept 2020 within-month 18.4%). Resolution: the copy now names its statistic ("day for day", median and mean both published; medianSmokeDayDropPct added to the artifact), and publish.py documents why a pooled figure is deliberately not shipped. Their severity check also showed a greater-than-50 ug/m3 tier does NOT separate cleanly (Aug 2018 days at 80-117 show no drop), so the event-level framing stands rather than a severity tier.
+- Frontend and house rules: hardcoded gate numbers in Methodology violated derive-or-omit; removed in favour of a qualitative sentence pointing here. Payload-budget test now includes the new artifacts; chart x-labels became "Sep 14" style.
+
+**Also fixed in flight:** the warehouse (gitignored) had been deleted since the June run and was rebuilt from the 103 raw files; pipeline test fixtures gained a PM2.5 file (the new views glob it, and DuckDB binds the glob at CREATE VIEW); two Explorer tests got cold-worker-sized timeouts after the suite's growth pushed the lazy maplibre transform past the 1s default under full-suite load (passes solo, timed out in full runs; a static-import warmup was tried and rejected because it starved four other test files).
+
+## Verification (final)
+
+- Pipeline: 40 pytest; `make check-artifacts` PASS (fresh regeneration byte-matches, including airquality.json and forecast.json); inventory clean; manifest checksums recomputed by the reviewer.
+- Frontend: 100 Vitest twice consecutively; typecheck; production build; payload 362.9 KB raw / 77.0 KB gzip against the 400/120 budget.
+- Visual: chapter renders in both themes at 1440, reveal opacity 1, caption carries the median/mean sentence, the 2020 exception, the blue/grey decode, and no em dashes; theme flip leaves the page intact.
+
 ## Lifecycle
 
-This spec is written pre-implementation, like spec 038 was. Feasibility artifacts stayed in /tmp; nothing lands in data-raw until implementation. On owner go: branch `feat/045-air-quality` and implement in the order above. ICBC crash data remains parked as the spec 046 candidate, first action there being a read of the "Open Data Licence for ICBC Information".
+Spec written pre-implementation; implemented on `feat/045-air-quality` with the review pass above. Awaiting owner confirmation to complete (merge to main, push, deploy). ICBC crash data remains parked as the spec 046 candidate, first action there being a read of the "Open Data Licence for ICBC Information".

@@ -3,6 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
 import { lastCompleteYear, meta, stationsAll, stationsArtifact } from "@/data";
 
+// Explorer lazy-loads the map, and a cold maplibre-gl transform on a
+// saturated vitest worker can take several seconds; in production a skeleton
+// covers that window by design. The two tests that await the map get
+// timeouts sized for a cold worker instead of the 1s default.
+const MAP_WAIT = { timeout: 20_000 };
+
 async function chooseOption(label: string, option: string) {
   const user = userEvent.setup();
 
@@ -22,13 +28,17 @@ describe("Explorer", () => {
     expect(screen.getByText("Find a station")).toBeInTheDocument();
     expect(screen.getByText("Select a station")).toBeInTheDocument();
     expect(
-      await screen.findByLabelText("Interactive map of Mobi stations"),
+      await screen.findByLabelText(
+        "Interactive map of Mobi stations",
+        undefined,
+        MAP_WAIT,
+      ),
     ).toBeInTheDocument();
-  });
+  }, 30_000);
 
   it("selecting a station through the finder updates the detail panel and URL", async () => {
     render(<Explorer />);
-    await screen.findByLabelText("Interactive map of Mobi stations");
+    await screen.findByLabelText("Interactive map of Mobi stations", undefined, MAP_WAIT);
 
     await chooseOption("Find a station", stationsAll[0].name);
 
@@ -36,7 +46,7 @@ describe("Explorer", () => {
       screen.getByRole("heading", { name: stationsAll[0].name }),
     ).toBeInTheDocument();
     expect(window.location.search).toContain(`station=${stationsAll[0].id}`);
-  });
+  }, 30_000);
 
   it("restores state from the URL", async () => {
     // Use a station that is within 300 m of transit AND has 2019 trips, so the

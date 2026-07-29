@@ -429,3 +429,37 @@ FROM (
 )
 ORDER BY impact DESC
 LIMIT 8;
+
+-- BC ENV hourly PM2.5 (spec 045), filtered at fetch time to the station of
+-- record (Vancouver Clark Drive, the only station inside the service area
+-- with full coverage) and its regional corroborator (Burnaby Kensington
+-- Park). Daily means per station; a day only counts when it has most of its
+-- hours, so a few missing hours cannot fake a clean day.
+CREATE OR REPLACE VIEW v_pm25_daily AS
+SELECT
+  CAST(obs_date AS DATE)  AS date_key,
+  station_name,
+  avg(raw_value)          AS mean_pm25,
+  count(*)                AS n_hours,
+  bool_and(verified)      AS verified
+FROM read_csv(getvariable('data_raw') || '/airquality/pm25-*.csv',
+              header = true, union_by_name = true, filename = false,
+              columns = {'obs_date': 'VARCHAR', 'station_name': 'VARCHAR',
+                         'raw_value': 'DOUBLE', 'verified': 'BOOLEAN'})
+GROUP BY 1, 2
+HAVING count(*) >= 18;
+
+-- Smoke day rule: BOTH stations over BC's 24-hour PM2.5 objective
+-- (25 ug/m3). Wildfire smoke is regional and lifts both at once; Clark
+-- Drive's truck-route siting alone cannot, which is the whole point of
+-- requiring the corroborator.
+CREATE OR REPLACE VIEW v_smoke_days AS
+SELECT
+  c.date_key,
+  round(c.mean_pm25, 1)                            AS clark_pm25,
+  round(k.mean_pm25, 1)                            AS kensington_pm25,
+  c.verified AND k.verified                        AS verified,
+  (c.mean_pm25 > 25 AND k.mean_pm25 > 25)          AS is_smoke
+FROM (SELECT * FROM v_pm25_daily WHERE station_name = 'Vancouver Clark Drive') c
+JOIN (SELECT * FROM v_pm25_daily WHERE station_name = 'Burnaby Kensington Park') k
+  USING (date_key);

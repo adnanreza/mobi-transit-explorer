@@ -817,6 +817,77 @@
           "fetched_at": "2026-07-21T22:20:34+00:00"
         }
       }
+    },
+    "bc_env_airquality": {
+      "source": "https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409",
+      "licence": "Open Government Licence - British Columbia",
+      "primary_station": "Vancouver Clark Drive",
+      "corroborating_station": "Burnaby Kensington Park",
+      "years": {
+        "2017": {
+          "file": "airquality/pm25-2017.csv",
+          "usable_days": 342,
+          "verified": true,
+          "sha256": "40ded16b7228185c2ee78b3c9b7017c179d4e4eddd2b19e8ba6ee44e38dc86ff",
+          "fetched_at": "2026-07-29T18:47:20+00:00"
+        },
+        "2018": {
+          "file": "airquality/pm25-2018.csv",
+          "usable_days": 339,
+          "verified": true,
+          "sha256": "2d603e9e701ba92e2e73a88c504ed695ba14e935148db6e4e36e8cf16409a1f8",
+          "fetched_at": "2026-07-29T18:47:29+00:00"
+        },
+        "2019": {
+          "file": "airquality/pm25-2019.csv",
+          "usable_days": 357,
+          "verified": true,
+          "sha256": "d73d351ebb5fffb654c904bba5eb33d5e094bd501c13788aeb646debb2f633df",
+          "fetched_at": "2026-07-29T18:47:40+00:00"
+        },
+        "2020": {
+          "file": "airquality/pm25-2020.csv",
+          "usable_days": 350,
+          "verified": true,
+          "sha256": "6c9bc76f84e243ec55567fb17d317720aff944bdaf8b8ae1a995ac6908a35eee",
+          "fetched_at": "2026-07-29T18:47:51+00:00"
+        },
+        "2021": {
+          "file": "airquality/pm25-2021.csv",
+          "usable_days": 356,
+          "verified": true,
+          "sha256": "60a302a2b27ad178bb4a027706c8dbe23869664066fc8e1e611c93becf466f67",
+          "fetched_at": "2026-07-29T18:48:01+00:00"
+        },
+        "2022": {
+          "file": "airquality/pm25-2022.csv",
+          "usable_days": 362,
+          "verified": true,
+          "sha256": "56ddcd17d37580734ffc04c4c65346f50117c559280dcfda70b500777c4d274a",
+          "fetched_at": "2026-07-29T18:48:13+00:00"
+        },
+        "2023": {
+          "file": "airquality/pm25-2023.csv",
+          "usable_days": 355,
+          "verified": true,
+          "sha256": "5a3e68adb620701032ef452bc8e6482223f24e07848488af89a3d0e2e23adfc6",
+          "fetched_at": "2026-07-29T18:48:25+00:00"
+        },
+        "2024": {
+          "file": "airquality/pm25-2024.csv",
+          "usable_days": 356,
+          "verified": true,
+          "sha256": "7cead15f5b1f2568a1e1fd9f6cea86807cadd372bf5051cfed9278ee3c914ba0",
+          "fetched_at": "2026-07-29T18:48:36+00:00"
+        },
+        "ytd": {
+          "file": "airquality/pm25-ytd.csv",
+          "usable_days": 559,
+          "verified": false,
+          "sha256": "070fe7d82215ef2666926ad66f26424960602fbdb13544bdec454f89c92e8451",
+          "fetched_at": "2026-07-29T18:48:50+00:00"
+        }
+      }
     }
   }
 }

@@ -4,6 +4,7 @@
 // can drive them with fixtures.
 
 import type {
+  AirQualityArtifact,
   EbikeArtifact,
   MonthlyRow,
   SeasonalityRow,
@@ -12,6 +13,7 @@ import type {
   YearlyRow,
 } from "@/data/contracts";
 import {
+  airquality,
   ebike,
   lastCompleteYear,
   monthly,
@@ -160,6 +162,58 @@ export function purposeChapter(
   };
 }
 
+const MONTHS_LONG = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+function longDate(iso: string): string {
+  // Formatted from the string, never through Date(): an ISO date parsed as
+  // UTC can render as the previous day in Vancouver.
+  return `${MONTHS_LONG[Number(iso.slice(5, 7)) - 1]} ${Number(iso.slice(8, 10))}, ${iso.slice(0, 4)}`;
+}
+
+export function smokeChapter(aq: AirQualityArtifact = airquality): Chapter {
+  const firstYear = aq.coverage.firstDay?.slice(0, 4) ?? "2017";
+  const drop = aq.avgSmokeDayDropPct;
+  const worst = aq.worstDay;
+  const headline =
+    drop !== null && drop >= 5
+      ? `When the sky turns to smoke, riding falls ${Math.round(drop)}%.`
+      : "Even wildfire smoke barely stops the bikes.";
+  const worstSentence = worst
+    ? `The dirtiest air on record, ${longDate(worst.date)} at ${Math.round(worst.pm25)} ug/m3, saw ${formatNumber(worst.trips)} trips.`
+    : "";
+  const phrase = (value: number | null): string =>
+    value === null || Math.abs(value) < 1
+      ? "about even with"
+      : value > 0
+        ? `${value}% below`
+        : `${Math.abs(value)}% above`;
+  const evt2020 = aq.events.find((e) => e.year === 2020);
+  const exceptionSentence =
+    evt2020 && evt2020.avgDropPct !== null && evt2020.avgDropPct >= 5
+      ? `The exception is sustained severe smoke: September 2020's ${evt2020.days} smoke days ran ${evt2020.avgDropPct}% below. `
+      : "";
+  return {
+    id: "smoke",
+    headline,
+    caption:
+      `Since ${firstYear}, ${aq.smokeDayCount} days have met the smoke rule: a 24-hour ` +
+      `PM2.5 mean above ${aq.smokeThresholdUgM3} ug/m3 at both ${aq.primaryStation} and ` +
+      `${aq.corroboratingStation}, so regional smoke counts and local traffic cannot. ` +
+      "Each smoke day is measured against the clear days of its own month and " +
+      "year. Day for day, typical smoke barely moves riding: the median smoke " +
+      `day ran ${phrase(aq.medianSmokeDayDropPct)} its month's clear days, the ` +
+      `mean ${phrase(drop)} them. ` +
+      exceptionSentence +
+      worstSentence +
+      " The chart shows the September 2020 event day by day. Blue bars are smoke " +
+      "days; grey bars are clear days. Smoke season is also peak riding season, " +
+      "so this is association within season, not cause.",
+  };
+}
+
 function membershipShare(row: YearlyRow, group: string): number {
   const total = Object.values(row.membershipMix).reduce((a, b) => a + b, 0) || 1;
   return (100 * (row.membershipMix[group] ?? 0)) / total;
@@ -195,6 +249,7 @@ export const chapters: Chapter[] = [
   pandemicChapter(),
   ebikeChapter(),
   weatherChapter(),
+  smokeChapter(),
   purposeChapter(),
   membershipChapter(),
 ];

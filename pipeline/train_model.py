@@ -11,6 +11,7 @@ Usage: python pipeline/train_model.py
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import sys
@@ -83,6 +84,71 @@ def load_weather() -> dict[date, tuple[float, float]]:
     return out
 
 
+def load_pm25() -> dict[date, float]:
+    """Daily mean PM2.5 at Vancouver Clark Drive from the spec-045 fetch.
+
+    Days need most of their hours (>= 18) for an honest mean, matching the
+    warehouse rule in v_pm25_daily.
+    """
+    agg: dict[date, list[float]] = {}
+    for path in sorted((common.DATA_RAW / "airquality").glob("pm25-*.csv")):
+        for row in csv.DictReader(path.open(encoding="utf-8")):
+            if row["station_name"] != "Vancouver Clark Drive":
+                continue
+            agg.setdefault(date.fromisoformat(row["obs_date"]), []).append(
+                float(row["raw_value"])
+            )
+    return {d: sum(v) / len(v) for d, v in agg.items() if len(v) >= 18}
+
+
+def evaluate_pm25(weather, trips, holidays) -> int:
+    """Spec 045 model gate: does daily-mean PM2.5 earn a place in FEATURES?
+
+    Both models are fit on the SAME day pool (days with weather AND PM2.5) so
+    the comparison is fair; the committed card's thresholds are printed for
+    context. This run writes nothing; the gate decision is recorded in the
+    spec and, only if it passes, FEATURES changes in a follow-up.
+    """
+    pm25 = load_pm25()
+    days = sorted(d for d in trips if d in weather and d in pm25)
+    if not days:
+        print("no overlapping days with PM2.5; run airquality_fetch.py first", file=sys.stderr)
+        return 1
+    X_base = np.array([featurize(d, *weather[d], holidays) for d in days])
+    X_pm = np.array(
+        [featurize(d, *weather[d], holidays) + [pm25[d]] for d in days]
+    )
+    y = np.array([trips[d] for d in days])
+    train = np.array([d < TEST_SPLIT for d in days])
+
+    results = {}
+    for label, X, mono in (
+        ("base", X_base, MONOTONIC),
+        ("base+pm25", X_pm, MONOTONIC + [0]),
+    ):
+        model = HistGradientBoostingRegressor(
+            monotonic_cst=mono, random_state=42, max_iter=300
+        )
+        model.fit(X[train], y[train])
+        pred = model.predict(X[~train])
+        results[label] = {
+            "testMae": round(float(mean_absolute_error(y[~train], pred))),
+            "testR2": round(float(r2_score(y[~train], pred)), 3),
+        }
+    committed = json.loads(OUT.read_text())["modelCard"]
+    print(json.dumps({
+        "dayPool": {"n": len(days), "nTest": int((~train).sum())},
+        "restrictedPool": results,
+        "committedCard": {
+            "testMae": committed["testMae"],
+            "testR2": committed["testR2"],
+        },
+        "gate": "ship pm25 only if base+pm25 beats base on this pool AND meets "
+                "the committed thresholds",
+    }, indent=2))
+    return 0
+
+
 def load_daily_trips(con) -> dict[date, int]:
     last_month = con.execute(
         "SELECT max(source_period) FROM fact_trips WHERE source_period <> '2017'"
@@ -114,12 +180,23 @@ def featurize(day: date, temp: float, precip: float, holidays: set[date]) -> lis
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--evaluate-pm25",
+        action="store_true",
+        help="spec-045 gate: compare the model with and without daily PM2.5; writes nothing",
+    )
+    args = parser.parse_args()
+
     con = duckdb.connect(str(WAREHOUSE), read_only=True)
     weather = load_weather()
     trips = load_daily_trips(con)
     holidays: set[date] = set()
     for year in range(2017, max(d.year for d in trips) + 1):
         holidays |= bc_holidays(year)
+
+    if args.evaluate_pm25:
+        return evaluate_pm25(weather, trips, holidays)
 
     days = sorted(d for d in trips if d in weather)
 

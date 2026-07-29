@@ -253,6 +253,101 @@ def build_artifacts(con) -> dict[str, object]:
         },
     }
 
+    # Air quality (spec 045): smoke days against riding. A smoke day needs
+    # BOTH stations over BC's 24-hour objective (v_smoke_days); each smoke
+    # day's reference is the mean of clear days in the SAME year and month,
+    # so seasonality can never masquerade as an air-quality effect.
+    aq_rows = rows(con, """
+        WITH daily AS (
+          SELECT date_key, count(*) AS trips FROM countable_trips GROUP BY 1
+        )
+        SELECT s.date_key, s.clark_pm25, s.kensington_pm25, s.verified,
+               s.is_smoke, d.trips
+        FROM v_smoke_days s
+        JOIN daily d USING (date_key)
+        ORDER BY s.date_key""")
+    clear_by_month: dict[tuple[int, int], list[int]] = {}
+    for r in aq_rows:
+        if not r["is_smoke"]:
+            key = (r["date_key"].year, r["date_key"].month)
+            clear_by_month.setdefault(key, []).append(r["trips"])
+    smoke_days = []
+    for r in aq_rows:
+        if not r["is_smoke"]:
+            continue
+        clear = clear_by_month.get((r["date_key"].year, r["date_key"].month), [])
+        # a fair reference needs enough clear days in the same month
+        drop_pct = (
+            round(100 * (1 - r["trips"] / (sum(clear) / len(clear))), 1)
+            if len(clear) >= 5
+            else None
+        )
+        smoke_days.append(
+            {
+                "date": str(r["date_key"]),
+                "pm25": r["clark_pm25"],
+                "trips": r["trips"],
+                "dropPct": drop_pct,
+            }
+        )
+    drops = sorted(d["dropPct"] for d in smoke_days if d["dropPct"] is not None)
+    median_drop = (
+        round((drops[len(drops) // 2] + drops[(len(drops) - 1) // 2]) / 2, 1)
+        if drops
+        else None
+    )
+    events: dict[int, dict] = {}
+    for d in smoke_days:
+        year = int(d["date"][:4])
+        entry = events.setdefault(year, {"year": year, "days": 0, "drops": []})
+        entry["days"] += 1
+        if d["dropPct"] is not None:
+            entry["drops"].append(d["dropPct"])
+    worst = max(smoke_days, key=lambda d: d["pm25"]) if smoke_days else None
+    airquality = {
+        "primaryStation": "Vancouver Clark Drive",
+        "corroboratingStation": "Burnaby Kensington Park",
+        "smokeThresholdUgM3": 25,
+        "verifiedThrough": str(
+            max((r["date_key"] for r in aq_rows if r["verified"]), default="")
+        ),
+        "coverage": {
+            "firstDay": str(aq_rows[0]["date_key"]) if aq_rows else None,
+            "lastDay": str(aq_rows[-1]["date_key"]) if aq_rows else None,
+            "days": len(aq_rows),
+        },
+        "smokeDayCount": len(smoke_days),
+        # Two summaries of the same per-day, within-month comparison: the mean
+        # is pulled around by the September 2020 event; the median is the
+        # typical smoke day. A pooled cross-month ratio is deliberately NOT
+        # published: it re-weights by month volume, which the within-month
+        # design exists to prevent.
+        "avgSmokeDayDropPct": round(sum(drops) / len(drops), 1) if drops else None,
+        "medianSmokeDayDropPct": median_drop,
+        "worstDay": worst,
+        "events": [
+            {
+                "year": e["year"],
+                "days": e["days"],
+                "avgDropPct": round(sum(e["drops"]) / len(e["drops"]), 1)
+                if e["drops"]
+                else None,
+            }
+            for e in sorted(events.values(), key=lambda e: e["year"])
+        ],
+        # The chapter's chart: the September 2020 smoke event in daily detail.
+        "sept2020": [
+            {
+                "date": str(r["date_key"]),
+                "trips": r["trips"],
+                "pm25": r["clark_pm25"],
+                "smoke": r["is_smoke"],
+            }
+            for r in aq_rows
+            if "2020-08-24" <= str(r["date_key"]) <= "2020-10-04"
+        ],
+    }
+
     rule_labels = {
         "dock-capacity-pressure": "Increase dock capacity",
         "ebike-gap": "Prioritize e-bikes",
@@ -336,6 +431,7 @@ def build_artifacts(con) -> dict[str, object]:
         "opportunities.json": opportunities,
         "flows.json": flows,
         "ebike.json": ebike,
+        "airquality.json": airquality,
     }
 
 
