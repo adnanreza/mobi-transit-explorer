@@ -162,6 +162,27 @@ export type EbikeArtifact = {
   };
 };
 
+export type SmokeDay = {
+  date: string;
+  pm25: number; // daily mean at the primary station, ug/m3
+  trips: number;
+  dropPct: number | null; // vs clear days in the same year+month; null when too few
+};
+
+export type AirQualityArtifact = {
+  primaryStation: string;
+  corroboratingStation: string;
+  smokeThresholdUgM3: number;
+  verifiedThrough: string; // last day covered by BC ENV verified data
+  coverage: { firstDay: string | null; lastDay: string | null; days: number };
+  smokeDayCount: number;
+  avgSmokeDayDropPct: number | null; // mean of per-day drops vs same-month clear days
+  medianSmokeDayDropPct: number | null; // the typical smoke day, robust to the 2020 event
+  worstDay: SmokeDay | null;
+  events: { year: number; days: number; avgDropPct: number | null }[];
+  sept2020: { date: string; trips: number; pm25: number; smoke: boolean }[];
+};
+
 export type OpportunityRule =
   | "dock-capacity-pressure"
   | "ebike-gap"

@@ -207,6 +207,29 @@ export function Methodology() {
         </p>
       </Section>
 
+      <Section title="Air quality">
+        <p>
+          The smoke chapter uses hourly PM2.5 from the BC ENV Air Data
+          Archive (Open Government Licence, British Columbia). The station of
+          record is Vancouver Clark Drive, the only monitor inside the
+          service area with full coverage since 2017. It sits beside a truck
+          route, so a smoke day must pass a second test: the 24-hour mean has
+          to exceed 25 ug/m3, BC's air quality objective, at both Clark Drive
+          and Burnaby Kensington Park. Regional smoke lifts both stations at
+          once; local traffic cannot. The province has verified readings
+          through 2024; later readings come from its unverified daily feed
+          and are used as published. Every smoke day is compared with clear
+          days in the same month and year, because wildfire season is also
+          peak riding season and any wider comparison would launder
+          seasonality into an air quality claim. Daily mean PM2.5 was also
+          tested as a forecast model feature on the same 2025-onward holdout,
+          fit and scored on an identical day pool with and without it. It did
+          not improve the model, so it is not a model input and the numbers
+          above stay association, not prediction. The exact comparison lives
+          in the spec for this feature in the repo.
+        </p>
+      </Section>
+
       <Section title="What this data cannot say">
         <ul className="list-disc space-y-2 pl-5">
           <li>

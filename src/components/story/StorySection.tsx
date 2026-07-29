@@ -3,7 +3,7 @@ import type { ChartData, ChartOptions } from "chart.js";
 import { useChartColors, type ChartColors } from "@/components/charts/chartTheme";
 import { ChartReveal } from "@/components/charts/ChartReveal";
 import { Reveal } from "@/components/Reveal";
-import { lastCompleteYear, monthly, seasonality, stationsArtifact, weather, yearly } from "@/data";
+import { airquality, lastCompleteYear, monthly, seasonality, stationsArtifact, weather, yearly } from "@/data";
 import {
   chapters,
   ebikeChapter,
@@ -12,6 +12,7 @@ import {
   pandemicChapter,
   purposeChapter,
   seasonsChapter,
+  smokeChapter,
   weatherChapter,
 } from "@/components/story/storyContent";
 
@@ -131,6 +132,44 @@ function weatherData(c: ChartColors): ChartData<"bar"> {
   };
 }
 
+// The September 2020 smoke event, one bar per day. Smoke days carry the
+// accent; clear days stay grey; the caption decodes both.
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function smokeData(c: ChartColors): ChartData<"bar"> {
+  const days = airquality.sept2020;
+  return {
+    labels: days.map(
+      (d) => `${MONTHS_SHORT[Number(d.date.slice(5, 7)) - 1]} ${Number(d.date.slice(8, 10))}`,
+    ),
+    datasets: [
+      {
+        data: days.map((d) => d.trips),
+        backgroundColor: days.map((d) => (d.smoke ? c.blue : c.gray)),
+        borderRadius: 2,
+        barPercentage: 1,
+        categoryPercentage: 0.85,
+      },
+    ],
+  };
+}
+
+function smokeOptions(c: ChartColors): ChartOptions<"bar"> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } },
+      y: {
+        beginAtZero: true,
+        grid: { color: c.grid },
+        ticks: { callback: (v: string | number) => Number(v).toLocaleString("en-CA") },
+      },
+    },
+  };
+}
+
 function purposeData(c: ChartColors): ChartData<"bar"> {
   // Every classified station, sorted by leisure share: the cliff between the
   // seawall stations and the rest IS the chart.
@@ -232,6 +271,7 @@ export function StorySection() {
     pandemic: pandemicChapter(),
     ebikes: ebikeChapter(),
     weather: weatherChapter(),
+    smoke: smokeChapter(),
     purpose: purposeChapter(),
     membership: membershipChapter(),
   };
@@ -289,6 +329,11 @@ export function StorySection() {
         membership: (
           <ChartReveal>
             <Line data={membershipData(colors)} options={membershipOptions(colors)} />
+          </ChartReveal>
+        ),
+        smoke: (
+          <ChartReveal>
+            <Bar data={smokeData(colors)} options={smokeOptions(colors)} />
           </ChartReveal>
         ),
       };

@@ -3,6 +3,7 @@
 // before anything renders wrong.
 
 import {
+  airquality,
   ebike,
   flows,
   forecast,
@@ -107,6 +108,36 @@ describe("generated data contracts", () => {
     }
   });
 
+  it("air quality artifact holds the smoke-rule contract", () => {
+    expect(airquality.smokeThresholdUgM3).toBe(25);
+    expect(airquality.primaryStation).toBe("Vancouver Clark Drive");
+    expect(airquality.corroboratingStation).toBe("Burnaby Kensington Park");
+    // coverage spans the trip archive and the verified/unverified split is real
+    expect(airquality.coverage.firstDay! <= "2017-01-31").toBe(true);
+    expect(airquality.verifiedThrough >= "2024-12-31").toBe(true);
+    // the known 2017 and 2020 events register; totals stay plausible
+    const eventYears = airquality.events.map((e) => e.year);
+    expect(eventYears).toContain(2017);
+    expect(eventYears).toContain(2020);
+    expect(airquality.smokeDayCount).toBeGreaterThanOrEqual(5);
+    expect(airquality.smokeDayCount).toBeLessThanOrEqual(200);
+    // the chapter's chart window: continuous dates, several smoke days
+    const sept = airquality.sept2020;
+    expect(sept.length).toBeGreaterThanOrEqual(30);
+    expect(sept.filter((d) => d.smoke).length).toBeGreaterThanOrEqual(5);
+    for (const day of sept) {
+      expect(day.date >= "2020-08-24" && day.date <= "2020-10-04").toBe(true);
+      expect(day.trips).toBeGreaterThan(0);
+      expect(day.pm25).toBeGreaterThanOrEqual(0);
+    }
+    if (airquality.avgSmokeDayDropPct !== null) {
+      expect(Math.abs(airquality.avgSmokeDayDropPct)).toBeLessThan(60);
+    }
+    if (airquality.medianSmokeDayDropPct !== null) {
+      expect(Math.abs(airquality.medianSmokeDayDropPct)).toBeLessThan(60);
+    }
+  });
+
   it("transit coverage split matches the copy that cites it", () => {
     // The Coverage view and Personal Requests claim a binary split: every
     // rapid-transit station either has a dock within ~250 m or none within
@@ -197,7 +228,7 @@ describe("generated data contracts", () => {
     // artifacts are written compact, so re-stringifying reproduces file size
     const artifacts: unknown[] = [
       meta, yearly, monthly, seasonality, hourly, weather,
-      stationsArtifact, generatedOpportunities, flows,
+      stationsArtifact, generatedOpportunities, flows, ebike, airquality,
     ];
     const total = artifacts.reduce(
       (sum: number, artifact) => sum + JSON.stringify(artifact).length,

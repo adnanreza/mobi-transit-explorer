@@ -37,6 +37,16 @@ def env(tmp_path):
     (data_raw / "weather" / "ec-888-2026.csv").write_text(
         "\n".join(weather_rows) + "\n", encoding="utf-8-sig"
     )
+    # BC ENV PM2.5 (spec 045): the publish views glob airquality/pm25-*.csv,
+    # so the fixture needs at least one day at both stations of record.
+    (data_raw / "airquality").mkdir()
+    aq_rows = ["obs_date,station_name,raw_value,verified"]
+    for station in ("Vancouver Clark Drive", "Burnaby Kensington Park"):
+        for hour in range(20):
+            aq_rows.append(f"2026-05-01,{station},6.5,true")
+    (data_raw / "airquality" / "pm25-2026.csv").write_text(
+        "\n".join(aq_rows) + "\n", encoding="utf-8"
+    )
     (data_raw / "gbfs" / "station_information.json").write_text(json.dumps({
         "data": {"stations": [
             {"station_id": "0001", "name": "Alpha & First", "lat": 49.2828, "lon": -123.1189,

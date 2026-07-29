@@ -4,6 +4,7 @@
 // specs 021-024 rebuild those components on the generated types directly.
 
 import type {
+  AirQualityArtifact,
   EbikeArtifact,
   FlowsArtifact,
   ForecastArtifact,
@@ -37,6 +38,7 @@ import opportunitiesJson from "@/data/generated/opportunities.json";
 import flowsJson from "@/data/generated/flows.json";
 import forecastJson from "@/data/generated/forecast.json";
 import ebikeJson from "@/data/generated/ebike.json";
+import airqualityJson from "@/data/generated/airquality.json";
 
 export const meta = metaJson as Meta;
 export const yearly = yearlyJson as YearlyRow[];
@@ -50,6 +52,7 @@ export const generatedOpportunities =
 export const flows = flowsJson as FlowsArtifact;
 export const forecast = forecastJson as unknown as ForecastArtifact;
 export const ebike = ebikeJson as EbikeArtifact;
+export const airquality = airqualityJson as AirQualityArtifact;
 
 export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),
