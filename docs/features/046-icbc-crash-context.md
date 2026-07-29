@@ -147,6 +147,8 @@ Three follow-ups, all fair, all fixed.
 
 **Also proven while here:** determinism end to end. A forced refetch reproduced sha256 `26f9a983…` byte for byte, which is the property the manifest cross-check depends on and the reason the full-tuple sort exists.
 
+**Operational note the gate taught us on the way out.** That forced refetch moved `accessed_at` in the manifest, which flows into the artifact as `source.accessedAt`, and the freshness gate failed on the one-field drift until `publish.py` was re-run. The data had not changed at all. So the rule for any future refetch, forced or otherwise, is: refetch then republish, always. The gate catching a provenance timestamp nobody had noticed is the gate working.
+
 ## Lifecycle
 
 Revision 3: implemented on `feat/046-icbc-crash-context`, reviewed by three independent Opus agents (data integrity, analysis honesty, frontend and house rules), findings verified and adjudicated above. Not merged and not deployed, awaiting the owner's second external review and confirmation.
