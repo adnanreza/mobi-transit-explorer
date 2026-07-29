@@ -5,6 +5,7 @@
 
 import type {
   AirQualityArtifact,
+  CrashContextArtifact,
   EbikeArtifact,
   FlowsArtifact,
   ForecastArtifact,
@@ -39,6 +40,7 @@ import flowsJson from "@/data/generated/flows.json";
 import forecastJson from "@/data/generated/forecast.json";
 import ebikeJson from "@/data/generated/ebike.json";
 import airqualityJson from "@/data/generated/airquality.json";
+import crashContextJson from "@/data/generated/crashcontext.json";
 
 export const meta = metaJson as Meta;
 export const yearly = yearlyJson as YearlyRow[];
@@ -53,6 +55,7 @@ export const flows = flowsJson as FlowsArtifact;
 export const forecast = forecastJson as unknown as ForecastArtifact;
 export const ebike = ebikeJson as EbikeArtifact;
 export const airquality = airqualityJson as AirQualityArtifact;
+export const crashContext = crashContextJson as CrashContextArtifact;
 
 export const lastCompleteYear = Math.max(
   ...yearly.filter((y) => `${y.year}` !== meta.sourceWindow.lastMonth.slice(0, 4)).map((y) => y.year),

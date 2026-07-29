@@ -52,6 +52,8 @@ python3 -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
 .venv/bin/python pipeline/download.py        # optional; manual download works equally
 .venv/bin/python pipeline/etl.py --stage all # DuckDB star schema
 .venv/bin/python pipeline/weather_fetch.py   # Environment Canada daily weather (publish needs it)
+.venv/bin/python pipeline/airquality_fetch.py # BC ENV hourly PM2.5 for the smoke chapter
+.venv/bin/python pipeline/icbc_fetch.py      # ICBC cyclist crashes for station crash context
 .venv/bin/python pipeline/publish.py         # JSON aggregates -> src/data/generated/
 .venv/bin/python pipeline/geo_publish.py     # simplified shoreline geometry
 .venv/bin/python pipeline/quality_report.py  # regenerate docs/data-quality-report.md
@@ -87,6 +89,7 @@ npm run build
 - Monthly files repeat neighbouring months' trips. These are deduplicated; a trip's month is its departure month.
 - The trip files' temperature is a bike-mounted sensor (0° sentinels, values Vancouver has never reached); weather analysis uses Environment Canada ambient data instead.
 - Retired stations keep their trips but have no public coordinates.
+- ICBC crash context covers a rolling five-year window of crashes reported to an insurer, for all cyclists rather than Mobi riders, so it is a floor on car-bike conflict near a dock and never a Mobi crash rate.
 - Full accounting: [docs/data-quality-report.md](docs/data-quality-report.md).
 
 ## Feature lifecycle
@@ -109,4 +112,12 @@ On acquisition: `pipeline/download.py` mirrors the same publicly linked trip fil
 
 **Disclaimer:** This is an independent, non-commercial project. It is not affiliated with, endorsed by, or approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver. "Mobi" and "Mobi by Rogers" are trademarks of Vancouver Bike Share Inc., used here descriptively to identify the public dataset being analyzed.
 
-Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather based on [Environment and Climate Change Canada](https://climate.weather.gc.ca) data. Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors.
+Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather based on [Environment and Climate Change Canada](https://climate.weather.gc.ca) data.
+
+Crash context is derived from ICBC data under the [Open Data Licence for ICBC Information](https://www.icbc.com/policies/open-data-licence), which requires both of the following, reproduced verbatim:
+
+> Contains information licensed under ICBC’s Open Data Licence.
+
+> All analysis, inferences, opinions, and conclusions drawn in this analysis are those of the authors, and do not reflect the opinions, position or policies of ICBC.
+
+Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors.

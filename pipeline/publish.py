@@ -1,8 +1,10 @@
 """Publish the warehouse into the small JSON artifacts the app ships.
 
 Reads the DuckDB star schema, runs pipeline/sql/50_publish.sql, and writes
-src/data/generated/*.json. Enforces the size budget (400 KB raw / 120 KB
-gzipped total) so per-trip data can never leak into the bundle.
+src/data/generated/*.json. Enforces the size budget (420 KB raw / 120 KB
+gzipped total, counting every artifact that ships including the ones written
+by train_model.py and geo_publish.py) so per-trip data can never leak into
+the bundle.
 
 Usage: python pipeline/publish.py [--db PATH]
 """
@@ -19,9 +21,15 @@ from pathlib import Path
 import duckdb
 
 import common
+import icbc_context
 
 OUT_DIR = common.REPO_ROOT / "src" / "data" / "generated"
-BUDGET_RAW = 400_000
+# The guard exists so per-trip data can never reach the bundle, which would be
+# megabytes rather than kilobytes. The raw ceiling moved from 400 KB when the
+# check started counting forecast.json and geo/land.json as well: those 12.6 KB
+# always shipped but were never measured, so keeping 400 would have silently
+# tightened the real limit rather than holding it steady.
+BUDGET_RAW = 420_000
 BUDGET_GZIP = 120_000
 
 # The CoV rapid-transit dataset has no line attribute; Canada Line stations
@@ -348,6 +356,43 @@ def build_artifacts(con) -> dict[str, object]:
         ],
     }
 
+    # Crash context (spec 046): reported cyclist-involved crashes near each
+    # dock. All cyclists, not Mobi riders, and no per-trip rate; see
+    # icbc_context for why the ratio is deliberately absent.
+    reference = common.load_manifest().get("reference", {}).get("icbc_crashes")
+    if not reference:
+        raise SystemExit(
+            "manifest has no reference.icbc_crashes; run pipeline/icbc_fetch.py first"
+        )
+    crash_path = common.DATA_RAW / reference["file"]
+    if not crash_path.exists():
+        raise SystemExit(f"missing {crash_path}; run pipeline/icbc_fetch.py first")
+    # Trust the manifest, not the filename: a stale or truncated CSV would
+    # otherwise publish silently with the manifest's vintage stamped on it.
+    if common.sha256_file(crash_path) != reference["filtered_sha256"]:
+        raise SystemExit(
+            f"{crash_path.name} does not match its manifest checksum; "
+            "re-run pipeline/icbc_fetch.py --force"
+        )
+    crashes = icbc_context.load_crashes(crash_path)
+    if len(crashes) != reference["rows"] or sum(c["weight"] for c in crashes) != reference["crashes"]:
+        raise SystemExit(
+            f"{crash_path.name} holds {len(crashes)} rows / "
+            f"{sum(c['weight'] for c in crashes)} crashes; the manifest records "
+            f"{reference['rows']} / {reference['crashes']}"
+        )
+    vintage = reference["vintage"]
+    years_present = {c["year"] for c in crashes}
+    if years_present != set(range(vintage["from"], vintage["to"] + 1)):
+        raise SystemExit(
+            f"crash years {sorted(years_present)} do not match the manifest vintage {vintage}"
+        )
+    crash_context = icbc_context.build_context(
+        crashes,
+        [{"id": s["id"], "lat": s["lat"], "lon": s["lon"]} for s in stations],
+        reference,
+    )
+
     rule_labels = {
         "dock-capacity-pressure": "Increase dock capacity",
         "ebike-gap": "Prioritize e-bikes",
@@ -432,6 +477,7 @@ def build_artifacts(con) -> dict[str, object]:
         "flows.json": flows,
         "ebike.json": ebike,
         "airquality.json": airquality,
+        "crashcontext.json": crash_context,
     }
 
 
@@ -445,6 +491,16 @@ def write_artifacts(artifacts: dict[str, object], out_dir: Path) -> int:
         total_raw += len(blob)
         total_gzip += gz
         print(f"{name}: {len(blob) / 1e3:.1f} KB raw / {gz / 1e3:.1f} KB gzip")
+    # forecast.json (train_model.py) and geo/land.json (geo_publish.py) ship in
+    # the same bundle, so the budget has to see them; counting only what this
+    # script writes understated the real payload by ~12 KB.
+    for other in sorted(out_dir.rglob("*.json")):
+        if other.name in artifacts:
+            continue
+        blob = other.read_bytes()
+        total_raw += len(blob)
+        total_gzip += len(gzip.compress(blob))
+        print(f"{other.relative_to(out_dir)}: {len(blob) / 1e3:.1f} KB raw (not written here)")
     print(f"TOTAL: {total_raw / 1e3:.1f} KB raw / {total_gzip / 1e3:.1f} KB gzip")
     if total_raw > BUDGET_RAW or total_gzip > BUDGET_GZIP:
         print(

@@ -183,6 +183,45 @@ export type AirQualityArtifact = {
   sept2020: { date: string; trips: number; pm25: number; smoke: boolean }[];
 };
 
+// Reported cyclist-involved crashes near each dock (spec 046). All cyclists,
+// not Mobi riders, and deliberately no per-trip rate: see the artifact's
+// licence block and the methodology for why.
+export type CrashContextArtifact = {
+  source: { workbook: string; catalogueRecord: string; accessedAt: string };
+  licence: {
+    name: string;
+    version: string;
+    url: string;
+    attribution: string; // required verbatim, apostrophe is U+2019
+    disclaimer: string; // required wherever analysis is drawn
+  };
+  vintage: { from: number; to: number; revisable: boolean };
+  radiusM: number;
+  city: {
+    rows: number; // source rows, which are weighted
+    crashes: number; // sum of TOTAL_CRASHES
+    casualtyCrashes: number;
+    propertyDamageOnlyCrashes: number;
+    crashesWithCoordinates: number;
+    crashesWithoutCoordinates: number;
+    withCoordinatesPct: number | null;
+    medianStationCrashes: number | null; // the typical dock, as an anchor
+  };
+  accounting: {
+    matchedUniqueCrashes: number;
+    nearNoStationCrashes: number;
+    stationAssignments: number; // exceeds matchedUnique: catchments overlap
+    crashesMatchingMultipleStations: number;
+  };
+  // the chosen radius is a judgement, so the alternatives ship with it
+  radiusSensitivity: {
+    radiusM: number;
+    matchedUniqueCrashes: number;
+    stationsWithNone: number;
+  }[];
+  byStation: Record<string, { crashes: number; casualtyCrashes: number }>;
+};
+
 export type OpportunityRule =
   | "dock-capacity-pressure"
   | "ebike-gap"

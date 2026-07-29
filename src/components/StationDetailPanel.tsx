@@ -1,5 +1,5 @@
 import { MiniTrendChart } from "@/components/charts/MiniTrendChart";
-import { stationsArtifact } from "@/data";
+import { crashContext, stationsArtifact } from "@/data";
 import type { MobiStation } from "@/types";
 import { Progress } from "@/components/ui/progress";
 
@@ -96,6 +96,44 @@ export function StationDetailPanel({ station, year }: StationDetailPanelProps) {
       </div>
 
       <StationFacts stationId={station.id} />
+      <CrashContext stationId={station.id} />
+    </div>
+  );
+}
+
+// Reported cyclist-involved crashes near this dock. Rendered for every
+// station the artifact covers, including zeros: omitting the block would make
+// "none reported" indistinguishable from "not measured". No per-trip rate and
+// no cross-station comparison, both stated on screen rather than only in the
+// methodology.
+function CrashContext({ stationId }: { stationId: string }) {
+  const entry = crashContext.byStation[stationId] as
+    | { crashes: number; casualtyCrashes: number }
+    | undefined;
+  const { from, to } = crashContext.vintage;
+  const radius = crashContext.radiusM;
+
+  // Three states, never two: a count, a measured zero, and a dock the artifact
+  // does not cover. Returning nothing for the third would make "not measured"
+  // look identical to "none reported", which is the failure this block exists
+  // to avoid.
+  const sentence = !entry
+    ? `Crash data is not available for this dock, ${from} to ${to}.`
+    : entry.crashes === 0
+      ? `No cyclist-involved crashes reported within ${radius} m, ${from} to ${to}.`
+      : `${entry.crashes.toLocaleString("en-CA")} cyclist-involved crashes reported within ${radius} m, ${from} to ${to} (${entry.casualtyCrashes.toLocaleString("en-CA")} casualty crashes).`;
+
+  return (
+    <div className="mt-6 border-t border-border pt-6">
+      <p className="text-sm text-muted-foreground">Crash context</p>
+      <p className="mt-2 text-sm leading-6 text-foreground">{sentence}</p>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+        Crashes reported to ICBC, for all cyclists rather than Mobi riders, so
+        the count is a floor. A higher count may reflect more cycling, more
+        traffic, underlying risk, or a mixture, and nothing here separates
+        them, so counts are not comparable between docks (the typical dock
+        reports {crashContext.city.medianStationCrashes}).
+      </p>
     </div>
   );
 }

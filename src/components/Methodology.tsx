@@ -1,6 +1,6 @@
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
-import { forecast, meta, windowLabel } from "@/data";
+import { crashContext, forecast, meta, windowLabel } from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
 
@@ -227,6 +227,72 @@ export function Methodology() {
           not improve the model, so it is not a model input and the numbers
           above stay association, not prediction. The exact comparison lives
           in the spec for this feature in the repo.
+        </p>
+      </Section>
+
+      <Section title="Crash context">
+        <p>
+          Station panels carry a count of reported cyclist-involved crashes
+          within {crashContext.radiusM} m, from ICBC's public crash data
+          ({crashContext.vintage.from} to {crashContext.vintage.to}).{" "}
+          {crashContext.licence.attribution} The scope is the two
+          municipalities Mobi serves, the City of Vancouver and the UBC campus,
+          which ICBC publishes separately. A crash counts as a casualty crash
+          when at least one person was injured or killed; the public extract
+          does not separate those two outcomes.
+        </p>
+        <p className="mt-4">
+          Four limits bound what the number means. It counts crashes reported
+          to an insurer, so bike-only falls, dooring, and no-contact incidents
+          are invisible and every count is a floor. It covers all cyclists, not
+          Mobi riders, so it describes the streets around a dock rather than
+          anything about Mobi's own riders, and it describes them across the
+          whole window even where the dock itself is newer than that. The
+          public window rolls{" "}
+          {crashContext.vintage.to - crashContext.vintage.from + 1} years and
+          ICBC revises counts as late reports arrive, so a year's figure is not
+          frozen. And{" "}
+          {formatNumber(crashContext.city.crashesWithoutCoordinates)} of{" "}
+          {formatNumber(crashContext.city.crashes)} crashes carry no
+          coordinates, so they appear in these totals but in no station's
+          count.
+        </p>
+        <p className="mt-4">
+          Dock catchments overlap, so one crash is often within{" "}
+          {crashContext.radiusM} m of several stations:{" "}
+          {formatNumber(crashContext.accounting.crashesMatchingMultipleStations)} of{" "}
+          {formatNumber(crashContext.accounting.matchedUniqueCrashes)} located
+          crashes near a dock are counted by more than one, so the per-station
+          figures sum to{" "}
+          {formatNumber(crashContext.accounting.stationAssignments)} rather than{" "}
+          {formatNumber(crashContext.accounting.matchedUniqueCrashes)}. The
+          published artifact states both.{" "}
+          {formatNumber(crashContext.accounting.nearNoStationCrashes)} located
+          crashes fall near no station at all.
+        </p>
+        <p className="mt-4">
+          The {crashContext.radiusM} m radius is a judgement, so the
+          alternatives ship beside it:{" "}
+          {crashContext.radiusSensitivity
+            .map(
+              (row) =>
+                `${row.radiusM} m matches ${formatNumber(row.matchedUniqueCrashes)} crashes and leaves ${row.stationsWithNone} docks with none`,
+            )
+            .join("; ")}
+          . A block is the walk-up scale of a dock, which is why the middle
+          figure is the published one.
+        </p>
+        <p className="mt-4">
+          No crash rate per trip is published, and that is deliberate. Dividing
+          all-cyclist crashes by Mobi departures would not correct for
+          exposure; it would invent a rate for a population the denominator
+          never measures, and a quotient like that reads as per-ride risk no
+          matter how it is labelled. For the same reason no departure total is
+          printed beside these counts: handing over both operands is the same
+          act one step removed. Any ratio built from numbers elsewhere on this
+          page would also be wrong, because the station panel's trip figure
+          covers a trailing twelve months rather than these five years.{" "}
+          <em>{crashContext.licence.disclaimer}</em>
         </p>
       </Section>
 
