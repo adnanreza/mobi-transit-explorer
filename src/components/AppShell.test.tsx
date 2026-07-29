@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { AppShell } from "@/components/AppShell";
+import { crashContext } from "@/data";
 
 describe("AppShell", () => {
   it("renders children inside the shell", () => {
@@ -27,5 +28,19 @@ describe("AppShell", () => {
     link.click();
 
     expect(link).toHaveAttribute("aria-current", "page");
+  });
+
+  it("carries the required ICBC attribution in the footer", () => {
+    render(
+      <AppShell navItems={[{ label: "Overview", href: "#overview" }]}>
+        <p>child</p>
+      </AppShell>,
+    );
+
+    expect(
+      screen.getByText(
+        new RegExp(crashContext.licence.attribution.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      ),
+    ).toBeInTheDocument();
   });
 });

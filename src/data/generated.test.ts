@@ -4,6 +4,7 @@
 
 import {
   airquality,
+  crashContext,
   ebike,
   flows,
   forecast,
@@ -138,6 +139,46 @@ describe("generated data contracts", () => {
     }
   });
 
+  it("crash context accounting closes and publishes no rate", () => {
+    const { city, accounting, byStation, vintage } = crashContext;
+    // the invariant: located crashes are either near a dock or near none
+    expect(city.crashesWithCoordinates).toBe(
+      accounting.matchedUniqueCrashes + accounting.nearNoStationCrashes,
+    );
+    // catchments overlap, so assignments exceed unique crashes by design
+    expect(accounting.stationAssignments).toBeGreaterThanOrEqual(
+      accounting.matchedUniqueCrashes,
+    );
+    expect(
+      Object.values(byStation).reduce((sum, s) => sum + s.crashes, 0),
+    ).toBe(accounting.stationAssignments);
+    // rows are weighted, so crashes >= rows
+    expect(city.crashes).toBeGreaterThanOrEqual(city.rows);
+    expect(city.casualtyCrashes + city.propertyDamageOnlyCrashes).toBe(city.crashes);
+    expect(city.crashesWithCoordinates + city.crashesWithoutCoordinates).toBe(city.crashes);
+    // every station in the artifact is a station the app renders, and zeros
+    // are explicit rather than missing
+    // set equality both ways: a regenerated artifact that drops stations must
+    // fail here rather than silently blanking their panel block
+    const ids = new Set(stationsArtifact.stations.map((s) => s.id));
+    expect(new Set(Object.keys(byStation))).toEqual(ids);
+    for (const entry of Object.values(byStation)) {
+      expect(entry.crashes).toBeGreaterThanOrEqual(entry.casualtyCrashes);
+    }
+    expect(Object.values(byStation).some((s) => s.crashes === 0)).toBe(true);
+    // the radius is defended with numbers, not an assertion
+    expect(crashContext.radiusSensitivity.map((r) => r.radiusM)).toContain(
+      crashContext.radiusM,
+    );
+    // no per-trip rate anywhere: the denominator ships undivided at city level
+    expect(JSON.stringify(byStation)).not.toMatch(/per100k|rate/i);
+    expect(city.medianStationCrashes).toBeGreaterThanOrEqual(0);
+    expect(vintage.revisable).toBe(true);
+    expect(crashContext.licence.attribution).toBe(
+      "Contains information licensed under ICBC\u2019s Open Data Licence.",
+    );
+  });
+
   it("transit coverage split matches the copy that cites it", () => {
     // The Coverage view and Personal Requests claim a binary split: every
     // rapid-transit station either has a dock within ~250 m or none within
@@ -228,7 +269,7 @@ describe("generated data contracts", () => {
     // artifacts are written compact, so re-stringifying reproduces file size
     const artifacts: unknown[] = [
       meta, yearly, monthly, seasonality, hourly, weather,
-      stationsArtifact, generatedOpportunities, flows, ebike, airquality,
+      stationsArtifact, generatedOpportunities, flows, ebike, airquality, crashContext,
     ];
     const total = artifacts.reduce(
       (sum: number, artifact) => sum + JSON.stringify(artifact).length,

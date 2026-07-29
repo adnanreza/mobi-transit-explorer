@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { Methodology } from "@/components/Methodology";
+import { crashContext } from "@/data";
 import { meta } from "@/data";
 
 describe("Methodology", () => {
@@ -45,4 +46,28 @@ describe("Methodology", () => {
 
     expect(screen.getByText(/association, not cause/)).toBeInTheDocument();
   });
+
+  it("reproduces both required ICBC licence texts verbatim", () => {
+    render(<Methodology />);
+
+    // Licence conditions, not prose: these must appear exactly, including the
+    // U+2019 apostrophe, or the site is out of compliance.
+    expect(screen.getByText(new RegExp(escapeRegExp(crashContext.licence.attribution)))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(escapeRegExp(crashContext.licence.disclaimer)))).toBeInTheDocument();
+  });
+
+  it("renders the crash context section with its radius sensitivity", () => {
+    render(<Methodology />);
+
+    expect(screen.getByRole("heading", { name: "Crash context" })).toBeInTheDocument();
+    for (const row of crashContext.radiusSensitivity) {
+      expect(
+        screen.getByText(new RegExp(`${row.radiusM} m matches`)),
+      ).toBeInTheDocument();
+    }
+  });
 });
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

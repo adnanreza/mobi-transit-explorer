@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, Moon, Sun, X } from "lucide-react";
-import { asOfLabel } from "@/data";
+import { asOfLabel, crashContext } from "@/data";
 import { setTheme, useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -236,6 +236,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
       { label: "City of Vancouver Open Data", href: "https://opendata.vancouver.ca" },
       { label: "Environment & Climate Change Canada", href: "https://climate.weather.gc.ca" },
       { label: "BC ENV Air Data Archive", href: "https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409" },
+      { label: "ICBC crash data", href: crashContext.source.catalogueRecord },
     ],
   },
   {
@@ -289,7 +290,8 @@ function SiteFooter() {
           approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver.
           "Mobi" is a trademark of Vancouver Bike Share Inc., used here descriptively to
           identify the public dataset being analyzed. Trip data is used under the Mobi Data
-          License Agreement; weather is based on Environment and Climate Change Canada data.
+          License Agreement; weather is based on Environment and Climate Change Canada data.{" "}
+          {crashContext.licence.attribution}
         </p>
       </div>
     </footer>

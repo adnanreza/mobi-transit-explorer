@@ -888,6 +888,28 @@
           "fetched_at": "2026-07-29T18:48:50+00:00"
         }
       }
+    },
+    "icbc_crashes": {
+      "workbook_url": "https://public.tableau.com/workbooks/ICBCReportedCrashes.twb",
+      "catalogue_record": "https://catalogue.data.gov.bc.ca/dataset/icbc-reported-crashes",
+      "licence": {
+        "name": "Open Data Licence for ICBC Information",
+        "version": "1.0",
+        "url": "https://www.icbc.com/policies/open-data-licence",
+        "attribution": "Contains information licensed under ICBC’s Open Data Licence.",
+        "disclaimer": "All analysis, inferences, opinions, and conclusions drawn in this analysis are those of the authors, and do not reflect the opinions, position or policies of ICBC."
+      },
+      "accessed_at": "2026-07-29T22:12:40+00:00",
+      "twbx_sha256": "4dd35583939af46a67b36c679a69432be223b25020118e905ff396f631d11c8a",
+      "file": "icbc/vancouver-ubc-cyclist-crashes.csv",
+      "filtered_sha256": "56b9e7e52d0b426c659ac6b253bb18fc98e1da3ac755a029815d36287b9d4eb3",
+      "vintage": {
+        "from": 2021,
+        "to": 2025
+      },
+      "rows": 4526,
+      "crashes": 4536,
+      "crashes_with_coordinates": 4199
     }
   }
 }

@@ -3,7 +3,12 @@ src/data/generated/ and docs/data-quality-report.md are Mobi-derived analysis
 outputs governed by the Mobi Data License Agreement
 (https://www.mobibikes.ca/en/system-data) — permitted for non-commercial
 analysis only, and not redistributable for commercial purposes. Weather-derived
-values are based on Environment and Climate Change Canada data.
+values are based on Environment and Climate Change Canada data. Air quality
+values are derived from BC ENV data under the Open Government Licence - British
+Columbia. Crash context in src/data/generated/crashcontext.json is derived from
+ICBC data under the Open Data Licence for ICBC Information
+(https://www.icbc.com/policies/open-data-licence): "Contains information
+licensed under ICBC’s Open Data Licence."
 
 MIT License
 

@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { Explorer } from "@/components/Explorer";
 import { lastCompleteYear, meta, stationsAll, stationsArtifact } from "@/data";
 
-// Explorer lazy-loads the map, and a cold maplibre-gl transform on a
-// saturated vitest worker can take several seconds; in production a skeleton
-// covers that window by design. The two tests that await the map get
-// timeouts sized for a cold worker instead of the 1s default.
+// Explorer lazy-loads the map and a cold maplibre-gl transform can take
+// seconds; in production a skeleton covers that window by design. findBy's
+// own 1s default is the constraint here, so the map waits get a longer one.
+// The suite-wide ceiling lives in vite.config.ts.
 const MAP_WAIT = { timeout: 20_000 };
 
 async function chooseOption(label: string, option: string) {
@@ -34,7 +34,7 @@ describe("Explorer", () => {
         MAP_WAIT,
       ),
     ).toBeInTheDocument();
-  }, 30_000);
+  });
 
   it("selecting a station through the finder updates the detail panel and URL", async () => {
     render(<Explorer />);
@@ -46,7 +46,7 @@ describe("Explorer", () => {
       screen.getByRole("heading", { name: stationsAll[0].name }),
     ).toBeInTheDocument();
     expect(window.location.search).toContain(`station=${stationsAll[0].id}`);
-  }, 30_000);
+  });
 
   it("restores state from the URL", async () => {
     // Use a station that is within 300 m of transit AND has 2019 trips, so the

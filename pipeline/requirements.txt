@@ -4,3 +4,4 @@ duckdb>=1.2
 pytest>=8
 scikit-learn>=1.5
 numpy>=1.26
+tableauhyperapi>=0.0.19484
