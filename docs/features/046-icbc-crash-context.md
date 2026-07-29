@@ -66,7 +66,7 @@ All values and years derive from the artifact. **Passed on deliberately: a crash
 - **Schema assertions at fetch time**: expected columns present, `CYCLIST_FLAG` in {Y, N}, `CRASH_SEVERITY` in the two known values, coordinates inside the Vancouver bounding box already used by the station contract test, `TOTAL_CRASHES >= 1`. Anything unexpected stops the fetch, matching the era-map discipline.
 - **Radius sensitivity**: 100 / 250 / 500 m table recorded in the implementation notes so the choice is shown, not assumed.
 - `make check-artifacts` passes; the payload budget holds, counting every artifact that ships rather than only those `publish.py` writes.
-- **Frontend**: contract test; panel renders the populated block and the zero state; the non-comparability sentence present; a grep proving "Mobi crash" and "crash rate" appear nowhere in copy; 100+ Vitest, typecheck, build.
+- **Frontend**: contract test; panel renders the populated block and the zero state; the non-comparability sentence present; a grep proving no **unnegated** "Mobi crash" or "crash rate" phrasing in copy, since "No crash rate per trip is published" is the point rather than a violation; 100+ Vitest, typecheck, build.
 - **Independent review before complete**, per the 045 pattern: data integrity (join and weight accounting), analysis honesty (framing, absent denominator), frontend and house rules.
 
 ## Review 1: external review of the plan, adjudicated (2026-07-29)
@@ -134,6 +134,18 @@ Six findings, all verified before acting, all adopted.
 **P2, the README misattributed a credit into the licence text.** The basemap credit had been swallowed into the second blockquote, so the file presented "...policies of ICBC. Basemap (c) OpenFreeMap / OpenStreetMap contributors." as the verbatim required statement. The credit is now its own paragraph.
 
 **P2, the spec contradicted its own revision.** The design and planned-verification sections still described the per-station departure field, the pre-UBC 4,455 anchor, the 400 KB budget, the subset-only station check, and the old "Reported by ICBC" wording. All reconciled with what shipped; superseded decisions now live only in this review history.
+
+## Review 4: follow-up on the second external review, adjudicated (2026-07-29)
+
+Three follow-ups, all fair, all fixed.
+
+**The municipality regression test was theatre.** It reimplemented the guard inside the test and asserted against the copy, so deleting the shipped guard left it green, and its `monkeypatch` parameter was unused. A test that mirrors the logic it checks proves nothing. Fixed by making the guards reachable instead of mockable: `read_service_area_cyclist_rows` now delegates to `normalize_row` and `normalize_rows`, which hold the per-axis coordinate checks and the municipality completeness check, and the tests call those directly. Proven by mutation: deleting the shipped guard now fails the suite (1 failed, 15 passed), and restoring it passes 16. The same refactor made the coordinate guards testable, so out-of-area latitude, out-of-area longitude, and half-coordinate rows are each covered now rather than only described.
+
+**`publish.py`'s docstring still advertised 400 KB** while the module enforced 420 KB. Corrected, and it now also says what the number covers: every artifact that ships, including those written by `train_model.py` and `geo_publish.py`.
+
+**The spec's frontend verification bullet still demanded that "crash rate" appear nowhere**, contradicting both the reworded gate recorded above and the copy that deliberately reads "No crash rate per trip is published". The bullet now forbids unnegated forms only. The remaining "400 KB" strings in this document and in `publish.py` are historical explanation of the change, not live claims.
+
+**Also proven while here:** determinism end to end. A forced refetch reproduced sha256 `26f9a983…` byte for byte, which is the property the manifest cross-check depends on and the reason the full-tuple sort exists.
 
 ## Lifecycle
 

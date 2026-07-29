@@ -181,41 +181,54 @@ def read_service_area_cyclist_rows(hyper_path: Path) -> list[dict]:
                          "LATITUDE", "LONGITUDE", "TIME_CATEGORY", "CRASH_SEVERITY"
             """)
 
-    out: list[dict] = []
-    for r in rows:
-        lat, lon = r[8], r[9]
-        # Checked independently: a row with one coordinate present, or a 0/0
-        # sentinel, must not slip through as a located crash.
-        if (lat is None) != (lon is None):
-            raise RuntimeError(f"row has one coordinate only: lat={lat}, lon={lon}")
-        if lat is not None:
-            if not LAT_RANGE[0] <= lat <= LAT_RANGE[1]:
-                raise RuntimeError(f"latitude {lat} outside {LAT_RANGE}; check the source geography")
-            if not LON_RANGE[0] <= lon <= LON_RANGE[1]:
-                raise RuntimeError(f"longitude {lon} outside {LON_RANGE}; check the source geography")
-        out.append({
-            "year": int(r[0]),
-            "month": (r[1] or "").strip(),
-            "day_of_week": (r[2] or "").strip(),
-            "time_band": (r[3] or "").strip(),
-            "severity": r[4],
-            "intersection": r[5],
-            "street": (r[6] or "").strip(),
-            "cross_street": (r[7] or "").strip(),
-            "lat": lat,
-            "lon": lon,
-            "crash_weight": int(r[10]),
-            "municipality": r[11],
-        })
+    return normalize_rows(rows)
+
+
+def normalize_row(record: tuple) -> dict:
+    """One query record to one output row, with its coordinates validated.
+
+    Split out from the query so the guards are reachable from tests without a
+    Hyper process: a test that reimplements a guard proves nothing about the
+    guard that ships.
+    """
+    lat, lon = record[8], record[9]
+    # Checked independently: a row with one coordinate present, or a 0/0
+    # sentinel, must not slip through as a located crash.
+    if (lat is None) != (lon is None):
+        raise RuntimeError(f"row has one coordinate only: lat={lat}, lon={lon}")
+    if lat is not None:
+        if not LAT_RANGE[0] <= lat <= LAT_RANGE[1]:
+            raise RuntimeError(f"latitude {lat} outside {LAT_RANGE}; check the source geography")
+        if not LON_RANGE[0] <= lon <= LON_RANGE[1]:
+            raise RuntimeError(f"longitude {lon} outside {LON_RANGE}; check the source geography")
+    return {
+        "year": int(record[0]),
+        "month": (record[1] or "").strip(),
+        "day_of_week": (record[2] or "").strip(),
+        "time_band": (record[3] or "").strip(),
+        "severity": record[4],
+        "intersection": record[5],
+        "street": (record[6] or "").strip(),
+        "cross_street": (record[7] or "").strip(),
+        "lat": lat,
+        "lon": lon,
+        "crash_weight": int(record[10]),
+        "municipality": record[11],
+    }
+
+
+def normalize_rows(records: list[tuple]) -> list[dict]:
+    """Validate and convert every record, then check the set as a whole."""
+    out = [normalize_row(record) for record in records]
     if not out:
         raise RuntimeError(
             f"no cyclist rows matched {MUNICIPALITIES}; the filter or source changed"
         )
     # Every configured municipality must appear, not just one of them. UBC is
     # 1.8% of the total, so if ICBC renamed or dropped it the Vancouver rows
-    # alone would sail past both this check's earlier form and the 25% volume
-    # warning, and 17 campus docks would quietly revert to false measured
-    # zeros. That is the exact regression this feature was fixed for.
+    # alone would sail past a bare non-empty check and the 25% volume warning
+    # alike, and 17 campus docks would quietly revert to false measured zeros.
+    # That is the exact regression this feature was fixed for.
     found = {r["municipality"] for r in out}
     missing_municipalities = set(MUNICIPALITIES) - found
     if missing_municipalities:

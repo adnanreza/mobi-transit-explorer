@@ -1,8 +1,10 @@
 """Publish the warehouse into the small JSON artifacts the app ships.
 
 Reads the DuckDB star schema, runs pipeline/sql/50_publish.sql, and writes
-src/data/generated/*.json. Enforces the size budget (400 KB raw / 120 KB
-gzipped total) so per-trip data can never leak into the bundle.
+src/data/generated/*.json. Enforces the size budget (420 KB raw / 120 KB
+gzipped total, counting every artifact that ships including the ones written
+by train_model.py and geo_publish.py) so per-trip data can never leak into
+the bundle.
 
 Usage: python pipeline/publish.py [--db PATH]
 """

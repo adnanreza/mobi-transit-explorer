@@ -899,8 +899,8 @@
         "attribution": "Contains information licensed under ICBC’s Open Data Licence.",
         "disclaimer": "All analysis, inferences, opinions, and conclusions drawn in this analysis are those of the authors, and do not reflect the opinions, position or policies of ICBC."
       },
-      "accessed_at": "2026-07-29T22:51:36+00:00",
-      "twbx_sha256": "0ed104762b326ee456a33ea37a3e54641b40f1e0489d24cc89a0eeca9d744655",
+      "accessed_at": "2026-07-29T23:40:10+00:00",
+      "twbx_sha256": "de87ec88445d0c8ab02d44825721d474746816d8de7a5963a5211e2ed53de756",
       "file": "icbc/vancouver-ubc-cyclist-crashes.csv",
       "filtered_sha256": "26f9a98367f37bf222e65a723ec84b82fa983c19f93752c22315544138b71478",
       "vintage": {
