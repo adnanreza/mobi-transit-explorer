@@ -113,7 +113,8 @@ def test_no_rate_and_no_departure_figure_is_published():
     for forbidden in ("per100k", "crashRate", "ratePer", "departure", "Departures"):
         assert forbidden not in blob
     # the anchor that replaces them is the typical dock, not a denominator
-    assert context["city"]["medianStationCrashes"] == 1  # stations read 0 and 1
+    # a true median of the two docks reading 0 and 1, not the upper-middle 1
+    assert context["city"]["medianStationCrashes"] == 0.5
 
 
 def test_unknown_severity_raises_instead_of_becoming_property_damage():
@@ -192,3 +193,58 @@ def test_committed_artifact_invariants():
     # set equality both ways: a dropped station would otherwise blank its panel
     # block while every other invariant still closed
     assert set(artifact["byStation"]) == station_ids
+
+
+def test_median_is_a_true_median_for_an_even_station_count():
+    # two docks reading 0 and 4 must yield 2, not the upper-middle 4
+    far = {"id": "C", "lat": 49.30, "lon": -123.05}
+    context = build([crash(49.2800, -123.1000, weight=4)], stations=[STATION_A, far])
+    assert context["city"]["medianStationCrashes"] == 2
+
+
+def test_filtered_output_order_is_fully_determined():
+    # rows tying on every field the SQL sorted by, differing only in day: the
+    # writer must place them the same way regardless of input order
+    base = dict(
+        year="2021", month="AUGUST", time_band="09:00-11:59",
+        severity="CASUALTY CRASH", intersection="Y", street="BURRARD ST",
+        cross_street="W 1ST AVE", lat="49.270666", lon="-123.144", crash_weight="1",
+        municipality="VANCOUVER",
+    )
+    a = {**base, "day_of_week": "THURSDAY"}
+    b = {**base, "day_of_week": "FRIDAY"}
+    import tempfile
+
+    def written(rows):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "out.csv"
+            icbc_fetch.write_filtered(rows, path)
+            return path.read_bytes()
+
+    assert written([a, b]) == written([b, a])
+
+
+def test_every_configured_municipality_must_survive_the_filter(monkeypatch):
+    """UBC vanishing from the source must stop the run, not shrink the data.
+
+    UBC is 1.8% of the total, so its loss clears the volume warning while
+    putting false measured zeros on 17 campus docks.
+    """
+    rows = [
+        {"year": 2021, "month": "MAY", "day_of_week": "MONDAY", "time_band": "09:00-11:59",
+         "severity": "CASUALTY CRASH", "intersection": "Y", "street": "MAIN ST",
+         "cross_street": "", "lat": 49.28, "lon": -123.10, "crash_weight": 1,
+         "municipality": "VANCOUVER"}
+    ]
+
+    def only_vancouver(_path):
+        # mirrors the tail of read_service_area_cyclist_rows
+        found = {r["municipality"] for r in rows}
+        missing = set(icbc_fetch.MUNICIPALITIES) - found
+        if missing:
+            raise RuntimeError(f"no cyclist rows for {sorted(missing)}")
+        return rows
+
+    with pytest.raises(RuntimeError, match=r"no cyclist rows for \['UBC'\]"):
+        only_vancouver(None)
+    assert "UBC" in icbc_fetch.MUNICIPALITIES

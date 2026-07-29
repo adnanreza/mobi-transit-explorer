@@ -118,4 +118,6 @@ Crash context is derived from ICBC data under the [Open Data Licence for ICBC In
 
 > Contains information licensed under ICBC’s Open Data Licence.
 
-> All analysis, inferences, opinions, and conclusions drawn in this analysis are those of the authors, and do not reflect the opinions, position or policies of ICBC. Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors.
+> All analysis, inferences, opinions, and conclusions drawn in this analysis are those of the authors, and do not reflect the opinions, position or policies of ICBC.
+
+Basemap © [OpenFreeMap](https://openfreemap.org) / OpenStreetMap contributors.

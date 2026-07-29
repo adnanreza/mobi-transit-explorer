@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 import math
+import statistics
 from pathlib import Path
 
 # Same box the fetch enforces; re-checked here because the CSV is the input
@@ -175,8 +176,11 @@ def build_context(
             "withCoordinatesPct": round(100 * with_coords / total, 1) if total else None,
             # The typical dock, so a reader has an anchor for the number in
             # front of them without ranking stations against each other.
+            # statistics.median, not the upper-middle element: with an even
+            # number of docks the latter biases the "typical dock" anchor
+            # upward, and the active-station count changes with every release.
             "medianStationCrashes": (
-                sorted(v["crashes"] for v in by_station.values())[len(by_station) // 2]
+                statistics.median(v["crashes"] for v in by_station.values())
                 if by_station
                 else None
             ),

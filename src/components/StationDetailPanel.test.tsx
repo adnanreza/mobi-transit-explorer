@@ -51,7 +51,11 @@ describe("StationDetailPanel", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/so the count is a floor/)).toBeInTheDocument();
     expect(screen.getByText(/all cyclists rather than Mobi riders/)).toBeInTheDocument();
-    expect(screen.getByText(/Not a station-to-station\s+risk comparison/)).toBeInTheDocument();
+    // the caveat must not claim a decomposition the data cannot support
+    expect(
+      screen.getByText(/may reflect more cycling, more\s+traffic, underlying risk, or a mixture/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/not comparable between docks/)).toBeInTheDocument();
   });
 
   it("renders an explicit zero state so none-reported cannot read as unmeasured", () => {

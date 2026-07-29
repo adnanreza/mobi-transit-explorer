@@ -41,15 +41,18 @@ Reproducibility limit, stated plainly: the upstream workbook is mutable and the 
 
 **3. No per-trip rate. This is the product decision the review asked for.** Dividing all-cyclist crashes by Mobi departures does not correct exposure bias; it manufactures an ecological fallacy, because the numerator counts a population the denominator does not measure. A reader would inevitably read the quotient as per-ride risk, which the data cannot support. Two further defects confirm it: current station coordinates would be applied to crashes predating a dock's existence, and **Callister Park - Fan Fest** (opened 2026) has zero 2021-2025 departures, the only such active station, so the quotient is undefined there.
 
-The insight that resolves it: reported crashes near a corner are a property of the **location**, over a stated window and radius. Exposure bias only enters when that count is read as risk per ride, which is a framing problem, not an arithmetic one. So the artifact publishes `mobiDeparturesSameWindow` beside `crashes` as separate context, never their ratio, and the methodology explains why no rate is published. The contract test asserts no rate field exists, which makes the decision structural instead of a matter of care.
+The insight that resolves it: reported crashes near a corner are a property of the **location**, over a stated window and radius. Exposure bias only enters when that count is read as risk per ride, which is a framing problem, not an arithmetic one. So the artifact publishes the count and a median anchor, and no departure figure at any level: revisions 1 and 2 tried a per-station denominator and then a citywide one "for transparency", and review established that supplying both operands is the rate one step removed. The methodology states that no rate is published, why, and that a ratio built from numbers elsewhere on the page would be wrong because the panel's trip figure covers a different window. Tests assert that neither a rate field nor a departure figure exists, which makes the decision structural rather than a matter of care.
 
-**4. Artifact** — new `crashcontext.json`, separate from `stations.json` so licence provenance stays clean: `source`, `licence` (name, version, url, accessedAt, attribution, disclaimer), `vintage` (from, to, revisable note), `radiusM`, `city` (rows, crashes, casualtyCrashes, propertyDamageOnlyCrashes, crashesWithCoordinates, crashesWithoutCoordinates, withCoordinatesPct), `accounting` (the four fields above), and `byStation` keyed by station id with `{crashes, casualtyCrashes, mobiDeparturesSameWindow}` where departures may be **null** for a station that did not operate in the window.
+**4. Artifact** — new `crashcontext.json`, separate from `stations.json` so licence provenance stays clean: `source`, `licence` (name, version, url, accessedAt, attribution, disclaimer), `vintage` (from, to, revisable), `radiusM`, `city` (rows, crashes, casualtyCrashes, propertyDamageOnlyCrashes, crashesWithCoordinates, crashesWithoutCoordinates, withCoordinatesPct, medianStationCrashes), `accounting` (the four fields above), `radiusSensitivity` (one row per radius in 100/250/500 with its matched crashes and empty-dock count), and `byStation` keyed by station id with `{crashes, casualtyCrashes}`. **No Mobi departure figure at any level**: revisions 1 and 2 specified one per station and then citywide, and review showed both amount to publishing the rate this feature refuses. The reasoning is in the review history below.
 
 **5. UI** — one fact block in `src/components/StationDetailPanel.tsx`, for every station including zeros:
 
-- with crashes: "Cyclist-involved crashes reported within 250 m, 2021 to 2025: N (M casualty crashes)."
-- with none: "No cyclist-involved crashes reported within 250 m, 2021 to 2025." A zero state, because omitting the block would make "none reported" indistinguishable from "not measured".
-- one line under both: "Reported by ICBC for all cyclists, not Mobi riders. Counts describe the streets around a dock and are not comparable between stations."
+Three states, never two, because "not measured" must not be able to look like "none reported":
+
+- with crashes: "N cyclist-involved crashes reported within 250 m, 2021 to 2025 (M casualty crashes)."
+- a measured zero: "No cyclist-involved crashes reported within 250 m, 2021 to 2025."
+- a dock the artifact does not cover: "Crash data is not available for this dock, 2021 to 2025."
+- one caveat under all three: "Crashes reported **to** ICBC, for all cyclists rather than Mobi riders, so the count is a floor. A higher count may reflect more cycling, more traffic, underlying risk, or a mixture, and nothing here separates them, so counts are not comparable between docks (the typical dock reports N)." The direction of reporting is load-bearing, and the caveat states no decomposition the data cannot support.
 
 All values and years derive from the artifact. **Passed on deliberately: a crash map mode and any ranked list.** Either would invite the station-to-station comparison the framing forbids; if a map view is ever wanted it needs a defensible denominator, which this data does not provide, so it would be a different spec with a different source.
 
@@ -58,11 +61,11 @@ All values and years derive from the artifact. **Passed on deliberately: a crash
 ## Verification (planned)
 
 - **Pipeline units**: the `Y`/`N` filter and municipality match; the haversine join against fixture stations straddling 250 m; weighted counting (a fixture row with `TOTAL_CRASHES = 3` must contribute 3, not 1).
-- **Committed-artifact invariants**: `crashesWithCoordinates = matchedUniqueCrashes + nearNoStationCrashes`; `stationAssignments >= matchedUniqueCrashes`; `byStation` ids are a subset of active station ids; vintage equals the manifest's five years; no rate field on any `byStation` entry; `mobiDeparturesSameWindow` is null or positive, never zero-with-a-quotient.
-- **Feasibility anchors** (hold until the next vintage lands, then move with it): 4,445 rows / 4,455 crashes, 92.6% with coordinates, 67% casualty, and 720 station pairs under 500 m.
+- **Committed-artifact invariants**: `crashesWithCoordinates = matchedUniqueCrashes + nearNoStationCrashes`; `crashesWithCoordinates + crashesWithoutCoordinates = crashes`; `stationAssignments >= matchedUniqueCrashes`; `byStation` ids **equal** the active station ids (set equality both ways, so a dropped station cannot silently blank its panel block); vintage equals the manifest's years; no rate field and no departure figure anywhere in the artifact.
+- **Feasibility anchors** (hold until the next vintage lands, then move with it): 4,526 rows / 4,536 crashes, 92.6% with coordinates, 67% casualty, and 720 station pairs under 500 m.
 - **Schema assertions at fetch time**: expected columns present, `CYCLIST_FLAG` in {Y, N}, `CRASH_SEVERITY` in the two known values, coordinates inside the Vancouver bounding box already used by the station contract test, `TOTAL_CRASHES >= 1`. Anything unexpected stops the fetch, matching the era-map discipline.
 - **Radius sensitivity**: 100 / 250 / 500 m table recorded in the implementation notes so the choice is shown, not assumed.
-- `make check-artifacts` passes; payload budget holds (the artifact is a few KB against 400 KB raw).
+- `make check-artifacts` passes; the payload budget holds, counting every artifact that ships rather than only those `publish.py` writes.
 - **Frontend**: contract test; panel renders the populated block and the zero state; the non-comparability sentence present; a grep proving "Mobi crash" and "crash rate" appear nowhere in copy; 100+ Vitest, typecheck, build.
 - **Independent review before complete**, per the 045 pattern: data integrity (join and weight accounting), analysis honesty (framing, absent denominator), frontend and house rules.
 
@@ -115,6 +118,22 @@ Its proposed fix was to mark those docks unmeasured. Checking the source first f
 - Frontend: 107 Vitest, typecheck, production build. Payload 387.7 KB raw / 83.9 KB gzip against 420 / 120.
 - Rendered checks against the production build: the panel sentence, floor caveat, median anchor and non-comparability line; the methodology scope, casualty definition, derived window length, sensitivity figures, both licence texts verbatim with U+2019, and the absence of any departure figure; zero state on a measured-zero dock; zero em dashes in rendered text; dark mode.
 - Independently reproduced by review: every city total, all four accounting numbers, all per-station counts, the manifest checksum, and the 720-of-33,930 station-pair figure.
+
+## Review 3: second external review, adjudicated (2026-07-29)
+
+Six findings, all verified before acting, all adopted.
+
+**P1, UBC could vanish silently.** The filter's only postcondition was that some rows survived, so if ICBC renamed or dropped the UBC municipality, the Vancouver rows would have passed the check and the 25% volume warning alike (UBC is 1.8% of the total) while 17 campus docks reverted to the exact false measured-zero state this feature was fixed for. `read_service_area_cyclist_rows` now asserts that **every** configured municipality appears in the output, with a regression test.
+
+**P1, the panel claimed a decomposition the data cannot support.** The caveat read "a higher count mostly means more traffic rather than more risk per rider". Without cyclist volume per street nothing here separates exposure from risk, which is the same reason the feature refuses a rate, so the caution was itself an unsupported quantitative claim in the opposite direction. It now reads: a higher count may reflect more cycling, more traffic, underlying risk, or a mixture, and nothing here separates them.
+
+**P2, the median was not a median.** `sorted(...)[len // 2]` takes the upper-middle value, which biases the "typical dock" anchor upward whenever the active-station count is even. Now `statistics.median`. The old test encoded the bug by asserting the median of [0, 1] was 1; it is 0.5.
+
+**P2, the filtered CSV was not byte-deterministic.** The manifest pins its sha256 and publish refuses to run on a mismatch, but the SQL ordered by only part of the emitted row. Verified: **15 groups of rows tie on every ordered column while differing in an omitted one** (two crashes at the same corner in the same month on different weekdays), so the engine could return either order and move the checksum without any data change. `write_filtered` now sorts on the full emitted tuple in Python, which is deterministic regardless of what the source returns.
+
+**P2, the README misattributed a credit into the licence text.** The basemap credit had been swallowed into the second blockquote, so the file presented "...policies of ICBC. Basemap (c) OpenFreeMap / OpenStreetMap contributors." as the verbatim required statement. The credit is now its own paragraph.
+
+**P2, the spec contradicted its own revision.** The design and planned-verification sections still described the per-station departure field, the pre-UBC 4,455 anchor, the 400 KB budget, the subset-only station check, and the old "Reported by ICBC" wording. All reconciled with what shipped; superseded decisions now live only in this review history.
 
 ## Lifecycle
 

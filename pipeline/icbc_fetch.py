@@ -211,14 +211,38 @@ def read_service_area_cyclist_rows(hyper_path: Path) -> list[dict]:
         raise RuntimeError(
             f"no cyclist rows matched {MUNICIPALITIES}; the filter or source changed"
         )
+    # Every configured municipality must appear, not just one of them. UBC is
+    # 1.8% of the total, so if ICBC renamed or dropped it the Vancouver rows
+    # alone would sail past both this check's earlier form and the 25% volume
+    # warning, and 17 campus docks would quietly revert to false measured
+    # zeros. That is the exact regression this feature was fixed for.
+    found = {r["municipality"] for r in out}
+    missing_municipalities = set(MUNICIPALITIES) - found
+    if missing_municipalities:
+        raise RuntimeError(
+            f"no cyclist rows for {sorted(missing_municipalities)}; the source may have "
+            f"renamed or dropped them (found {sorted(found)}). Losing one municipality "
+            "silently would put false zeros on its docks."
+        )
     return out
 
 
 def write_filtered(rows: list[dict], dest: Path) -> None:
+    """Write the filtered rows in a fully determined order.
+
+    The manifest pins this file's sha256 and publish.py refuses to run when it
+    does not match, so the bytes have to be reproducible. Ordering in SQL was
+    not enough: 15 groups of rows tie on the ordered columns while differing in
+    fields the sort ignored (two crashes at the same corner in the same month
+    on different weekdays), and the engine may return those either way round.
+    Sorting on every emitted field here removes the ambiguity regardless of
+    what the source returns.
+    """
+    ordered = sorted(rows, key=lambda r: tuple("" if r[f] is None else str(r[f]) for f in FIELDS))
     with dest.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(ordered)
 
 
 def main() -> int:

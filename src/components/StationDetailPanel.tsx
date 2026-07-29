@@ -129,11 +129,10 @@ function CrashContext({ stationId }: { stationId: string }) {
       <p className="mt-2 text-sm leading-6 text-foreground">{sentence}</p>
       <p className="mt-2 text-xs leading-5 text-muted-foreground">
         Crashes reported to ICBC, for all cyclists rather than Mobi riders, so
-        the count is a floor. Busier streets carry both more cyclists and more
-        crashes, so a higher count mostly means more traffic rather than more
-        risk per rider (the typical dock reports{" "}
-        {crashContext.city.medianStationCrashes}). Not a station-to-station
-        risk comparison.
+        the count is a floor. A higher count may reflect more cycling, more
+        traffic, underlying risk, or a mixture, and nothing here separates
+        them, so counts are not comparable between docks (the typical dock
+        reports {crashContext.city.medianStationCrashes}).
       </p>
     </div>
   );
