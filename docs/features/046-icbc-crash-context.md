@@ -151,4 +151,4 @@ Three follow-ups, all fair, all fixed.
 
 ## Lifecycle
 
-Revision 3: implemented on `feat/046-icbc-crash-context`, reviewed by three independent Opus agents (data integrity, analysis honesty, frontend and house rules), findings verified and adjudicated above. Not merged and not deployed, awaiting the owner's second external review and confirmation.
+Revision 3: implemented on `feat/046-icbc-crash-context`, reviewed by three independent Opus agents (data integrity, analysis honesty, frontend and house rules), findings verified and adjudicated above, then reviewed twice more externally (Reviews 3 and 4 above). Merged to main at `44138fc` and deployed 2026-07-29.

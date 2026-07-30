@@ -83,6 +83,37 @@ export const asOfLabel = monthYearLabel(meta.sourceWindow.lastMonth);
 /** "2017–2026, as of June 2026" */
 export const windowLabel = `${sourceYearRange}, as of ${asOfLabel}`;
 
+// "nine and a half years", floored to the half year. Prose said this by hand
+// in four places and would have quietly read wrong from January 2027 on.
+const SPAN_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+  "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+];
+
+/** Inclusive window span in words ("nine and a half years"), floored to the
+ * half year. Exported for its unit tests; prose uses the derived consts. */
+export function spanPhrase(firstMonth: string, lastMonth: string): string {
+  const months =
+    (Number(lastMonth.slice(0, 4)) - Number(firstMonth.slice(0, 4))) * 12 +
+    Number(lastMonth.slice(5, 7)) - Number(firstMonth.slice(5, 7)) + 1;
+  const years = Math.floor(months / 12);
+  const word = SPAN_WORDS[years] ?? `${years}`;
+  return months % 12 >= 6 ? `${word} and a half years` : `${word} years`;
+}
+
+/** "nine and a half years" */
+export const sourceSpanLabel = spanPhrase(
+  meta.sourceWindow.firstMonth,
+  meta.sourceWindow.lastMonth,
+);
+
+/** "nine years" — completed years only, for prose that counts whole years */
+export const sourceSpanYearsLabel = sourceSpanLabel.replace(" and a half", "");
+
+/** "Nine years" — for headings, nav labels, and sentence starts */
+export const sourceSpanYearsTitle =
+  sourceSpanYearsLabel[0].toUpperCase() + sourceSpanYearsLabel.slice(1);
+
 // Station x/y use the shared real-geometry projection (viewBox units) so
 // every map layer stays geographically consistent.
 import { project } from "@/lib/projection";

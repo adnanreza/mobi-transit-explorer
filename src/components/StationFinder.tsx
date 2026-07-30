@@ -16,8 +16,9 @@ const sortedStations = [...stationsArtifact.stations].sort((a, b) =>
   a.name.localeCompare(b.name, "en-CA"),
 );
 
-// Keyboard- and screen-reader-first station selection: fitter for 262
-// stations than tab-cycling map dots, and it doubles as search for everyone.
+// Keyboard- and screen-reader-first station selection: fitter for a few
+// hundred stations than tab-cycling map dots, and it doubles as search for
+// everyone.
 // This is the primary accessible path for map station selection — the map
 // canvas itself is pointer-primary and not keyboard-navigable.
 export function StationFinder({

@@ -46,6 +46,16 @@ PRIMARY_STATION = "Vancouver Clark Drive"
 CORROBORATING_STATION = "Burnaby Kensington Park"
 STATIONS = (PRIMARY_STATION, CORROBORATING_STATION)
 
+# Carried through the manifest into airquality.json so the app can render
+# attribution from the artifact, exactly as crashcontext.json does for ICBC.
+LICENCE = {
+    "name": "Open Government Licence - British Columbia",
+    "version": "2.0",
+    "url": "https://www2.gov.bc.ca/gov/content/data/policy-standards/open-data/open-government-licence-bc",
+    # Verbatim from the licence text; the dash is U+2013, not ASCII.
+    "attribution": "Contains information licensed under the Open Government Licence – British Columbia.",
+}
+
 # Last year present under AnnualSummary/ (the verified archive). Everything
 # after comes from the unverified year-to-date file and is flagged as such.
 VERIFIED_THROUGH = 2024
@@ -59,14 +69,21 @@ def download(url: str) -> Path:
     handle = tempfile.NamedTemporaryFile(
         dir=AIRQUALITY_DIR, prefix=".download-", suffix=".csv", delete=False
     )
-    with urllib.request.urlopen(url, timeout=300) as response:
-        while chunk := response.read(1 << 20):
-            handle.write(chunk)
+    try:
+        with urllib.request.urlopen(url, timeout=300) as response:
+            while chunk := response.read(1 << 20):
+                handle.write(chunk)
+    except BaseException:
+        # The temp file exists before the request starts; a failed download
+        # must not leave .download-*.csv debris for the caller's finally.
+        handle.close()
+        Path(handle.name).unlink(missing_ok=True)
+        raise
     handle.close()
     return Path(handle.name)
 
 
-def normalize(source: Path, verified: bool) -> list[tuple[str, str, float]]:
+def normalize(source: Path) -> list[tuple[str, str, float]]:
     """Filter to the two stations; return (obs_date, station_name, raw_value).
 
     Annual files carry DATE (the observation date) and TIME columns; the
@@ -117,7 +134,7 @@ def write_filtered(rows: list[tuple[str, str, float]], dest: Path, verified: boo
 def fetch_one(url: str, dest: Path, verified: bool) -> int:
     temp = download(url)
     try:
-        rows = normalize(temp, verified)
+        rows = normalize(temp)
         if not rows:
             raise RuntimeError(f"no rows for {STATIONS} in {url}")
         write_filtered(rows, dest, verified)
@@ -134,16 +151,18 @@ def main() -> int:
 
     AIRQUALITY_DIR.mkdir(parents=True, exist_ok=True)
     manifest = common.load_manifest()
-    meta = manifest.setdefault("reference", {}).setdefault(
-        "bc_env_airquality",
+    meta = manifest.setdefault("reference", {}).setdefault("bc_env_airquality", {})
+    # Descriptive fields refresh on every run so a constant edited here (the
+    # licence block, a station rename) reaches the manifest without --force.
+    meta.update(
         {
             "source": SOURCE_URL,
-            "licence": "Open Government Licence - British Columbia",
+            "licence": LICENCE,
             "primary_station": PRIMARY_STATION,
             "corroborating_station": CORROBORATING_STATION,
-            "years": {},
-        },
+        }
     )
+    meta.setdefault("years", {})
 
     jobs: list[tuple[str, str, bool]] = [
         (str(year), ANNUAL_URL.format(year=year), True)

@@ -63,3 +63,32 @@ def test_collect_flags_duplicate_content(tmp_path, monkeypatch):
     }
     _, issues = inventory.collect({"trips": trips, "reference": {}})
     assert any("duplicate content of 2017" in issue for issue in issues)
+
+
+def test_write_report_handles_every_real_reference_shape(tmp_path, monkeypatch):
+    # The manifest's reference entries do not share a schema. These three
+    # shapes all exist in the live manifest; the icbc one (file but no
+    # bytes/fetched_at) crashed write_report with a KeyError until spec 047.
+    monkeypatch.setattr(common, "DATA_RAW", tmp_path)
+    reference = {
+        "gbfs_station_information": {
+            "file": "geo/station_information.json",
+            "bytes": 123_456,
+            "fetched_at": "2026-06-01",
+            "sha256": "0" * 64,
+            "url": "https://example.test/gbfs.json",
+        },
+        "ec_weather": {"station_id": 889, "station_name": "X", "years": "2017-2026"},
+        "icbc_crashes": {
+            "file": "icbc/vancouver-ubc-cyclist-crashes.csv",
+            "rows": 4526,
+            "crashes": 4536,
+            "accessed_at": "2026-07-29",
+            "filtered_sha256": "f" * 64,
+        },
+    }
+    inventory.write_report([], [], {"trips": {}, "reference": reference})
+    text = (tmp_path / "inventory.md").read_text(encoding="utf-8")
+    assert "- `geo/station_information.json` (123,456 bytes, fetched 2026-06-01)" in text
+    assert "- `icbc/vancouver-ubc-cyclist-crashes.csv` (4,526 rows, fetched 2026-07-29)" in text
+    assert "- `ec_weather` (" in text

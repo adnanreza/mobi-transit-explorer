@@ -1,5 +1,5 @@
 {
-  "_comment": "Every raw header ever observed across the 102 source files (31 distinct layouts), mapped to a unified column or null to drop. Extraction fails loudly on any header not listed here, so new drift becomes an explicit decision. Yes, 'Memebership type' and 'Return temperature (Â°C)' are real headers Mobi shipped.",
+  "_comment": "Every raw header ever observed across the source files, mapped to a unified column or null to drop. Extraction fails loudly on any header not listed here, so new drift becomes an explicit decision. Yes, 'Memebership type' and 'Return temperature (Â°C)' are real headers Mobi shipped.",
   "Departure": "departure",
   "Return": "return",
   "Account": null,

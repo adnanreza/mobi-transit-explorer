@@ -265,6 +265,34 @@ def build_artifacts(con) -> dict[str, object]:
     # BOTH stations over BC's 24-hour objective (v_smoke_days); each smoke
     # day's reference is the mean of clear days in the SAME year and month,
     # so seasonality can never masquerade as an air-quality effect.
+    #
+    # Verify the PM2.5 inputs against the manifest first (spec 047, mirroring
+    # the ICBC check below): v_pm25_daily globs airquality/pm25-*.csv, so a
+    # truncated year or a stray file would otherwise shift smokeDayCount
+    # silently instead of failing here.
+    aq_reference = common.load_manifest().get("reference", {}).get("bc_env_airquality")
+    if not aq_reference:
+        raise SystemExit(
+            "manifest has no reference.bc_env_airquality; run pipeline/airquality_fetch.py first"
+        )
+    manifest_pm25: set[str] = set()
+    for year_key, entry in sorted(aq_reference["years"].items()):
+        pm25_path = common.DATA_RAW / entry["file"]
+        if not pm25_path.exists():
+            raise SystemExit(f"missing {pm25_path}; run pipeline/airquality_fetch.py")
+        if common.sha256_file(pm25_path) != entry["sha256"]:
+            raise SystemExit(
+                f"{pm25_path.name} does not match its manifest checksum; "
+                "re-run pipeline/airquality_fetch.py --force"
+            )
+        manifest_pm25.add(pm25_path.name)
+    on_disk_pm25 = {p.name for p in (common.DATA_RAW / "airquality").glob("pm25-*.csv")}
+    if on_disk_pm25 != manifest_pm25:
+        raise SystemExit(
+            f"airquality/ holds {sorted(on_disk_pm25)} but the manifest records "
+            f"{sorted(manifest_pm25)}; the publish views read every pm25-*.csv"
+        )
+
     aq_rows = rows(con, """
         WITH daily AS (
           SELECT date_key, count(*) AS trips FROM countable_trips GROUP BY 1
@@ -315,6 +343,10 @@ def build_artifacts(con) -> dict[str, object]:
     airquality = {
         "primaryStation": "Vancouver Clark Drive",
         "corroboratingStation": "Burnaby Kensington Park",
+        # Attribution rides in the artifact, exactly as crashcontext.json
+        # does for ICBC, so the app derives it instead of hand-writing it.
+        "source": {"catalogueRecord": aq_reference["source"]},
+        "licence": aq_reference["licence"],
         "smokeThresholdUgM3": 25,
         "verifiedThrough": str(
             max((r["date_key"] for r in aq_rows if r["verified"]), default="")
@@ -446,6 +478,7 @@ def build_artifacts(con) -> dict[str, object]:
         "quality": {
             "rowsLanded": metrics[("extract", "rows_landed")],
             "filesProcessed": metrics[("extract", "files_landed")],
+            "headerLayouts": metrics[("extract", "header_layouts")],
             "rowsKept": metrics[("clean", "rows_kept")],
             "droppedBlankStations": metrics[("clean", "rows_dropped_blank_stations")],
             "droppedBadTimestamp": metrics[("clean", "rows_dropped_bad_timestamp")],

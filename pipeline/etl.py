@@ -88,8 +88,11 @@ def run_extract(
     column_map: dict,
 ) -> None:
     run_sql_file(con, "10_extract.sql")
+    layouts: set[tuple[str, ...]] = set()
     for period, (path, fmt) in sorted(trips.items()):
-        pairs = plan_columns(read_header(con, path, fmt), column_map, path.name)
+        header = read_header(con, path, fmt)
+        layouts.add(tuple(h.strip() for h in header))
+        pairs = plan_columns(header, column_map, path.name)
         cols = ", ".join(f'"{unified}"' for _, unified in pairs)
         select = ", ".join(f'"{raw}"' for raw, _ in pairs)
         con.execute(
@@ -98,6 +101,12 @@ def run_extract(
         )
     record(con, "extract", "rows_landed", "SELECT count(*) FROM raw_trips")
     record(con, "extract", "files_landed", "SELECT count(DISTINCT source_file) FROM raw_trips")
+    # Distinct raw header layouts, recorded here because only extract sees the
+    # raw headers; the quality report quotes this number instead of hand-writing it.
+    con.execute(
+        "INSERT INTO etl_metrics VALUES ('extract', 'header_layouts', ?)", [len(layouts)]
+    )
+    print(f"extract.header_layouts = {len(layouts):,}")
 
 
 def reset_stage_metrics(con: duckdb.DuckDBPyConnection, stage: str) -> None:

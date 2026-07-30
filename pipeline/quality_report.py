@@ -20,6 +20,24 @@ import common
 REPORT = common.REPO_ROOT / "docs" / "data-quality-report.md"
 
 
+_SPAN_WORDS = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+    "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+]
+
+
+def span_phrase(first_month: str, last_month: str) -> str:
+    """Inclusive window span in words ("nine and a half years"), floored to the
+    half year, so the phrase moves with the data window instead of going stale."""
+    months = (
+        (int(last_month[:4]) - int(first_month[:4])) * 12
+        + int(last_month[5:7]) - int(first_month[5:7]) + 1
+    )
+    years, rem = divmod(months, 12)
+    word = _SPAN_WORDS[years] if years < len(_SPAN_WORDS) else str(years)
+    return f"{word} and a half years" if rem >= 6 else f"{word} years"
+
+
 def q(con, sql: str):
     return con.execute(sql).fetchall()
 
@@ -110,7 +128,7 @@ def build(con) -> str:
         "",
         "## Station resolution",
         "",
-        f"- {total_stations} station IDs appear in nine and a half years of trips "
+        f"- {total_stations} station IDs appear in {span_phrase(first_month, window_end)} of trips "
         f"(2017–{window_end[:4]}, as of {window_end[:7]}); "
         f"{with_coords} resolve to coordinates in the current GBFS feed. "
         "The remainder are retired stations kept in `dim_station` without geometry.",
@@ -119,7 +137,13 @@ def build(con) -> str:
         "## Membership mapping",
         "",
     ]
-    unmapped = q(con, "SELECT membership_raw FROM dim_membership WHERE membership_group IS NULL")
+    # ORDER BY matters: this list is emitted verbatim into a byte-compared
+    # report, and DuckDB gives no stable order without it.
+    unmapped = q(
+        con,
+        "SELECT membership_raw FROM dim_membership "
+        "WHERE membership_group IS NULL ORDER BY membership_raw",
+    )
     labels = q1(con, "SELECT count(*) FROM dim_membership")
     lines.append(
         f"{labels} distinct raw labels observed (including a literal `None`) map to "
@@ -205,7 +229,8 @@ def build(con) -> str:
         "",
         "## Source-format drift handled by the pipeline",
         "",
-        "- 31 distinct header layouts across 102 files, unified by an explicit era map "
+        f"- {m[('extract', 'header_layouts')]} distinct header layouts across "
+        f"{m[('extract', 'files_landed')]} files, unified by an explicit era map "
         "(`pipeline/mappings/column_eras.json`); unknown headers abort the run.",
         "- Header spelling drift includes `Memebership type`, `Electric`/`Electric Bike`, "
         "five temperature spellings, and the mojibake `Return temperature (Â°C)`.",

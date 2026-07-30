@@ -9,7 +9,7 @@ I've lived in Vancouver since 2015 and have never owned a car here. Mobi, walkin
 ## What it shows
 
 - **Nine years of change**: growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
-- **A zoomable map of the real network**: 262 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
+- **A zoomable map of the real network**: 261 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
 - **Operational findings that cite their evidence**: dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
 ## How it's built
@@ -34,7 +34,7 @@ I've lived in Vancouver since 2015 and have never owned a car here. Mobi, walkin
 
 - **Pipeline:** Python 3.11 + DuckDB. Transforms are plain SQL (`pipeline/sql/`). Over 9.1M raw rows in, 8.9M trips kept. Every drop and flag is accounted for, with exact current counts in the generated [data-quality report](docs/data-quality-report.md).
 - **App:** React 19, TypeScript, Vite, Tailwind, Chart.js, MapLibre GL (lazy-loaded). No backend, no API keys, no env vars. The host serves static files.
-- **The hard part, on purpose:** nine years of format drift: 31 column layouts, five timestamp formats, three file containers, and broken Unicode in a Squamish-language station name, each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
+- **The hard part, on purpose:** nine and a half years of format drift: 31 column layouts, five timestamp formats, three file containers, and broken Unicode in a Squamish-language station name, each handled by an explicit, tested rule. The trip files' bike-sensor temperature is unreliable (0° sentinels, impossible highs), so weather uses Environment Canada ambient data instead. Unknown drift stops the pipeline; nothing is guessed silently.
 
 ## Reproduce it
 
@@ -70,7 +70,8 @@ Absorbing a new Mobi release is a run, not a rebuild:
 2. `download.py` fetches it and pins sha256 + size; `inventory.py` audits the whole archive for gaps and mismatches.
 3. `etl.py --stage all` rebuilds the warehouse. If the file's header doesn't match a known layout, the pipeline **stops loudly** (`UnknownColumns`) until the drift is mapped in `pipeline/mappings/column_eras.json`. Nothing is guessed.
 4. `publish.py` + `train_model.py` + `quality_report.py` regenerate every artifact, and `make check-artifacts` byte-compares the committed output against a fresh run before anything ships.
-5. The site's window copy ("as of …", year ranges, the footer freshness line) derives from `meta.sourceWindow`, so prose updates itself.
+5. The site's window copy ("as of …", year ranges, the span phrases, the footer freshness line) derives from `meta.sourceWindow`, so prose updates itself.
+6. This README does not: sweep it for counts that mirror the artifacts (active stations, file counts, trip totals) and update them by hand. `grep -nE '[0-9]{3}' README.md` against `src/data/generated/meta.json` is the whole job.
 
 **Case study, June 2026, the first live month** ([spec 039](docs/features/039-june-2026-data.md)): auto-detected from Mobi's page, zero header drift, one brand-new station (Callister Park – Fan Fest, opened for FIFA) that exercised a new-station edge case the data-contract tests caught, and one latent pipeline bug fixed. Drive link to production in a single run.
 
@@ -80,6 +81,7 @@ Absorbing a new Mobi release is a run, not a rebuild:
 npm run test        # Vitest: components + data contracts
 npm run typecheck
 npm run build
+npm run test:e2e    # Playwright vs the built bundle: the spec 043 theme-flip race
 .venv/bin/python -m pytest pipeline/tests   # pipeline: era mapping, flags, dedupe
 ```
 
@@ -113,6 +115,8 @@ On acquisition: `pipeline/download.py` mirrors the same publicly linked trip fil
 **Disclaimer:** This is an independent, non-commercial project. It is not affiliated with, endorsed by, or approved by Mobi by Rogers, Vancouver Bike Share Inc., or the City of Vancouver. "Mobi" and "Mobi by Rogers" are trademarks of Vancouver Bike Share Inc., used here descriptively to identify the public dataset being analyzed.
 
 Geometry and transit locations from [City of Vancouver Open Data](https://opendata.vancouver.ca) (Open Government Licence – Vancouver). Weather based on [Environment and Climate Change Canada](https://climate.weather.gc.ca) data.
+
+Air quality from the [BC ENV Air Data Archive](https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409). Contains information licensed under the Open Government Licence – British Columbia.
 
 Crash context is derived from ICBC data under the [Open Data Licence for ICBC Information](https://www.icbc.com/policies/open-data-licence), which requires both of the following, reproduced verbatim:
 

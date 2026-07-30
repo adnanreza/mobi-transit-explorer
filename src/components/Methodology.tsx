@@ -1,6 +1,14 @@
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
-import { crashContext, forecast, meta, windowLabel } from "@/data";
+import {
+  airquality,
+  crashContext,
+  forecast,
+  meta,
+  sourceSpanLabel,
+  sourceSpanYearsLabel,
+  windowLabel,
+} from "@/data";
 
 const formatNumber = (value: number) => value.toLocaleString("en-CA");
 
@@ -15,9 +23,10 @@ export function Methodology() {
         I moved to Vancouver in August 2015 and have never owned a car here.
         I get around by transit, bike share, and walking, with zero regrets
         and some fun along the way. Mobi arrived the summer after I did, so its entire public
-        record overlaps my own years moving through this city. That's why nine
-        years of trip files aren't an abstract dataset to me, and why this
-        section is the honest account of how they become the numbers above.
+        record overlaps my own years moving through this city. That's why{" "}
+        {sourceSpanYearsLabel} of trip files aren't an abstract dataset to me,
+        and why this section is the honest account of how they become the
+        numbers above.
       </p>
 
       <Section title="The data">
@@ -67,11 +76,12 @@ export function Methodology() {
         </p>
       </Section>
 
-      <Section title="Nine and a half years of drift">
+      <Section title={`${sourceSpanLabel[0].toUpperCase()}${sourceSpanLabel.slice(1)} of drift`}>
         <p>
-          The archive is nine and a half years ({windowLabel}) of quiet format entropy, and handling it is
+          The archive is {sourceSpanLabel} ({windowLabel}) of quiet format entropy, and handling it is
           most of the work. Across {meta.quality.filesProcessed} files there
-          are 31 distinct column layouts. The membership column alone appears
+          are {meta.quality.headerLayouts} distinct column layouts. The
+          membership column alone appears
           as <Code>Membership type</Code>, <Code>Membership Type</Code>,{" "}
           <Code>Formula</Code>, and the typo <Code>Memebership type</Code>.
           Timestamps come in five shapes, from Excel serial numbers to April
@@ -210,23 +220,26 @@ export function Methodology() {
       <Section title="Air quality">
         <p>
           The smoke chapter uses hourly PM2.5 from the BC ENV Air Data
-          Archive (Open Government Licence, British Columbia). The station of
-          record is Vancouver Clark Drive, the only monitor inside the
-          service area with full coverage since 2017. It sits beside a truck
-          route, so a smoke day must pass a second test: the 24-hour mean has
-          to exceed 25 ug/m3, BC's air quality objective, at both Clark Drive
-          and Burnaby Kensington Park. Regional smoke lifts both stations at
-          once; local traffic cannot. The province has verified readings
-          through 2024; later readings come from its unverified daily feed
-          and are used as published. Every smoke day is compared with clear
-          days in the same month and year, because wildfire season is also
-          peak riding season and any wider comparison would launder
-          seasonality into an air quality claim. Daily mean PM2.5 was also
-          tested as a forecast model feature on the same 2025-onward holdout,
-          fit and scored on an identical day pool with and without it. It did
-          not improve the model, so it is not a model input and the numbers
-          above stay association, not prediction. The exact comparison lives
-          in the spec for this feature in the repo.
+          Archive. {airquality.licence.attribution} The station of record is{" "}
+          {airquality.primaryStation}, the only monitor inside the service
+          area with full coverage since{" "}
+          {(airquality.coverage.firstDay ?? "").slice(0, 4)}. It sits beside a
+          truck route, so a smoke day must pass a second test: the 24-hour
+          mean has to exceed {airquality.smokeThresholdUgM3} ug/m3, BC's air
+          quality objective, at both {airquality.primaryStation} and{" "}
+          {airquality.corroboratingStation}. Regional smoke lifts both
+          stations at once; local traffic cannot. The province has verified
+          readings through {airquality.verifiedThrough.slice(0, 4)}; later
+          readings come from its unverified daily feed and are used as
+          published. Every smoke day is compared with clear days in the same
+          month and year, because wildfire season is also peak riding season
+          and any wider comparison would launder seasonality into an air
+          quality claim. Daily mean PM2.5 was also tested as a forecast model
+          feature on the same {forecast.modelCard.testRange.slice(0, 4)}
+          -onward holdout, fit and scored on an identical day pool with and
+          without it. It did not improve the model, so it is not a model
+          input and the numbers above stay association, not prediction. The
+          exact comparison lives in the spec for this feature in the repo.
         </p>
       </Section>
 

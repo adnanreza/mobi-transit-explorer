@@ -28,7 +28,7 @@ def test_normalize_annual_layout(tmp_path):
             ["2024-01-01 02:00", "2024-01-01", "02:00", "Vancouver Clark Drive", "X", "NA", "ug/m3"],
         ],
     )
-    rows = airquality_fetch.normalize(src, verified=True)
+    rows = airquality_fetch.normalize(src)
     # other stations and NA values drop; the DATE column names the day even
     # for the hour-ending-24 row
     assert rows == [
@@ -47,7 +47,7 @@ def test_normalize_ytd_layout(tmp_path):
             ["2025-01-01 24:00", "Burnaby Kensington Park", "Z", "4.5", "ug/m3"],
         ],
     )
-    rows = airquality_fetch.normalize(src, verified=False)
+    rows = airquality_fetch.normalize(src)
     # no DATE column in this layout; the first ten characters of DATE_PST are
     # the observation date under the hour-ending convention
     assert rows == [
@@ -87,3 +87,20 @@ def test_committed_airquality_artifact_invariants():
     assert all("2020-08-24" <= d["date"] <= "2020-10-04" for d in sept)
     worst = aq["worstDay"]
     assert worst is not None and worst["pm25"] > 100
+
+
+def test_committed_artifact_carries_the_ogl_bc_licence():
+    """Attribution must be derivable from the artifact (the crashcontext.json
+    pattern), and the statement is verbatim from the licence: the dash is
+    U+2013 and the title is spelled with a hyphen."""
+    aq = json.loads(
+        (common.REPO_ROOT / "src" / "data" / "generated" / "airquality.json").read_text()
+    )
+    manifest = json.loads((common.REPO_ROOT / "pipeline" / "manifest.json").read_text())
+    assert aq["licence"] == manifest["reference"]["bc_env_airquality"]["licence"]
+    assert (
+        aq["licence"]["attribution"]
+        == "Contains information licensed under the Open Government Licence – British Columbia."
+    )
+    assert aq["licence"]["name"] == "Open Government Licence - British Columbia"
+    assert aq["source"]["catalogueRecord"].startswith("https://catalogue.data.gov.bc.ca/")

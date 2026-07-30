@@ -131,8 +131,10 @@ function CrashContext({ stationId }: { stationId: string }) {
         Crashes reported to ICBC, for all cyclists rather than Mobi riders, so
         the count is a floor. A higher count may reflect more cycling, more
         traffic, underlying risk, or a mixture, and nothing here separates
-        them, so counts are not comparable between docks (the typical dock
-        reports {crashContext.city.medianStationCrashes}).
+        them, so counts are not comparable between docks
+        {crashContext.city.medianStationCrashes !== null &&
+          ` (the typical dock reports ${crashContext.city.medianStationCrashes})`}
+        .
       </p>
     </div>
   );

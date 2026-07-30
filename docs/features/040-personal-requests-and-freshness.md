@@ -6,7 +6,7 @@ Two owner asks. First, a "Personal requests" section: the rider's counterpart to
 
 ## Changes
 
-**1. Personal requests section** (src/components/PersonalRequests.tsx, wired into src/App.tsx as `#requests` between Signals and Methodology; "Requests" added to the nav). Three asks in portfolio ruled-row style — numbered eyebrow, title + prose, right-aligned mono annotation:
+**1. Personal requests section** (src/components/PersonalRequests.tsx, wired into src/App.tsx as `#requests` between Signals and Methodology; "Requests" added to the nav). Three asks (a fourth, "Meet the train everywhere", was added by spec 041) in portfolio ruled-row style — numbered eyebrow, title + prose, right-aligned mono annotation:
 
 - *Bring the network south* — no docks south of 30th & Ontario / East Blvd & 37th; the owner uses those two end-of-the-line docks constantly because his rides point past them, to Langara College (nineteen blocks beyond the last dock) and South Vancouver. (Corrected mid-review: he lives near 10th & Granville, inside the network — the gap is the destination end of the commute, not home.)
 - *Send e-bikes with it* — the ride **to work** climbs the central ridge (10th & Granville up to the crest, then down to 49th); arriving sweaty before lectures is the deal-breaker, and the ride home is the easy direction. (Second owner correction: the hard climb is the morning southbound leg, not the return.)

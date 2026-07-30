@@ -331,11 +331,15 @@ export function StorySection() {
             <Line data={membershipData(colors)} options={membershipOptions(colors)} />
           </ChartReveal>
         ),
-        smoke: (
-          <ChartReveal>
-            <Bar data={smokeData(colors)} options={smokeOptions(colors)} />
-          </ChartReveal>
-        ),
+        smoke:
+          // The chapter copy handles an empty window (smokeChapter guards
+          // worstDay/events); an empty CHART would render as a bare axis, so
+          // skip it the same way rather than trusting the data twice.
+          airquality.sept2020.length > 0 ? (
+            <ChartReveal>
+              <Bar data={smokeData(colors)} options={smokeOptions(colors)} />
+            </ChartReveal>
+          ) : null,
       };
 
   return (
