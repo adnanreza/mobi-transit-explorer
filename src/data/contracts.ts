@@ -15,6 +15,7 @@ export type Meta = {
   quality: {
     rowsLanded: number;
     filesProcessed: number;
+    headerLayouts: number;
     rowsKept: number;
     droppedBlankStations: number;
     droppedBadTimestamp: number;
@@ -172,6 +173,13 @@ export type SmokeDay = {
 export type AirQualityArtifact = {
   primaryStation: string;
   corroboratingStation: string;
+  source: { catalogueRecord: string };
+  licence: {
+    name: string;
+    version: string;
+    url: string;
+    attribution: string; // required verbatim, dash is U+2013
+  };
   smokeThresholdUgM3: number;
   verifiedThrough: string; // last day covered by BC ENV verified data
   coverage: { firstDay: string | null; lastDay: string | null; days: number };

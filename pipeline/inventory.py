@@ -104,10 +104,27 @@ def write_report(records: list[dict], issues: list[str], manifest: dict) -> None
     lines += ["", "## Reference snapshots", ""]
     for key, ref in manifest.get("reference", {}).items():
         if "file" in ref:
-            lines.append(f"- `{ref['file']}` ({ref['bytes']:,} bytes, fetched {ref['fetched_at']})")
+            # Reference entries do not share a schema: geo snapshots record
+            # bytes + fetched_at, icbc_crashes records rows + accessed_at.
+            # Render whatever is present rather than assuming one shape.
+            details = []
+            if "bytes" in ref:
+                details.append(f"{ref['bytes']:,} bytes")
+            if "rows" in ref:
+                details.append(f"{ref['rows']:,} rows")
+            stamp = ref.get("fetched_at") or ref.get("accessed_at")
+            if stamp:
+                details.append(f"fetched {stamp}")
+            suffix = f" ({', '.join(details)})" if details else ""
+            lines.append(f"- `{ref['file']}`{suffix}")
         else:
             # Non-file references (e.g. ec_weather records a station + year range).
-            detail = ", ".join(f"{k}={v}" for k, v in sorted(ref.items()))
+            # Scalars only: nested year/licence dicts would dump whole blobs here.
+            detail = ", ".join(
+                f"{k}={v}"
+                for k, v in sorted(ref.items())
+                if not isinstance(v, (dict, list))
+            )
             lines.append(f"- `{key}` ({detail})")
     if issues:
         lines += ["", "## Issues", ""] + [f"- {issue}" for issue in issues]

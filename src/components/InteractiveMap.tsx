@@ -145,6 +145,15 @@ function selectionFeatures(
   };
 }
 
+// Every layer the mode/theme paint effect touches. Its guard checks this
+// list, so a layer added to the paint calls must be added here to be covered
+// by the style-load race protection (spec 043's crash class).
+const PAINTED_LAYERS = ["stations", "transit-dots", "transit-labels"] as const;
+
+function paintedLayersReady(map: maplibregl.Map): boolean {
+  return PAINTED_LAYERS.every((id) => map.getLayer(id) !== undefined);
+}
+
 export default function InteractiveMap({
   selectedStationId,
   onStationSelect,
@@ -158,6 +167,12 @@ export default function InteractiveMap({
   const [loaded, setLoaded] = useState(false);
   const onSelectRef = useRef(onStationSelect);
   onSelectRef.current = onStationSelect;
+  // Selection inputs as a ref for the same reason as onSelectRef: the init
+  // effect only re-runs on a theme flip, so its load handler would otherwise
+  // re-seed the selection ring with whatever was selected AT the flip, not
+  // what is selected when the new style finishes loading.
+  const selectionArgsRef = useRef({ selectedStationId, year, maxTransitM });
+  selectionArgsRef.current = { selectedStationId, year, maxTransitM };
   const theme = useTheme();
   // A theme flip rebuilds the map with the other basemap; carry the camera
   // across so the viewer doesn't lose their place.
@@ -206,9 +221,10 @@ export default function InteractiveMap({
     map.on("load", () => {
       map.addSource("stations", { type: "geojson", data: stationFeatures() });
       map.addSource("transit", { type: "geojson", data: transitFeatures() });
+      const sel = selectionArgsRef.current;
       map.addSource("selection", {
         type: "geojson",
-        data: selectionFeatures(selectedStationId, year, maxTransitM),
+        data: selectionFeatures(sel.selectedStationId, sel.year, sel.maxTransitM),
       });
 
       map.addLayer({
@@ -353,7 +369,7 @@ export default function InteractiveMap({
     // done loading") and blanks the app. The layers only exist once the new
     // style's load handler has run, so their presence is the real gate; the
     // effect re-runs via `loaded` after that.
-    if (!map.getLayer("stations") || !map.getLayer("transit-dots") || !map.getLayer("transit-labels")) {
+    if (!paintedLayersReady(map)) {
       return;
     }
     const colors = MAP_COLORS[theme];

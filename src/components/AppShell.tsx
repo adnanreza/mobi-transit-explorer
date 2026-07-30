@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, Moon, Sun, X } from "lucide-react";
-import { asOfLabel, crashContext } from "@/data";
+import { airquality, asOfLabel, crashContext, sourceSpanYearsTitle } from "@/data";
 import { setTheme, useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -235,7 +235,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
       { label: "Mobi GBFS feed", href: "https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/gbfs.json" },
       { label: "City of Vancouver Open Data", href: "https://opendata.vancouver.ca" },
       { label: "Environment & Climate Change Canada", href: "https://climate.weather.gc.ca" },
-      { label: "BC ENV Air Data Archive", href: "https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409" },
+      { label: "BC ENV Air Data Archive", href: airquality.source.catalogueRecord },
       { label: "ICBC crash data", href: crashContext.source.catalogueRecord },
     ],
   },
@@ -258,8 +258,8 @@ function SiteFooter() {
               Mobi Transit Explorer
             </p>
             <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
-              Nine years of Vancouver bike share, cleaned and mapped. A data
-              product by Adnan Reza.
+              {sourceSpanYearsTitle} of Vancouver bike share, cleaned and
+              mapped. A data product by Adnan Reza.
             </p>
           </div>
           {FOOTER_COLUMNS.map((col) => (

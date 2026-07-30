@@ -1,10 +1,11 @@
 """Artifact-freshness gate: detect drift between committed artifacts and what
 the pipeline would produce today.
 
-Regenerates EVERY committed generated artifact — the 10 publish JSONs,
-forecast.json (trained model), src/data/generated/geo/land.json (geometry),
-and docs/data-quality-report.md (quality report) — into a temporary location
-and compares byte-for-byte against the committed files.
+Regenerates EVERY committed generated artifact — every publish JSON under
+src/data/generated/ (discovered by glob, so a new artifact is covered the day
+it ships), forecast.json (trained model), src/data/generated/geo/land.json
+(geometry), and docs/data-quality-report.md (quality report) — into a
+temporary location and compares byte-for-byte against the committed files.
 
 Normalisation rules (so wall-clock timestamps don't trigger false positives):
   - JSON artifacts with a top-level ``generatedAt`` key: that field is replaced

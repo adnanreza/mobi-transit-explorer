@@ -15,6 +15,7 @@ import {
   opportunities,
   overviewMetrics,
   seasonality,
+  spanPhrase,
   stations,
   stationsAll,
   stationsArtifact,
@@ -137,6 +138,22 @@ describe("generated data contracts", () => {
     if (airquality.medianSmokeDayDropPct !== null) {
       expect(Math.abs(airquality.medianSmokeDayDropPct)).toBeLessThan(60);
     }
+    // licence pinned as a literal (the Methodology test is self-referential
+    // by design, so the exact wording must be locked here): the dash is
+    // U+2013 and the title's separator is a plain hyphen, both verbatim.
+    expect(airquality.licence.attribution).toBe(
+      "Contains information licensed under the Open Government Licence – British Columbia.",
+    );
+    expect(airquality.licence.name).toBe("Open Government Licence - British Columbia");
+    expect(airquality.source.catalogueRecord).toMatch(/^https:\/\/catalogue\.data\.gov\.bc\.ca\//);
+  });
+
+  it("window span labels derive from the source window", () => {
+    // fixed inputs, so this tests the words rather than mirroring the data
+    expect(spanPhrase("2017-01", "2026-06")).toBe("nine and a half years");
+    expect(spanPhrase("2017-01", "2026-12")).toBe("ten years");
+    expect(spanPhrase("2017-01", "2027-03")).toBe("ten years");
+    expect(spanPhrase("2017-01", "2027-06")).toBe("ten and a half years");
   });
 
   it("crash context accounting closes and publishes no rate", () => {
@@ -170,8 +187,12 @@ describe("generated data contracts", () => {
     expect(crashContext.radiusSensitivity.map((r) => r.radiusM)).toContain(
       crashContext.radiusM,
     );
-    // no per-trip rate anywhere: the denominator ships undivided at city level
-    expect(JSON.stringify(byStation)).not.toMatch(/per100k|rate/i);
+    // no per-trip rate anywhere: scan the WHOLE artifact, mirroring the
+    // pytest gate. The old check only scanned byStation, whose two fixed
+    // keys meant it could never fail.
+    expect(JSON.stringify(crashContext)).not.toMatch(
+      /per100k|crashRate|ratePer|departure/i,
+    );
     expect(city.medianStationCrashes).toBeGreaterThanOrEqual(0);
     expect(vintage.revisable).toBe(true);
     expect(crashContext.licence.attribution).toBe(

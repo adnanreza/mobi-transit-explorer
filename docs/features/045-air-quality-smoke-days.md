@@ -51,4 +51,4 @@ Wildfire smoke overlaps the whole trip archive: August 2017, August 2018, Septem
 
 ## Lifecycle
 
-Spec written pre-implementation; implemented on `feat/045-air-quality` with the review pass above. Awaiting owner confirmation to complete (merge to main, push, deploy). ICBC crash data remains parked as the spec 046 candidate, first action there being a read of the "Open Data Licence for ICBC Information".
+Spec written pre-implementation; implemented on `feat/045-air-quality` with the review pass above. Merged to main at `fd54dee` and deployed 2026-07-29. ICBC crash data became spec 046. Spec 047's audit later brought this feature up to 046's integrity standard: a publish-time manifest cross-check for the PM2.5 inputs, a licence block in the artifact, and Methodology copy derived from the artifact instead of hand-written.

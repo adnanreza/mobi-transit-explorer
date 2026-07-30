@@ -138,7 +138,12 @@ def read_service_area_cyclist_rows(hyper_path: Path) -> list[dict]:
     """Filtered rows, with the schema asserted before anything is trusted."""
     from tableauhyperapi import Connection, HyperProcess, Telemetry
 
-    with HyperProcess(telemetry=Telemetry.DO_NOT_SEND_USAGE_DATA_TO_TABLEAU) as hyper:
+    with HyperProcess(
+        telemetry=Telemetry.DO_NOT_SEND_USAGE_DATA_TO_TABLEAU,
+        # No log_config means hyperd.log lands in the current directory —
+        # i.e. 749 KB of engine chatter in the repo root per fetch.
+        parameters={"log_config": ""},
+    ) as hyper:
         with Connection(endpoint=hyper.endpoint, database=str(hyper_path)) as con:
             table = '"Extract"."Extract"'
             definition = con.catalog.get_table_definition(
@@ -291,7 +296,9 @@ def main() -> int:
     years = sorted({r["year"] for r in rows})
     expected = set(range(claimed_vintage[0], claimed_vintage[1] + 1))
     if set(years) != expected:
-        raise RuntimeError(
+        # SystemExit, not RuntimeError: this is an operator-facing stop with a
+        # clear message, matching how publish.py reports the same class of failure.
+        raise SystemExit(
             f"extract filename claims {claimed_vintage[0]}-{claimed_vintage[1]} but the rows "
             f"cover {years}; a missing year would silently change every count"
         )

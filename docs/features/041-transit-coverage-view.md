@@ -6,7 +6,7 @@ The owner's "crazier" ask: a Mobi dock at every SkyTrain station in Vancouver pr
 
 ## Changes
 
-**1. Shared derivation** — src/data/index.ts exports `transitCoverage` (nearest-dock distance per unique rapid-transit station, haversine over all 262 active docks) and `DOCKED_TRANSIT_RADIUS_M` (500 m walking threshold; uncontroversial given the binary split). Both the map and the request annotation consume it, so the two can never disagree.
+**1. Shared derivation** — src/data/index.ts exports `transitCoverage` (nearest-dock distance per unique rapid-transit station, haversine over all 261 active docks; this doc originally said 262, which was wrong at authoring — the artifact already held 261) and `DOCKED_TRANSIT_RADIUS_M` (500 m walking threshold; uncontroversial given the binary split). Both the map and the request annotation consume it, so the two can never disagree.
 
 **2. Coverage map view** — src/components/Explorer.tsx gains a third mode button ("Coverage") with full URL round-tripping (`?color=coverage`), and a mode-specific explainer whose counts derive from `transitCoverage`. src/components/InteractiveMap.tsx repaints in place (no re-created sources): Mobi dots dim to 0.12 opacity as context, transit stops render filled-ink when a dock sits within 500 m and as larger accent rings when the nearest dock is over a kilometre away, and the ringed stations' labels show at every zoom (`setFilter` + `setLayerZoomRange` on the existing label layer). The corner legend swaps to a filled/ringed key. All paints derive from the per-theme `MAP_COLORS`, so the view works in dark mode and survives theme remounts (the effect re-runs on `loaded`/`theme`).
 

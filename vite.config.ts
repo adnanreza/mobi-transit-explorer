@@ -13,6 +13,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test/setup.ts",
+    // e2e/ is Playwright's (npm run test:e2e), not Vitest's.
+    exclude: ["node_modules/**", "dist/**", "e2e/**"],
     // These are behaviour tests, not performance tests. Several files mount
     // components that pull the whole generated-data layer or lazy-load
     // MapLibre, and on a busy machine a cold worker can spend seconds on the

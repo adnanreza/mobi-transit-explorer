@@ -26,6 +26,16 @@ def test_report_numbers_are_generated_and_unmapped_surfaces(env):  # noqa: F811
     assert "`zero_duration` | 1" in report
     assert "Unmapped labels needing a mapping decision:" in report
     assert "`Mystery Pass`" in report
+    # The drift bullet is queried from etl_metrics, not hand-written: one
+    # fixture file, one layout. Before spec 047 this line said "31 … 102"
+    # regardless of what the warehouse held.
+    assert "1 distinct header layouts across 1 files" in report
+
+
+def test_span_phrase_moves_with_the_window():
+    assert quality_report.span_phrase("2017-01", "2026-06") == "nine and a half years"
+    assert quality_report.span_phrase("2017-01", "2026-12") == "ten years"
+    assert quality_report.span_phrase("2017-01", "2027-03") == "ten years"
 
 
 def test_report_countable_matches_publish_view(env):  # noqa: F811

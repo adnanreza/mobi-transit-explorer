@@ -820,7 +820,12 @@
     },
     "bc_env_airquality": {
       "source": "https://catalogue.data.gov.bc.ca/dataset/77eeadf4-0c19-48bf-a47a-fa9eef01f409",
-      "licence": "Open Government Licence - British Columbia",
+      "licence": {
+        "name": "Open Government Licence - British Columbia",
+        "version": "2.0",
+        "url": "https://www2.gov.bc.ca/gov/content/data/policy-standards/open-data/open-government-licence-bc",
+        "attribution": "Contains information licensed under the Open Government Licence – British Columbia."
+      },
       "primary_station": "Vancouver Clark Drive",
       "corroborating_station": "Burnaby Kensington Park",
       "years": {

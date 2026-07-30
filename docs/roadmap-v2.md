@@ -42,6 +42,30 @@ The offline data pipeline (`pipeline/`) is build-time tooling, like the existing
 
 Specs 018-020 are the foundation and should land first, in order. 021 depends on 020. 022 can start in parallel with 021. 023-025 depend on 020 and 022.
 
+## Shipped since (032 onward)
+
+Kept current by each spec's COMPLETE step; every entry is merged to `main`
+unless noted. Full detail lives in `docs/features/NNN-*.md`.
+
+| Spec | Delivers |
+| --- | --- |
+| 032 | UX clarity pass |
+| 033 | July 2026 adversarial-audit fixes (weather/forecast cluster) |
+| 034 | Audit follow-up fixes |
+| 035 | Responsive layout + footer |
+| 036 | Mobile nav + membership chart |
+| 037 | Skeleton loaders + iOS blank-chart fix |
+| 038 | adnanreza.com design language, cross-engine sweep 48/48 |
+| 039 | June 2026 data: first live monthly update |
+| 040 | Personal requests + how-new-data-lands notes (two owner corrections) |
+| 041 | Transit Coverage map view + fourth request |
+| 042 | Encoding legibility: legends say what marks mean |
+| 043 | Theme-flip map crash: paint raced the style load |
+| 044 | Copy sweep: no em dashes, simpler sentences |
+| 045 | Air quality: smoke days and ridership |
+| 046 | ICBC cyclist crash context, per station (4 review rounds) |
+| 047 | Audit gap sweep across 038-046 |
+
 ## Deployment
 
 Cloudflare Pages, serving the static `dist/` build at `mobi-transit-explorer.adnanreza.com` (domain DNS is on Cloudflare). The host runs `npm run build` only; the Python pipeline runs locally and its JSON outputs are committed, so no server-side runtime is ever required.

@@ -77,6 +77,8 @@ describe("storyContent derives every number from data", () => {
     const aq: AirQualityArtifact = {
       primaryStation: "Vancouver Clark Drive",
       corroboratingStation: "Burnaby Kensington Park",
+      source: { catalogueRecord: "https://catalogue.data.gov.bc.ca/dataset/x" },
+      licence: { name: "OGL-BC", version: "2.0", url: "https://example.test", attribution: "Contains information licensed under the Open Government Licence – British Columbia." },
       smokeThresholdUgM3: 25,
       verifiedThrough: "2024-12-31",
       coverage: { firstDay: "2017-01-04", lastDay: "2026-06-30", days: 3000 },
@@ -109,6 +111,8 @@ describe("storyContent derives every number from data", () => {
     const aq: AirQualityArtifact = {
       primaryStation: "A",
       corroboratingStation: "B",
+      source: { catalogueRecord: "https://catalogue.data.gov.bc.ca/dataset/x" },
+      licence: { name: "OGL-BC", version: "2.0", url: "https://example.test", attribution: "Contains information licensed under the Open Government Licence – British Columbia." },
       smokeThresholdUgM3: 25,
       verifiedThrough: "2024-12-31",
       coverage: { firstDay: "2017-01-04", lastDay: "2026-06-30", days: 3000 },

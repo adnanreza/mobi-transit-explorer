@@ -29,6 +29,9 @@ Use this checklist before completing any feature branch.
 - Browser console has no unexpected errors.
 - Responsive checks cover desktop and mobile where the feature affects layout.
 - Interactive controls have accessible names and keyboard/focus behavior where practical.
+- Any change touching the map: flip the theme after the map has loaded, and
+  double-flip inside the style-load window (spec 043's crash class), in both
+  themes.
 
 ## Completion
 
