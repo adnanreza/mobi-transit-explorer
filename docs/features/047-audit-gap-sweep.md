@@ -36,7 +36,10 @@ actually reordering. Deterministic now, with the fixture test pinning
 **3. Station-count drift.** README said 262 active stations; the artifact
 says 261, and `git show` proves 261 was already true when spec 041's doc
 wrote 262 (corrected in place, per the 046 Review-3 precedent). The
-`StationFinder` comment no longer carries a count at all.
+`StationFinder` comment no longer carries a count at all. (Correction, same
+day: a post-merge sweep of the public surfaces caught one more — "growth
+from 547k to 1.23M annual trips" presented the 2023 peak as the present;
+2024 and 2025 came in at 1.19M and 1.10M. Now phrased as a peak.)
 
 **4. Air quality brought up to the 046 integrity standard.**
 

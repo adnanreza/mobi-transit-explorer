@@ -8,7 +8,7 @@ I've lived in Vancouver since 2015 and have never owned a car here. Mobi, walkin
 
 ## What it shows
 
-- **Nine years of change**: growth from 547k to 1.23M annual trips, the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
+- **Nine years of change**: growth from 547k annual trips to a 1.23M peak in 2023 (1.1M in 2025), the seasonal wave, the 2020 dip and recovery, e-bikes reaching a third of trips in three years, and how temperature moves ridership.
 - **A zoomable map of the real network**: 261 GBFS-geocoded active stations on a MapLibre basemap, sized by any year's volume (2017 shows the original downtown-only network), scored by transit connection, with shareable URL state.
 - **Operational findings that cite their evidence**: dock-capacity pressure, e-bike gaps, and underperforming transit connectors, each derived from an explicit rule.
 
