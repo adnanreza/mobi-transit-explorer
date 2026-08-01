@@ -43,4 +43,17 @@ describe("AppShell", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("links the technical report by its concept DOI in the footer", () => {
+    render(
+      <AppShell navItems={[{ label: "Overview", href: "#overview" }]}>
+        <p>child</p>
+      </AppShell>,
+    );
+
+    expect(screen.getByRole("link", { name: "Technical report (DOI)" })).toHaveAttribute(
+      "href",
+      "https://doi.org/10.5281/zenodo.21731469",
+    );
+  });
 });

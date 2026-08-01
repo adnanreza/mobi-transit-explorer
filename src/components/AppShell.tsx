@@ -225,6 +225,7 @@ const FOOTER_COLUMNS: { heading: string; links: { label: string; href: string }[
     links: [
       { label: "adnanreza.com", href: "https://adnanreza.com" },
       { label: "Source on GitHub", href: "https://github.com/adnanreza/mobi-transit-explorer" },
+      { label: "Technical report (DOI)", href: "https://doi.org/10.5281/zenodo.21731469" },
       { label: "LinkedIn", href: "https://www.linkedin.com/in/adnanreza/" },
     ],
   },

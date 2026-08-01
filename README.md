@@ -1,6 +1,8 @@
 # Mobi Transit Explorer
 
-**Live: [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com)**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21731470.svg)](https://doi.org/10.5281/zenodo.21731469)
+
+**Live: [mobi-transit-explorer.adnanreza.com](https://mobi-transit-explorer.adnanreza.com)** · **Technical report: [doi.org/10.5281/zenodo.21731469](https://doi.org/10.5281/zenodo.21731469)**
 
 Nine years of Vancouver bike share, 8+ million Mobi trips, cleaned, modeled, and told as an interactive data story.
 
